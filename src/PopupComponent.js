@@ -37,18 +37,6 @@ export const PopupComponent = () => {
             saveFullData(values);
         };
     }
-    function selectText(containerid) {
-        if (document.selection) { // IE
-            var range = document.body.createTextRange();
-            range.moveToElementText(document.getElementById(containerid));
-            range.select();
-        } else if (window.getSelection) {
-            var range = document.createRange();
-            range.selectNode(document.getElementById(containerid));
-            window.getSelection().removeAllRanges();
-            window.getSelection().addRange(range);
-        }
-    }
 
     return (
         <>
@@ -60,8 +48,8 @@ export const PopupComponent = () => {
                 <div>You currently have data
                     for {notes ? Object.keys(notes).length : "0"} users
                 </div>
-                {isSafari && <div style={{height: "100px", width: "400px", overflow:"overlay"}} onClick="selectText('card-text')">
-                    <pre className="card-text" onClick="selectText('card-text')"><code id="card-text" onClick="selectText('card-text')">{JSON.stringify(notes, undefined, 2)}</code></pre>
+                {isSafari && <div style={{height: "100px", width: "400px", overflow:"overlay"}} >
+                    <pre className="card-text" ><code id="card-text">{JSON.stringify(notes, undefined, 2)}</code></pre>
                 </div>}
                 <Button onClick={doDownload} disabled={isSafari}>Download to JSON</Button>
             </Card>
@@ -69,7 +57,7 @@ export const PopupComponent = () => {
                 <input type="file" id="file_upload" onChange={doUpload}/>
             </Card>
             <div className={"footer-container"}>
-                Made with ❤️ by <a target="_blank" href="http://marcovisin.com">Marco Visin -
+                Made with <span>❤</span>️ by <a target="_blank" rel="noopener noreferrer" href="http://marcovisin.com">Marco Visin -
                 www.visin.ch</a>
             </div>
         </>);

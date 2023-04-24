@@ -33,6 +33,7 @@ const InNotes = () => {
 
     useEffect(() => {
         saveData(username,newNotes);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [newNotes]);
 
     const handleChange = (e) => {
