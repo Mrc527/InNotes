@@ -30,7 +30,12 @@ code {
 .notes-container{
   display: flex;
   width: 100%;
+  font-size: 14px;
 }
 .ant-image{
   display: block;
+}
+.display-linebreak{
+  white-space: pre-line;
+  text-align: left;
 }

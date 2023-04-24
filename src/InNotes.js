@@ -57,11 +57,11 @@ const InNotes = () => {
         });
     const renderNotes = () =>{
         if(readOnly)
-            return <div>{notes?.note ? notes.note : "No notes yet for "+ username}</div>
+            return <div className="display-linebreak">{notes?.note ? notes.note : "No notes yet for "+ username}</div>
         return <textarea
                 name="notes"
                 onChange={handleChange}
-                style={{width: "100%", height: "100%", boxSizing: "border-box"}}
+                style={{width: "100%", height: "100%", minHeight: "100px", boxSizing: "border-box"}}
                 value={notes?.note || ""}
             />
     }
@@ -86,12 +86,12 @@ const InNotes = () => {
                                 }
                                 <div id="innotes-username" style={{display:"none"}}>{username}</div>
                             </h2>
-                            <div className="pv-about__summary-text mt4 t-14 ember-view notes-container">
-                                {renderNotes()}
-                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+            <div className="display-flex ph5 pv3 notes-container">
+                {renderNotes()}
             </div>
         </div>
     );
