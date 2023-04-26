@@ -1,41 +1,53 @@
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-.notes-edit-button{
-  float: right;
+
+.notes-edit-button {
+    float: right;
 }
+
 .title-container {
-  width: 100%;
-  font-weight: 600;
-  font-size: 18px;
-  text-align: center;
-  margin-bottom: 1rem;
+    width: 100%;
+    font-weight: 600;
+    font-size: 18px;
+    text-align: center;
+    margin-bottom: 1rem;
 }
+
 .footer-container {
-  width: 100%;
-  color: gray;
-  font-size: 12px;
-  text-align: center;
+    width: 100%;
+    color: gray;
+    font-size: 12px;
+    text-align: center;
 }
-.notes-container{
-  display: flex;
-  width: 100%;
-  font-size: 14px;
+
+.notes-container {
+    display: flex;
+    width: 100%;
+    font-size: 14px;
 }
-.ant-image{
-  display: block;
+
+.ant-image {
+    display: block;
 }
-.display-linebreak{
-  white-space: pre-line;
-  text-align: left;
+
+.display-linebreak {
+    white-space: pre-line;
+    text-align: left;
+}
+
+.ant-collapse-item, .ant-collapse, .ant-collapse .ant-collapse-header, .ant-collapse .ant-collapse-content {
+    color: unset !important;
+    background-color: unset !important;
+    border-color: var(--color-border-faint) !important;
 }

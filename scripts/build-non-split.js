@@ -3,13 +3,13 @@ const defaults = rewire('react-scripts/scripts/build.js');
 const config = defaults.__get__('config');
 
 // Consolidate chunk files instead
-config.optimization={
-  minimize:true,
-  splitChunks: {
-    cacheGroups: {
-      default: false,
-    },
-  }
+config.optimization = {
+    minimize: true,
+    splitChunks: {
+        cacheGroups: {
+            default: false,
+        },
+    }
 };
 // Move runtime into bundle instead of separate file
 config.optimization.runtimeChunk = false;

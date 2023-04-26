@@ -1,10 +1,9 @@
 /* global chrome */
-import React, {useState, useEffect} from "react";
-import {Card, Image} from 'antd';
+import React, {useEffect, useState} from "react";
+import {Button, Card, Image} from 'antd';
 import {isSafari} from 'react-device-detect';
 
 import {saveFullData} from "./utils";
-import {Button} from "antd";
 
 export const PopupComponent = () => {
     const [notes, setNotes] = useState([]);
@@ -48,8 +47,8 @@ export const PopupComponent = () => {
                 <div>You currently have data
                     for {notes ? Object.keys(notes).length : "0"} users
                 </div>
-                {isSafari && <div style={{height: "100px", width: "400px", overflow:"overlay"}} >
-                    <pre className="card-text" ><code id="card-text">{JSON.stringify(notes, undefined, 2)}</code></pre>
+                {isSafari && <div style={{height: "100px", width: "400px", overflow: "overlay"}}>
+                    <pre className="card-text"><code id="card-text">{JSON.stringify(notes, undefined, 2)}</code></pre>
                 </div>}
                 <Button onClick={doDownload} disabled={isSafari}>Download to JSON</Button>
             </Card>
@@ -57,7 +56,8 @@ export const PopupComponent = () => {
                 <input type="file" id="file_upload" onChange={doUpload}/>
             </Card>
             <div className={"footer-container"}>
-                Made with <span>❤</span>️ by <a target="_blank" rel="noopener noreferrer" href="http://marcovisin.com">Marco Visin -
+                Made with <span>❤</span>️ by <a target="_blank" rel="noopener noreferrer" href="http://marcovisin.com">Marco
+                Visin -
                 www.visin.ch</a>
             </div>
         </>);

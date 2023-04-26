@@ -15,16 +15,15 @@ const InNotes = () => {
 
     // get notes if they're there
     useEffect(() => {
-        if(username === ""){
+        if (username === "") {
             return;
         }
         setReadOnly(true);
-        loadData(username).then((items) => {
-            if(items) {
-                setNotes(items[username]);
-                setNewNotes(items[username]);
-            }
-            else{
+        loadData(username).then((item) => {
+            if (item) {
+                setNotes(item[username]);
+                setNewNotes(item[username]);
+            } else {
                 setNotes({});
                 setNewNotes({});
             }
@@ -32,12 +31,20 @@ const InNotes = () => {
     }, [username]);
 
     useEffect(() => {
-        saveData(username,newNotes);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        let notesToBeSaved = {...newNotes}
+        if (!notesToBeSaved.key) {
+            try {
+                //https://www.linkedin.com/search/results/people/?connectionOf=%5B%22ACoAAB_cYvcBD8_gbMPScHhtCCFwHGaAHVNiWsw%22%5D&network=%5B%22F%22%2C%22S%22%5D&origin=MEMBER_PROFILE_CANNED_SEARCH&sid=Db6
+                notesToBeSaved.key = document.getElementsByClassName("pv-top-card--list pv-top-card--list-bullet")[0].childNodes[4].childNodes[2].href.split("%22")[1];
+            } catch (e) {
+            }
+        }
+        saveData(username, notesToBeSaved);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [newNotes]);
 
     const handleChange = (e) => {
-        const editedText = {note:e.target.value};
+        const editedText = {note: e.target.value, key: notes.key};
         setNotes(editedText);
     };
     const editButtonClick = () => {
@@ -49,22 +56,22 @@ const InNotes = () => {
         setNotes(newNotes)
     }
     chrome.runtime.onMessage.addListener(
-        function(request, sender, sendResponse) {
+        function (request, sender, sendResponse) {
             // listen for messages sent from background.js
             if (request.message === 'url_update') {
                 //console.log("Setting username to "+request.url.split("/in/")[1].split("/")[0])
                 setUsername(request.url.split("/in/")[1].split("/")[0]);
             }
         });
-    const renderNotes = () =>{
-        if(readOnly)
-            return <div className="display-linebreak">{notes?.note ? notes.note : "No notes yet for "+ username}</div>
+    const renderNotes = () => {
+        if (readOnly)
+            return <div className="display-linebreak">{notes?.note ? notes.note : "No notes yet for " + username}</div>
         return <textarea
-                name="notes"
-                onChange={handleChange}
-                style={{width: "100%", height: "100%", minHeight: "100px", boxSizing: "border-box"}}
-                value={notes?.note || ""}
-            />
+            name="notes"
+            onChange={handleChange}
+            style={{width: "100%", height: "100%", minHeight: "100px", boxSizing: "border-box"}}
+            value={notes?.note || ""}
+        />
     }
 
     return (
@@ -74,18 +81,18 @@ const InNotes = () => {
                     <div className="pvs-header__left-container--stack">
                         <div className="title-container pvs-header__title-container">
                             <h2 className="pvs-header__title text-heading-large">
-                                <span aria-hidden="true" style={{float:"left"}}>InNotes</span>
+                                <span aria-hidden="true" style={{float: "left"}}>InNotes</span>
                                 <button id="innotes-edit" name="editButton" onClick={editButtonClick}
-                                        className={"notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button"+ (readOnly? "--primary" : "--secondary")}>
-                                    {readOnly? "Edit" : "Save"}
+                                        className={"notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button" + (readOnly ? "--primary" : "--secondary")}>
+                                    {readOnly ? "Edit" : "Save"}
                                 </button>
                                 {!readOnly &&
-                                    <button  name="cancelButton" onClick={cancelButtonClick}
+                                    <button name="cancelButton" onClick={cancelButtonClick}
                                             className={"notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--secondary artdeco-button--muted"}>
                                         Cancel
                                     </button>
                                 }
-                                <div id="innotes-username" style={{display:"none"}}>{username}</div>
+                                <div id="innotes-username" style={{display: "none"}}>{username}</div>
                             </h2>
                         </div>
                     </div>

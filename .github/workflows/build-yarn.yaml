@@ -1,5 +1,5 @@
 name: CI Yarn Build
-on: [push]
+on: [ push ]
 
 jobs:
   build:
