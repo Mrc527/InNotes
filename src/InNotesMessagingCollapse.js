@@ -1,4 +1,3 @@
-/* global chrome */
 import React from "react";
 import "./App.css";
 import {Collapse, Image} from "antd";
