@@ -6,5 +6,7 @@
 	<string>14.3</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.business</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

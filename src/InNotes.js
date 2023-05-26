@@ -1,7 +1,7 @@
 /* global chrome */
 import React, {useEffect, useState} from "react";
 import "./App.css";
-import {loadData, saveData} from "./utils";
+import {checkForUpdates, loadData, saveData} from "./utils";
 
 const InNotes = () => {
     const [notes, setNotes] = useState({});
@@ -19,37 +19,52 @@ const InNotes = () => {
             return;
         }
         setReadOnly(true);
-        loadData(username).then((item) => {
-            if (item) {
-                setNotes(item[username]);
-                setNewNotes(item[username]);
-            } else {
-                setNotes({});
-                setNewNotes({});
-            }
-        });
+        checkForUpdates().then(() => {
+            loadData(username).then((item) => {
+                if (item) {
+                    setNotes(item[username]);
+                    setNewNotes(item[username]);
+                } else {
+                    setNotes({});
+                    setNewNotes({});
+                }
+            });
+        })
     }, [username]);
 
     useEffect(() => {
-        let notesToBeSaved = {...newNotes}
-        if (!notesToBeSaved.key) {
-            try {
-                //https://www.linkedin.com/search/results/people/?connectionOf=%5B%22ACoAAB_cYvcBD8_gbMPScHhtCCFwHGaAHVNiWsw%22%5D&network=%5B%22F%22%2C%22S%22%5D&origin=MEMBER_PROFILE_CANNED_SEARCH&sid=Db6
-                notesToBeSaved.key = document.getElementsByClassName("pv-top-card--list pv-top-card--list-bullet")[0].childNodes[4].childNodes[2].href.split("%22")[1];
-            } catch (e) {
-            }
+        if (!newNotes || !newNotes.note) {
+            return;
         }
-        saveData(username, notesToBeSaved);
+
+        loadData(username).then((item) => {
+            if (item && item[username].note !== newNotes.note) {
+                let notesToBeSaved = {...newNotes}
+                notesToBeSaved.timestamp = new Date().getTime()
+                if (!notesToBeSaved.key) {
+                    try {
+                        //https://www.linkedin.com/search/results/people/?connectionOf=%5B%22ACoAAB_cYvcBD8_gbMPScHhtCCFwHGaAHVNiWsw%22%5D&network=%5B%22F%22%2C%22S%22%5D&origin=MEMBER_PROFILE_CANNED_SEARCH&sid=Db6
+                        notesToBeSaved.key = document.getElementsByClassName("pv-top-card--list pv-top-card--list-bullet")[0].childNodes[4].childNodes[2].href.split("%22")[1];
+                    } catch (e) {
+                    }
+                }
+                saveData(username, notesToBeSaved);
+            }
+        });
+
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [newNotes]);
 
     const handleChange = (e) => {
-        const editedText = {note: e.target.value, key: notes.key};
+        const editedText = {note: encodeURIComponent(e.target.value), key: notes.key};
         setNotes(editedText);
     };
     const editButtonClick = () => {
         setReadOnly(!readOnly);
-        setNewNotes(notes)
+        if (notes !== newNotes) {
+            setNewNotes(notes)
+        }
     }
     const cancelButtonClick = () => {
         setReadOnly(true);
@@ -65,12 +80,13 @@ const InNotes = () => {
         });
     const renderNotes = () => {
         if (readOnly)
-            return <div className="display-linebreak">{notes?.note ? notes.note : "No notes yet for " + username}</div>
+            return <div
+                className="display-linebreak">{notes?.note ? decodeURIComponent(notes.note) : "No notes yet for " + username}</div>
         return <textarea
             name="notes"
             onChange={handleChange}
             style={{width: "100%", height: "100%", minHeight: "100px", boxSizing: "border-box"}}
-            value={notes?.note || ""}
+            value={decodeURIComponent(notes?.note || "")}
         />
     }
 

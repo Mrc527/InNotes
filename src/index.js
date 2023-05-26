@@ -34,7 +34,6 @@ function loadReact() {
         linkedInElement[0].parentNode.insertBefore(insertionPoint, linkedInElement[0].nextSibling);
         //updateData()
     } else {
-        //delay(5000).then(injectReactInChats);
         injectReactInChat();
         //Not on LinkedIn --> Return
         return;
