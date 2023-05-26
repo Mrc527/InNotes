@@ -1,4 +1,3 @@
-/* global chrome */
 import React, {useEffect, useState} from "react";
 import {Button, Card, Image} from 'antd';
 import {isSafari} from 'react-device-detect';
