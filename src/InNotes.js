@@ -6,6 +6,7 @@ import {checkForUpdates, loadData, saveData} from "./utils";
 const InNotes = () => {
     const [notes, setNotes] = useState({});
     const [newNotes, setNewNotes] = useState({});
+    const [oldNotes, setOldNotes] = useState({});
     const [readOnly, setReadOnly] = useState(true);
     const [username, setUsername] = useState(window.location.href.split("/in/")[1].split("/")[0]);
 
@@ -19,38 +20,41 @@ const InNotes = () => {
             return;
         }
         setReadOnly(true);
-        checkForUpdates().then(() => {
-            loadData(username).then((item) => {
-                if (item) {
-                    setNotes(item[username]);
-                    setNewNotes(item[username]);
-                } else {
-                    setNotes({});
-                    setNewNotes({});
-                }
-            });
-        })
+        let key = ""
+        try{
+            key = document.getElementsByClassName("pv-top-card--list pv-top-card--list-bullet")[0].childNodes[4].childNodes[2].href.split("%22")[1]
+        } catch (e) {
+        }
+        loadData(key===""?username:key,key==="").then((item) => {
+            if (item) {
+                setOldNotes(item);
+                setNotes(item);
+                setNewNotes(item);
+            } else {
+                setNotes({});
+                setNewNotes({});
+                setOldNotes({});
+            }
+        });
     }, [username]);
 
     useEffect(() => {
         if (!newNotes || !newNotes.note) {
             return;
         }
-
-        loadData(username).then((item) => {
-            if (item && item[username].note !== newNotes.note) {
-                let notesToBeSaved = {...newNotes}
-                notesToBeSaved.timestamp = new Date().getTime()
-                if (!notesToBeSaved.key) {
-                    try {
-                        //https://www.linkedin.com/search/results/people/?connectionOf=%5B%22ACoAAB_cYvcBD8_gbMPScHhtCCFwHGaAHVNiWsw%22%5D&network=%5B%22F%22%2C%22S%22%5D&origin=MEMBER_PROFILE_CANNED_SEARCH&sid=Db6
-                        notesToBeSaved.key = document.getElementsByClassName("pv-top-card--list pv-top-card--list-bullet")[0].childNodes[4].childNodes[2].href.split("%22")[1];
-                    } catch (e) {
-                    }
+        if (oldNotes && oldNotes.note !== newNotes.note) {
+            let notesToBeSaved = {...newNotes}
+            notesToBeSaved.timestamp = new Date().getTime()
+            notesToBeSaved.linkedinUser = username
+            if (!notesToBeSaved.key) {
+                try {
+                    //https://www.linkedin.com/search/results/people/?connectionOf=%5B%22ACoAAB_cYvcBD8_gbMPScHhtCCFwHGaAHVNiWsw%22%5D&network=%5B%22F%22%2C%22S%22%5D&origin=MEMBER_PROFILE_CANNED_SEARCH&sid=Db6
+                    notesToBeSaved.key = document.getElementsByClassName("pv-top-card--list pv-top-card--list-bullet")[0].childNodes[4].childNodes[2].href.split("%22")[1];
+                } catch (e) {
                 }
-                saveData(username, notesToBeSaved);
             }
-        });
+            saveData(username, notesToBeSaved).then(()=>setOldNotes(notesToBeSaved))
+        }
 
 
         // eslint-disable-next-line react-hooks/exhaustive-deps

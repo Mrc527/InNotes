@@ -1,3 +1,4 @@
+/* global chrome */
 import React, {useEffect, useState} from "react";
 import {Button, Card, Image} from 'antd';
 import {isSafari} from 'react-device-detect';
@@ -6,8 +7,22 @@ import {getFullData, saveFullData} from "./utils";
 
 export const PopupComponent = () => {
     const [notes, setNotes] = useState([]);
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [settings, setSettings] = useState({});
+
+    useEffect(() => {
+        chrome.storage.sync.get("InNotes_Background").then((v) => {
+            setSettings(v)
+        })    }, []);
 
     // get notes to display in popup.html
+    useEffect(() => {
+        setUsername(settings.username)
+        setPassword(settings.password)
+        chrome.storage.sync.set({"InNotes_Background": settings}).then(()=>{})
+    }, [settings]);
+
     useEffect(() => {
         getFullData().then((item) => setNotes(item))
     }, []);
@@ -42,38 +57,17 @@ export const PopupComponent = () => {
         };
     }
     const saveUsername = (e) => {
-        const newNotes = {...notes}
-        if (!newNotes.InNotes_Background) {
-            newNotes.InNotes_Background = {}
-        }
-        newNotes.InNotes_Background.username = e.target.value
-        newNotes.InNotes_Background.enable = newNotes.InNotes_Background.username !== "" && newNotes.InNotes_Background.password !== ""
-        setNotes(newNotes)
-        saveFullData(newNotes)
-        console.log("username", newNotes.InNotes_Background.username)
+        setUsername(e.target.value)
     }
     const savePassword = (e) => {
-        const newNotes = {...notes}
-        if (!newNotes.InNotes_Background) {
-            newNotes.InNotes_Background = {}
-        }
-        newNotes.InNotes_Background.password = e.target.value
-        newNotes.InNotes_Background.enable = newNotes.InNotes_Background.username !== "" && newNotes.InNotes_Background.password !== ""
-        setNotes(newNotes)
-        saveFullData(newNotes)
-        console.log("password", newNotes.InNotes_Background.password)
+        setPassword(e.target.value)
     }
-    const saveTimeout = (e) => {
-        const newNotes = {...notes}
-        if (!newNotes.InNotes_Background) {
-            newNotes.InNotes_Background = {}
-        }
-        newNotes.InNotes_Background.refresh_timeout = e.target.value
-        setNotes(newNotes)
-        saveFullData(newNotes)
-        console.log("refresh_timeout", newNotes.InNotes_Background.refresh_timeout)
+    const saveSettings = () => {
+        const newSettings = {...settings}
+        newSettings.username=username
+        newSettings.password=password
+        setSettings(newSettings)
     }
-
     return (
         <>
             <Image preview={false} style={{margin: "auto", display: "block", width: "200px"}}
@@ -93,9 +87,9 @@ export const PopupComponent = () => {
                 <input type="file" id="file_upload" onChange={doUpload}/>
             </Card>
             <Card title="Login Data">
-                <input id="username" onChange={saveUsername} value={notes?.InNotes_Background?.username}/><br/>
-                <input id="password" onChange={savePassword} value={notes?.InNotes_Background?.password}/><br/>
-                <input id="timeout" onChange={saveTimeout} value={notes?.InNotes_Background?.refresh_timeout}/>
+                Username: <input id="username" onChange={saveUsername} value={username}/><br/>
+                Password: <input id="password" onChange={savePassword} value={password}/><br/>
+                <Button onClick={saveSettings} >Save</Button>
             </Card>
             <div className={"footer-container"}>
                 Made with <span>❤</span>️ by <a target="_blank" rel="noopener noreferrer" href="http://marcovisin.com">Marco
