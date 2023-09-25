@@ -1,6 +1,6 @@
 {
-  "name": "in-note",
-  "version": "1.0.0",
+  "name": "in-notes",
+  "version": "1.0.1",
   "private": true,
   "development": {
     "rewire": "^5.0.0"
