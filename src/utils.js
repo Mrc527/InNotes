@@ -27,9 +27,9 @@ export async function getRequest(url = "", data = {}, headers = {}) {
 }
 
 async function postData(url = "", data = {}, headers = {}) {
-    const settings = (await chrome.storage.sync.get("InNotes_Background"))["InNotes_Background"]
+    const settings = (await chrome.storage.sync.get("InNotes_Background"))["InNotes_Background"] || []
     // Default options are marked with *
-    const response = await fetch(URL + url, {
+    return fetch(URL + url, {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
         mode: "cors", // no-cors, *cors, same-origin
         cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -45,7 +45,7 @@ async function postData(url = "", data = {}, headers = {}) {
         referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         body: typeof data === 'string'? data : JSON.stringify(data), // body data type must match "Content-Type" header
     });
-    return response.json(); // parses JSON response into native JavaScript objects
+
 }
 
 function getKeyByValue(object, value) {

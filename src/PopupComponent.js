@@ -13,19 +13,19 @@ export const PopupComponent = () => {
 
     useEffect(() => {
         chrome.storage.sync.get("InNotes_Background").then((v) => {
-            setSettings(v)
+            setSettings(v["InNotes_Background"])
         })    }, []);
 
     // get notes to display in popup.html
     useEffect(() => {
-        setUsername(settings.username)
-        setPassword(settings.password)
-        chrome.storage.sync.set({"InNotes_Background": settings}).then(()=>{})
+        if(settings && settings.username && settings.password) {
+            setUsername(settings.username)
+            setPassword(settings.password)
+            chrome.storage.sync.set({"InNotes_Background": settings}).then(() => {
+            })
+            getFullData().then((item) => setNotes(item)).catch(() => window.alert("Login issue"))
+        }
     }, [settings]);
-
-    useEffect(() => {
-        getFullData().then((item) => setNotes(item))
-    }, []);
 
 
     const doDownload = () => {
@@ -88,14 +88,14 @@ export const PopupComponent = () => {
             </Card>
             <Card title="Login Data">
                 Username: <input id="username" onChange={saveUsername} value={username}/><br/>
-                Password: <input id="password" onChange={savePassword} value={password}/><br/>
+                Password: <input id="password" type="password" onChange={savePassword} value={password}/><br/>
                 <Button onClick={saveSettings} >Save</Button>
             </Card>
             <div className={"footer-container"}>
                 Made with <span>❤</span>️ by <a target="_blank" rel="noopener noreferrer" href="http://marcovisin.com">Marco
                 Visin -
                 www.visin.ch</a>
-                <span>Version 0.0.6</span>
+                <span>Version 1.0.3</span>
             </div>
         </>);
 };

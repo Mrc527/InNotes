@@ -1,7 +1,7 @@
 /* global chrome */
 import React, {useEffect, useState} from "react";
 import "./App.css";
-import {checkForUpdates, loadData, saveData} from "./utils";
+import {loadData, saveData} from "./utils";
 
 const InNotes = () => {
     const [notes, setNotes] = useState({});
@@ -53,7 +53,7 @@ const InNotes = () => {
                 } catch (e) {
                 }
             }
-            saveData(username, notesToBeSaved).then(()=>setOldNotes(notesToBeSaved))
+            saveData(username, notesToBeSaved).then(()=>setOldNotes(notesToBeSaved)).catch(()=> window.alert("Cannot save data.\nInNotes requires a separate login, please check to be logged in via the browser extension."));
         }
 
 

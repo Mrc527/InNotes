@@ -48,7 +48,7 @@ export default () => {
 
     useEffect(() => {
         if (newNotes?.note) {
-            saveData(username, newNotes);
+            saveData(username, newNotes).catch(()=> window.alert("Cannot save data.\nInNotes requires a separate login, please check to be logged in via the browser extension."));
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [newNotes]);
