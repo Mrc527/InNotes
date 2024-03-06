@@ -3,13 +3,14 @@ import React, {useEffect, useState} from "react";
 import {Button, Card, Image} from 'antd';
 import {isSafari} from 'react-device-detect';
 
-import {getFullData, saveFullData} from "./utils";
+import {getFullData, registerNewUser, saveFullData} from "./utils";
 
 export const PopupComponent = () => {
     const [notes, setNotes] = useState([]);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [settings, setSettings] = useState({});
+    const [register, setRegister] = useState(false);
 
     useEffect(() => {
         chrome.storage.sync.get("InNotes_Background").then((v) => {
@@ -68,6 +69,10 @@ export const PopupComponent = () => {
         newSettings.password=password
         setSettings(newSettings)
     }
+    const registerUser = () => {
+        registerNewUser({username:username,password:password}).then((response)=> window.alert("User registration ->"+JSON.stringify(response)))
+
+    }
     return (
         <>
             <Image preview={false} style={{margin: "auto", display: "block", width: "200px"}}
@@ -87,15 +92,23 @@ export const PopupComponent = () => {
                 <input type="file" id="file_upload" onChange={doUpload}/>
             </Card>
             <Card title="Login Data">
-                Username: <input id="username" onChange={saveUsername} value={username}/><br/>
-                Password: <input id="password" type="password" onChange={savePassword} value={password}/><br/>
-                <Button onClick={saveSettings} >Save</Button>
+                {register && <>
+                    Username: <input id="username" onChange={saveUsername} value={username}/><br/>
+                    Password: <input id="password" type="password" onChange={savePassword} value={password}/><br/>
+                    <Button onClick={registerUser} >Register</Button>
+                    <a onClick={()=>setRegister(!register)} >Login</a></>}
+                {!register && <>
+                    Username: <input id="username" onChange={saveUsername} value={username}/><br/>
+                    Password: <input id="password" type="password" onChange={savePassword} value={password}/><br/>
+                    <Button onClick={saveSettings} >Save</Button>
+                    <a onClick={()=>setRegister(!register)} >Register</a>
+                </>}
             </Card>
             <div className={"footer-container"}>
                 Made with <span>❤</span>️ by <a target="_blank" rel="noopener noreferrer" href="http://marcovisin.com">Marco
                 Visin -
                 www.visin.ch</a>
-                <span>Version 1.0.3</span>
+                <span>Version 1.1.6</span>
             </div>
         </>);
 };

@@ -59,7 +59,7 @@ export async function loadDataFromUniqueKey(key) {
 
 export async function loadData(key,username) {
     //console.log("loading data for key "+key)
-    let url = "/"+key+"/"
+    let url = "/note/"+key+"/"
     if(username){
         url=url+"?username=true"
     }
@@ -68,9 +68,10 @@ export async function loadData(key,username) {
 
 
 export async function saveData(key, value) {
-    return await postData("/", value)
-
-
+    return await postData("/note/", value)
+}
+export async function registerNewUser(value) {
+    return await postData("/user/", value)
 }
 
 export async function saveFullData(value) {
@@ -85,5 +86,5 @@ export async function saveFullData(value) {
 }
 
 export async function getFullData() {
-    return await getRequest("/", null)
+    return await getRequest("/note/", null)
 }
