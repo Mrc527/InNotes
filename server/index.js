@@ -21,8 +21,8 @@ pool.query(`
         id int auto_increment primary key,
         username text not null unique,
         password text not null,
-        status int default 0 not null
-        creation_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        status int default 0 not null,
+        creation_date datetime not null default current_timestamp
     );
 `);
 pool.query(`
@@ -192,14 +192,29 @@ app.post('/user/', async (req, res) => {
         res.sendStatus(500)
         return
     }
+    try {
 
-    const result = await pool.query(`INSERT INTO users (username,password)
-                                       VALUES (?,?)`,[username,password])
+        const result = await pool.query(`INSERT INTO users (username,password)
+                                       VALUES (?,?)`, [username, password])
 
-    res.header("Access-Control-Allow-Origin", "*")
-    res.header("Content-Type", "text/plain")
-    res.sendStatus(200)
-    return result;
+        res.header("Access-Control-Allow-Origin", "*")
+        res.header("Content-Type", "text/plain")
+        res.send(result);
+        return;
+    }
+    catch (e) {
+        console.log("Error user registration -> ",e.message)
+        res.header("Access-Control-Allow-Origin", "*")
+        res.header("Content-Type", "text/plain")
+        res.statusCode = 403
+        if(e.message.startsWith("Duplicate entry")){
+            res.send("Username is already in use")
+        }
+        else {
+            res.send(e.message)
+        }
+        return;
+    }
 })
 
 app.listen(port, () => {

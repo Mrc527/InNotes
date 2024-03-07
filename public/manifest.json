@@ -1,6 +1,6 @@
 {
   "name": "InNotes",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "manifest_version": 3,
   "description": "This extension allows you to take private notes on any LinkedIn profiles, for your eyes only.",
   "host_permissions": [

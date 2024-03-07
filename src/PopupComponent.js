@@ -24,7 +24,14 @@ export const PopupComponent = () => {
             setPassword(settings.password)
             chrome.storage.sync.set({"InNotes_Background": settings}).then(() => {
             })
-            getFullData().then((item) => setNotes(item)).catch(() => window.alert("Login issue"))
+            getFullData().then((item) => {
+                saveSettings(settings.validLogin=true)
+                setNotes(item)
+            }).catch(() => {
+                setUsername("")
+                setPassword("")
+                saveSettings(settings.validLogin=false)
+            })
         }
     }, [settings]);
 
@@ -70,8 +77,22 @@ export const PopupComponent = () => {
         setSettings(newSettings)
     }
     const registerUser = () => {
-        registerNewUser({username:username,password:password}).then((response)=> window.alert("User registration ->"+JSON.stringify(response)))
+        registerNewUser({username:username,password:password}).then((response)=> {
+            setUsername("")
+            setPassword("")
+            if (response.ok){
+                saveSettings()
+                window.alert("User registration successful.")
+                return
+            }
+            streamToString(response.body).then((body) => {
+                window.alert("User registration failed: " + body)
+            })
+        })
 
+    }
+    async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
+        return await new Response(stream).text();
     }
     return (
         <>
@@ -92,23 +113,38 @@ export const PopupComponent = () => {
                 <input type="file" id="file_upload" onChange={doUpload}/>
             </Card>
             <Card title="Login Data">
+
                 {register && <>
-                    Username: <input id="username" onChange={saveUsername} value={username}/><br/>
-                    Password: <input id="password" type="password" onChange={savePassword} value={password}/><br/>
-                    <Button onClick={registerUser} >Register</Button>
-                    <a onClick={()=>setRegister(!register)} >Login</a></>}
-                {!register && <>
-                    Username: <input id="username" onChange={saveUsername} value={username}/><br/>
-                    Password: <input id="password" type="password" onChange={savePassword} value={password}/><br/>
-                    <Button onClick={saveSettings} >Save</Button>
-                    <a onClick={()=>setRegister(!register)} >Register</a>
-                </>}
+                    <center>
+                        Username: <input id="username" onChange={saveUsername} value={username}/><br/>
+                        Password: <input id="password" type="password" onChange={savePassword} value={password}/><br/>
+                        <Button onClick={registerUser}>Register</Button><br/>
+                        <a onClick={() => setRegister(!register)}>Login</a>
+                    </center>
+                    </>}
+                {!register && <table>
+                    <tbody>
+                    <tr>
+                    <td>
+                            <center>
+                            Username: <input id="username" onChange={saveUsername} value={username}/><br/>
+                            Password: <input id="password" type="password" onChange={savePassword} value={password}/><br/>
+                            <Button onClick={saveSettings}>Save</Button><br/>
+                            <a onClick={() => setRegister(!register)}>Register</a>
+                        </center>
+                    </td>
+                        <td>
+                            {settings.validLogin? <center>✅<br/>Valid Login!</center>:<center>⚠️<br/>Missing login information</center>}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>}
             </Card>
             <div className={"footer-container"}>
                 Made with <span>❤</span>️ by <a target="_blank" rel="noopener noreferrer" href="http://marcovisin.com">Marco
                 Visin -
-                www.visin.ch</a>
-                <span>Version 1.1.6</span>
+                www.visin.ch</a><br/>
+                <span>Version 1.1.7</span>
             </div>
         </>);
 };
