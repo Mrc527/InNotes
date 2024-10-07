@@ -134,7 +134,7 @@ export const PopupComponent = () => {
                         </center>
                     </td>
                         <td>
-                            {settings.validLogin? <center>✅<br/>Valid Login!</center>:<center>⚠️<br/>Missing login information</center>}
+                            {settings?.validLogin? <center>✅<br/>Valid Login!</center>:<center>⚠️<br/>Missing login information</center>}
                         </td>
                     </tr>
                     </tbody>
@@ -144,7 +144,7 @@ export const PopupComponent = () => {
                 Made with <span>❤</span>️ by <a target="_blank" rel="noopener noreferrer" href="http://marcovisin.com">Marco
                 Visin -
                 www.visin.ch</a><br/>
-                <span>Version 1.1.7</span>
+                <span>Version 1.1.8</span>
             </div>
         </>);
 };

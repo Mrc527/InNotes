@@ -1,6 +1,6 @@
 {
   "name": "in-notes",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "private": true,
   "development": {
     "rewire": "^5.0.0"
@@ -20,11 +20,12 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
-    "build:extension": "node ./scripts/build-non-split.js && rm -rf InNotes.zip && zip -r InNotes.zip ./build",
+    "build": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts build",
+    "build:extension": "export NODE_OPTIONS=--openssl-legacy-provider && node ./scripts/build-non-split.js && rm -rf InNotes.zip && zip -r InNotes.zip ./build",
     "build:generateSafari": "node ./scripts/build-non-split.js && ./GenerateSafari.sh",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "clean": "rm -rf ./build ./node_modules"
   },
   "eslintConfig": {
     "extends": "react-app"
