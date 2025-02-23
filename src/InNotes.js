@@ -101,7 +101,12 @@ const InNotes = () => {
                     <div className="pvs-header__left-container--stack">
                         <div className="title-container pvs-header__title-container">
                             <h2 className="pvs-header__title text-heading-large">
-                                <span aria-hidden="true" style={{float: "left"}}>InNotes</span>
+                                <span aria-hidden="true" style={{float: "left", display: "flex", alignItems: "center"}}>
+                                    <img src="https://marco.visin.ch/img/projects/InNotes.png"
+                                         style={{marginRight: "5px"}} width="60" alt={"logo"}/>
+                                    InNotes
+                                </span>
+
                                 <button id="innotes-edit" name="editButton" onClick={editButtonClick}
                                         className={"notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button" + (readOnly ? "--primary" : "--secondary")}>
                                     {readOnly ? "Edit" : "Save"}

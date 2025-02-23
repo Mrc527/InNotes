@@ -2,6 +2,7 @@
 import React, {useEffect, useState} from "react";
 import {Button, Card, Image} from 'antd';
 import {isSafari} from 'react-device-detect';
+import MD5 from "crypto-js/md5";
 
 import {getFullData, registerNewUser, saveFullData} from "./utils";
 
@@ -19,19 +20,22 @@ export const PopupComponent = () => {
 
     // get notes to display in popup.html
     useEffect(() => {
+        console.log("Current Settings",settings);
         if(settings && settings.username && settings.password) {
             setUsername(settings.username)
             setPassword(settings.password)
             chrome.storage.sync.set({"InNotes_Background": settings}).then(() => {
             })
-            getFullData().then((item) => {
-                saveSettings(settings.validLogin=true)
-                setNotes(item)
-            }).catch(() => {
-                setUsername("")
-                setPassword("")
-                saveSettings(settings.validLogin=false)
-            })
+            if(!settings.validLogin) {
+                console.log("Getting Full Data")
+                getFullData().then((item) => {
+                    saveSettings({validLogin: true})
+                    setNotes(item)
+                }).catch(() => {
+                    setPassword("")
+                    saveSettings({password:undefined, validLogin: false})
+                })
+            }
         }
     }, [settings]);
 
@@ -70,16 +74,32 @@ export const PopupComponent = () => {
     const savePassword = (e) => {
         setPassword(e.target.value)
     }
-    const saveSettings = () => {
-        const newSettings = {...settings}
-        newSettings.username=username
-        newSettings.password=password
+    const saveSettings = (s) => {
+        const newSettings = {...settings,...s}
+        console.log("Saving Settings",newSettings)
         setSettings(newSettings)
+    }
+    const logout = () => {
+        setUsername("")
+        setPassword("")
+        chrome.storage.sync.set({"InNotes_Background": {}}).then(() => {
+        })
+        saveSettings({password: undefined,username:undefined,validLogin:false})
+
+    }
+    const submitCredentials = () => {
+        let newPassword = password
+        if(newPassword && !newPassword.startsWith("-IN-"))
+        {
+            console.log("Calculating password hash")
+            newPassword ="-IN-"+MD5(newPassword).toString();
+            setPassword(newPassword);
+        }
+        saveSettings({password: newPassword,username:username})
     }
     const registerUser = () => {
         registerNewUser({username:username,password:password}).then((response)=> {
-            setUsername("")
-            setPassword("")
+            logout()
             if (response.ok){
                 saveSettings()
                 window.alert("User registration successful.")
@@ -113,7 +133,7 @@ export const PopupComponent = () => {
                 <input type="file" id="file_upload" onChange={doUpload}/>
             </Card>
             <Card title="Login Data">
-
+                {settings?.validLogin && <div><center>✅<br/>Valid Login!</center><Button onClick={logout}>Logout</Button><br/></div>}
                 {register && <>
                     <center>
                         Username: <input id="username" onChange={saveUsername} value={username}/><br/>
@@ -122,14 +142,14 @@ export const PopupComponent = () => {
                         <a onClick={() => setRegister(!register)}>Login</a>
                     </center>
                     </>}
-                {!register && <table>
+                {!register && !(settings?.validLogin) && <table>
                     <tbody>
                     <tr>
                     <td>
                             <center>
                             Username: <input id="username" onChange={saveUsername} value={username}/><br/>
                             Password: <input id="password" type="password" onChange={savePassword} value={password}/><br/>
-                            <Button onClick={saveSettings}>Save</Button><br/>
+                            <Button onClick={submitCredentials}>Save</Button><br/>
                             <a onClick={() => setRegister(!register)}>Register</a>
                         </center>
                     </td>
