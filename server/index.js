@@ -138,17 +138,21 @@ app.post('/note/', async (req, res) => {
         res.sendStatus(401)
         return
     }
-    let {note,key,linkedinUser} = req.body
-    console.log(note,key,linkedinUser)
+    let {note,key,linkedinUser,data} = req.body
+    if (typeof data === 'object') {
+        data = JSON.stringify(data)
+    }
+
+    console.log(note,key,linkedinUser,data)
 
     if(!key){
         key=""
     }
 
-    const result = await pool.query(`INSERT INTO data (userId, linkedinKey,linkedinUser, note, lastUpdate)
-                                       VALUES (?,?,?,?,?) ON DUPLICATE KEY
+    const result = await pool.query(`INSERT INTO data (userId, linkedinKey,linkedinUser, note, lastUpdate, data)
+                                       VALUES (?,?,?,?,?,?) ON DUPLICATE KEY
     UPDATE
-        note =?, linkedinUser=?, lastUpdate=?, linkedinKey = ?`,[userid,key,linkedinUser,note,new Date().getTime(),note,linkedinUser,new Date().getTime(),key])
+        note =?, linkedinUser=?, lastUpdate=?, linkedinKey = ?, data = ?`,[userid,key,linkedinUser,note,new Date().getTime(),data,note,linkedinUser,new Date().getTime(),key,data])
     if(false) {
         console.log("Executing query", result)
     }

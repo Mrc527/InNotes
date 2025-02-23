@@ -27,6 +27,9 @@ const InNotes = () => {
         }
         loadData(key===""?username:key,key==="").then((item) => {
             if (item) {
+                if(item.data && typeof item.data === 'string'){
+                    item.data = JSON.parse(item.data);
+                }
                 setOldNotes(item);
                 setNotes(item);
                 setNewNotes(item);
@@ -46,6 +49,12 @@ const InNotes = () => {
             let notesToBeSaved = {...newNotes}
             notesToBeSaved.timestamp = new Date().getTime()
             notesToBeSaved.linkedinUser = username
+            notesToBeSaved.data = [
+                {
+                    date: new Date().getTime(),
+                    text: newNotes.note
+                }
+            ]
             if (!notesToBeSaved.key) {
                 try {
                     //https://www.linkedin.com/search/results/people/?connectionOf=%5B%22ACoAAB_cYvcBD8_gbMPScHhtCCFwHGaAHVNiWsw%22%5D&network=%5B%22F%22%2C%22S%22%5D&origin=MEMBER_PROFILE_CANNED_SEARCH&sid=Db6
@@ -93,7 +102,6 @@ const InNotes = () => {
             value={decodeURIComponent(notes?.note || "")}
         />
     }
-
     return (
         <div className="artdeco-card ember-view relative break-words pb3 mt2">
             <div className="pvs-header__container">

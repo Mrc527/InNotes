@@ -116,18 +116,6 @@ export const PopupComponent = () => {
                    src="icons/InNotes.png"
                    alt="logo"/>
             <div className={"title-container"}>Easy Note-Taking for LinkedIn</div>
-            <Card title="Download Data">
-                <div>You currently have data
-                    for {notes ? Object.keys(notes).length : "0"} users
-                </div>
-                {isSafari && <div style={{height: "100px", width: "400px", overflow: "overlay"}}>
-                    <pre className="card-text"><code id="card-text">{JSON.stringify(notes, undefined, 2)}</code></pre>
-                </div>}
-                <Button onClick={doDownload} disabled={isSafari}>Download to JSON</Button>
-            </Card>
-            <Card title="Upload Data">
-                <input type="file" id="file_upload" onChange={doUpload}/>
-            </Card>
             <Card title="Login Data">
                 {settings?.validLogin && <div><center>✅<br/>Valid Login!</center><Button onClick={logout}>Logout</Button><br/></div>}
                 {register && <>
@@ -155,6 +143,18 @@ export const PopupComponent = () => {
                     </tr>
                     </tbody>
                 </table>}
+            </Card>
+            <Card title="Download Data">
+                <div>You currently have data
+                    for {notes ? Object.keys(notes).length : "0"} users
+                </div>
+                {isSafari && <div style={{height: "100px", width: "400px", overflow: "overlay"}}>
+                    <pre className="card-text"><code id="card-text">{JSON.stringify(notes, undefined, 2)}</code></pre>
+                </div>}
+                <Button onClick={doDownload} disabled={isSafari}>Download to JSON</Button>
+            </Card>
+            <Card title="Upload Data">
+                <input type="file" id="file_upload" onChange={doUpload}/>
             </Card>
             <div className={"footer-container"}>
                 Made with <span>❤</span>️ by <a target="_blank" rel="noopener noreferrer" href="http://marcovisin.com">Marco
