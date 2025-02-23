@@ -15,10 +15,23 @@ const saveButtonStyle = "notes-edit-button ml2 artdeco-button artdeco-button--2 
 const cancelButtonStyle = "notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--secondary artdeco-button--muted";
 const deleteButtonStyle = "notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--secondary artdeco-button--destructive";
 
+const colorPalette = [
+    {name: 'White', code: '#FFFFFF'},       // White
+    {name: 'Red', code: '#FF0000'},         // Red
+    {name: 'Green', code: '#00FF00'},       // Green
+    {name: 'Blue', code: '#0000FF'},        // Blue
+    {name: 'Yellow', code: '#FFFF00'},      // Yellow
+    {name: 'Magenta', code: '#FF00FF'},     // Magenta
+    {name: 'Cyan', code: '#00FFFF'},        // Cyan
+    {name: 'Orange', code: '#FFA500'},       // Orange
+    {name: 'Lime', code: '#32CD32'},         // Lime
+    {name: 'SlateGray', code: '#708090'}    // SlateGray
+];
 
 const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, cancelNewNote}) => {
     const [isEditing, setIsEditing] = useState(isNew || false);
     const [text, setText] = useState(decodeURIComponent(note.text)); // Initialize with decoded text
+    const [flagColor, setFlagColor] = useState(note.flagColor || '');
     const textAreaRef = React.useRef(null);
 
     useEffect(() => {
@@ -34,7 +47,7 @@ const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, cancelNe
             }
             return;
         }
-        editNote(index, text);
+        editNote(index, text, flagColor === 'none' ? null : flagColor);
         setIsEditing(false);
     };
 
@@ -69,40 +82,73 @@ const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, cancelNe
     const fullDateString = lastUpdateDate.toLocaleString();
 
     return (
-        <div className="note-item" style={{marginBottom: "2rem"}}>
-            {isEditing ? (
-                <>
-                    <textarea
-                        ref={textAreaRef}
-                        value={text}
-                        onChange={handleTextChange}
-                        onKeyDown={handleKeyDown}
-                        style={{
-                            width: '100%',
-                            boxSizing: 'border-box',
-                            overflowY: 'auto',
-                            minHeight: '5em',
-                            maxHeight: '10em',
-                            /* height: 'auto' */
-                        }}
-                    />
-                    <button onClick={handleEdit} className={saveButtonStyle}>Save</button>
-                    <button onClick={handleCancel} className={cancelButtonStyle}>Cancel</button>
-                </>
-            ) : (
-                <>
-                    <div style={{position: 'relative', minHeight: "4rem"}}>
-                        <div style={{position: 'absolute', top: '0', right: '0'}}>
-                            <button onClick={() => setIsEditing(true)} className={editButtonStyle}>Edit</button>
-                            <button onClick={() => deleteNote(index)} className={deleteButtonStyle}>Delete</button>
+        <div className="note-item" style={{marginBottom: "2rem", display: 'flex'}}>
+            <div style={{width: '0.5rem', backgroundColor: flagColor && flagColor !== 'none' ? flagColor : 'transparent', marginRight: '0.5rem'}}/>
+            <div style={{flex: 1}}>
+                {isEditing ? (
+                    <>
+                        <textarea
+                            ref={textAreaRef}
+                            value={text}
+                            onChange={handleTextChange}
+                            onKeyDown={handleKeyDown}
+                            style={{
+                                width: '100%',
+                                boxSizing: 'border-box',
+                                overflowY: 'auto',
+                                minHeight: '5em',
+                                maxHeight: '10em',
+                                /* height: 'auto' */
+                            }}
+                        />
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            marginTop: '0.5rem',
+                            justifyContent: 'space-between'
+                        }}>
+                            <div style={{display: 'flex', alignItems: 'center'}}>
+                                <label style={{marginRight: '0.5rem', flexShrink: 0}}>Color:</label>
+                                <select value={flagColor} onChange={(e) => setFlagColor(e.target.value)}
+                                        style={{
+                                            maxWidth: '15rem',
+                                            padding: '0.2rem',
+                                            borderRadius: '4px',
+                                            border: '1px solid #ccc',
+                                            marginRight: '1rem',
+                                            flexShrink: 0 // Prevent select from shrinking
+                                        }}>
+                                    <option value="none">No Flag</option>
+                                    {colorPalette.map((color, index) => (
+                                        <option key={index} value={color.code}>{color.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <button onClick={handleEdit} className={saveButtonStyle}
+                                        style={{marginRight: '0.5rem', flexShrink: 0}}>Save
+                                </button>
+                                <button onClick={handleCancel} className={cancelButtonStyle}
+                                        style={{flexShrink: 0}}>Cancel
+                                </button>
+                            </div>
                         </div>
-                        <div className="display-linebreak">{decodeURIComponent(note.text)}</div>
-                        <div title={fullDateString} style={{fontSize: '0.8em', color: '#888'}}>
-                            Last modified: {timeAgoString}
+                    </>
+                ) : (
+                    <>
+                        <div style={{position: 'relative', minHeight: "4rem"}}>
+                            <div style={{position: 'absolute', top: '0', right: '0'}}>
+                                <button onClick={() => setIsEditing(true)} className={editButtonStyle}>Edit</button>
+                                <button onClick={() => deleteNote(index)} className={deleteButtonStyle}>Delete</button>
+                            </div>
+                            <div className="display-linebreak">{decodeURIComponent(note.text)}</div>
+                            <div title={fullDateString} style={{fontSize: '0.8em', color: '#888'}}>
+                                Last modified: {timeAgoString}
+                            </div>
                         </div>
-                    </div>
-                </>
-            )}
+                    </>
+                )}
+            </div>
         </div>
     );
 };
@@ -211,7 +257,7 @@ const InNotes = () => {
         const newNote = {
             creationDate: new Date().getTime(),
             lastUpdate: new Date().getTime(),
-            text: ""
+            text: "",
         };
         // Create a new object for updatedNotes
         const updatedNotes = {...notes, data: [...(notes.data || []), newNote]};
@@ -220,23 +266,33 @@ const InNotes = () => {
         setNewNoteIndex(updatedNotes.data.length - 1); // Set the index of the new note
     };
 
-    const editNote = useCallback((index, text) => {
+    const editNote = useCallback((index, text, flagColor) => {
         // Create a new object for updatedNotes
         const updatedNotes = {
             ...notes,
-            data: notes.data.map((note, i) =>
-              i === index ? {
-                  ...note,
-                  text: encodeURIComponent(text),
-                  lastUpdate: new Date().getTime()
-              } : note
+            data: notes.data.map((note, i) => {
+                if (i === index) {
+                    const updatedNote = {
+                        ...note,
+                        text: encodeURIComponent(text),
+                        lastUpdate: new Date().getTime()
+                    };
+                    if (flagColor) {
+                        updatedNote.flagColor = flagColor;
+                    } else {
+                        delete updatedNote.flagColor;
+                    }
+                    return updatedNote;
+                } else {
+                    return {...note}; // Copy other notes
+                    }
+                }
             )
         };
         setNotes(updatedNotes);
         setNewNotes(updatedNotes);
         setNewNoteIndex(null);
     }, [notes]);
-
 
     const deleteNote = useCallback((index) => {
         // Create a new object for updatedNotes
