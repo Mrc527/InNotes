@@ -12,6 +12,7 @@ export const PopupComponent = () => {
     const [password, setPassword] = useState("");
     const [settings, setSettings] = useState({});
     const [register, setRegister] = useState(false);
+    const [loginError, setLoginError] = useState(false);
 
     useEffect(() => {
         chrome.storage.sync.get("InNotes_Background").then((v) => {
@@ -92,6 +93,15 @@ export const PopupComponent = () => {
             setPassword(newPassword);
         }
         saveSettings({password: newPassword,username:username})
+        setLoginError(false); // Reset login error on new submission
+        getFullData().then((item) => {
+            saveSettings({validLogin: true})
+            setNotes(item)
+        }).catch(() => {
+            setPassword("")
+            saveSettings({password:undefined, validLogin: false})
+            setLoginError(true); // Set login error if getFullData fails
+        })
     }
     const registerUser = () => {
         registerNewUser({username:username,password:password}).then((response)=> {
@@ -126,36 +136,34 @@ export const PopupComponent = () => {
                         <a onClick={() => setRegister(!register)}>Login</a>
                     </center>
                     </>}
-                {!register && !(settings?.validLogin) && <table>
-                    <tbody>
-                    <tr>
-                    <td>
-                            <center>
-                            Username: <input id="username" onChange={saveUsername} value={username}/><br/>
-                            Password: <input id="password" type="password" onChange={savePassword} value={password}/><br/>
-                            <Button onClick={submitCredentials}>Save</Button><br/>
-                            <a onClick={() => setRegister(!register)}>Register</a>
-                        </center>
-                    </td>
-                        <td>
-                            {settings?.validLogin? <center>✅<br/>Valid Login!</center>:<center>⚠️<br/>Missing login information</center>}
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>}
-            </Card>
-            <Card title="Download Data">
-                <div>You currently have data
-                    for {notes ? Object.keys(notes).length : "0"} users
-                </div>
-                {isSafari && <div style={{height: "100px", width: "400px", overflow: "overlay"}}>
-                    <pre className="card-text"><code id="card-text">{JSON.stringify(notes, undefined, 2)}</code></pre>
+                {!register && !(settings?.validLogin) && <div>
+                    {loginError && <div style={{color: 'red', marginBottom: '10px', textAlign: 'center'}}>
+                        Invalid credentials. Please try again.
+                    </div>}
+                    <center>
+                        Username: <input id="username" onChange={saveUsername} value={username}/><br/>
+                        Password: <input id="password" type="password" onChange={savePassword} value={password}/><br/>
+                        <Button onClick={submitCredentials}>Save</Button><br/>
+                        <a onClick={() => setRegister(!register)}>Register</a>
+                    </center>
                 </div>}
-                <Button onClick={doDownload} disabled={isSafari}>Download to JSON</Button>
             </Card>
-            <Card title="Upload Data">
-                <input type="file" id="file_upload" onChange={doUpload}/>
-            </Card>
+            {settings?.validLogin && (
+                <>
+                    <Card title="Download Data">
+                        <div>You currently have data
+                            for {notes ? Object.keys(notes).length : "0"} users
+                        </div>
+                        {isSafari && <div style={{height: "100px", width: "400px", overflow: "overlay"}}>
+                            <pre className="card-text"><code id="card-text">{JSON.stringify(notes, undefined, 2)}</code></pre>
+                        </div>}
+                        <Button onClick={doDownload} disabled={isSafari}>Download to JSON</Button>
+                    </Card>
+                    <Card title="Upload Data">
+                        <input type="file" id="file_upload" onChange={doUpload}/>
+                    </Card>
+                </>
+            )}
             <div className={"footer-container"}>
                 Made with <span>❤</span>️ by <a target="_blank" rel="noopener noreferrer" href="http://marcovisin.com">Marco
                 Visin -
