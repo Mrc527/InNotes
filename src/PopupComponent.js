@@ -147,17 +147,36 @@ export const PopupComponent = () => {
             });
     }, [username, password, saveSettings]);
 
+    const handlePasswordKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            submitCredentials();
+        }
+    };
+
+    const inputStyle = {
+        marginBottom: '10px',
+        padding: '5px',
+        borderRadius: '4px',
+        border: '1px solid #ccc',
+        width: '100%',
+        boxSizing: 'border-box'
+    };
+
+    const buttonStyle = {
+        margin: '5px'
+    };
+
     return (
         <>
             <Image preview={false} style={{margin: "auto", display: "block", width: "200px"}}
                    src="icons/InNotes.png"
                    alt="logo"/>
             <div className={"title-container"}>Easy Note-Taking for LinkedIn</div>
-            <Card title="Login Data">
+            <Card title="Login Data" bordered={false}>
                 {settings?.validLogin ? (
-                    <div>
-                        <center>✅<br/>Valid Login!</center>
-                        <Button onClick={logout}>Logout</Button><br/>
+                    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
+                        <div style={{marginBottom: '10px'}}>✅ Valid Login!</div>
+                        <Button onClick={logout} style={{marginTop: '5px'}}>Logout</Button>
                     </div>
                 ) : (
                     <div>
@@ -167,9 +186,9 @@ export const PopupComponent = () => {
                             </div>
                         )}
                         <center>
-                            Username: <input id="username" onChange={(e) => setUsername(e.target.value)} value={username}/><br/>
-                            Password: <input id="password" type="password" onChange={(e) => setPassword(e.target.value)} value={password}/><br/>
-                            <Button onClick={submitCredentials}>Save</Button><br/>
+                            <input id="username" style={inputStyle} placeholder="Username" onChange={(e) => setUsername(e.target.value)} value={username}/><br/>
+                            <input id="password" type="password" style={inputStyle} placeholder="Password" onChange={(e) => setPassword(e.target.value)} onKeyDown={handlePasswordKeyDown} value={password}/><br/>
+                            <Button style={buttonStyle} onClick={submitCredentials}>Login</Button><br/>
                             <a onClick={() => setRegister(true)}>Register</a>
                         </center>
                     </div>
@@ -196,9 +215,9 @@ export const PopupComponent = () => {
             {register && (
                 <Card title="Register">
                     <center>
-                        Username: <input id="username" onChange={(e) => setUsername(e.target.value)} value={username}/><br/>
-                        Password: <input id="password" type="password" onChange={(e) => setPassword(e.target.value)} value={password}/><br/>
-                        <Button onClick={handleRegister}>Register</Button><br/>
+                        <input id="username" style={inputStyle} placeholder="Username" onChange={(e) => setUsername(e.target.value)} value={username}/><br/>
+                        <input id="password" type="password" style={inputStyle} placeholder="Password" onChange={(e) => setPassword(e.target.value)} onKeyDown={handlePasswordKeyDown} value={password}/><br/>
+                        <Button style={buttonStyle} onClick={handleRegister}>Register</Button><br/>
                         <a onClick={() => setRegister(false)}>Login</a>
                     </center>
                 </Card>
