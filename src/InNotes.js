@@ -154,11 +154,13 @@ const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, cancelNe
 };
 
 const InNotes = () => {
-    const [notes, setNotes] = useState({});
-    const [newNotes, setNewNotes] = useState({});
-    const [oldNotes, setOldNotes] = useState({});
+    const [notes, setNotes] = useState(null);
+    const [newNotes, setNewNotes] = useState(null);
+    const [oldNotes, setOldNotes] = useState(null);
     const [username, setUsername] = useState(window.location.href.split("/in/")[1].split("/")[0]);
     const [newNoteIndex, setNewNoteIndex] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [registrationError, setRegistrationError] = useState(false);
 
     useEffect(() => {
         if (username === "") {
@@ -170,6 +172,7 @@ const InNotes = () => {
         } catch (e) {
         }
         loadData(key === "" ? username : key, key === "").then((item) => {
+            setLoading(false);
             if (item) {
                 if (item.data && typeof item.data === 'string') {
                     item.data = JSON.parse(item.data);
@@ -188,11 +191,17 @@ const InNotes = () => {
                 setOldNotes(newItem);
                 setNotes(newItem);
                 setNewNotes(newItem);
+                setRegistrationError(false);
             } else {
                 setNotes({});
                 setNewNotes({});
                 setOldNotes({});
             }
+        }).catch(error => {
+            setLoading(false);
+            setRegistrationError(true);
+            setNotes(null);
+            console.error("Error Load Data", error);
         });
     }, [username]);
 
@@ -271,20 +280,20 @@ const InNotes = () => {
         const updatedNotes = {
             ...notes,
             data: notes.data.map((note, i) => {
-                if (i === index) {
-                    const updatedNote = {
-                        ...note,
-                        text: encodeURIComponent(text),
-                        lastUpdate: new Date().getTime()
-                    };
-                    if (flagColor) {
-                        updatedNote.flagColor = flagColor;
+                    if (i === index) {
+                        const updatedNote = {
+                            ...note,
+                            text: encodeURIComponent(text),
+                            lastUpdate: new Date().getTime()
+                        };
+                        if (flagColor) {
+                            updatedNote.flagColor = flagColor;
+                        } else {
+                            delete updatedNote.flagColor;
+                        }
+                        return updatedNote;
                     } else {
-                        delete updatedNote.flagColor;
-                    }
-                    return updatedNote;
-                } else {
-                    return {...note}; // Copy other notes
+                        return {...note}; // Copy other notes
                     }
                 }
             )
@@ -317,7 +326,25 @@ const InNotes = () => {
 
 
     const renderNotes = () => {
-        if (notes.data) {
+        if (loading) {
+            return (
+                <div className="skeleton-container">
+                    <div className="skeleton-flag"/>
+                    <div className="skeleton-text"/>
+                    <div className="skeleton-date"/>
+                </div>
+            );
+        }
+
+        if (registrationError) {
+            return (
+                <div>
+                    Please <a href="#">register</a> to use InNotes.
+                </div>
+            );
+        }
+
+        if (notes && notes.data) {
             return (
                 <>
                     {notes.data.map((note, index) => (
@@ -359,9 +386,6 @@ const InNotes = () => {
                                 <div id="innotes-username" style={{display: "none"}}>{username}</div>
                             </h2>
                         </div>
-                    </div>
-                    <div style={{float: 'right', marginTop: '10px'}}>
-                        <button onClick={addNote} className={editButtonStyle}>Add Note</button>
                     </div>
                 </div>
             </div>

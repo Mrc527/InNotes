@@ -20,11 +20,18 @@ export async function getRequest(url = "", data = {}, headers = {}) {
         redirect: "follow", // manual, *follow, error
         referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
     });
+
+    if (response.status === 401) {
+        throw new Error("Unauthorized");
+    }
+
     try {
         return response.json();// parses JSON response into native JavaScript objects
+    } catch (e) {
+        return {};
     }
-    catch (e) { return {} }
 }
+
 
 async function postData(url = "", data = {}, headers = {}) {
     const settings = (await chrome.storage.sync.get("InNotes_Background"))["InNotes_Background"] || []
@@ -64,6 +71,7 @@ export async function loadData(key,username) {
         url=url+"?username=true"
     }
     return await getRequest(url, null)
+
 }
 
 
