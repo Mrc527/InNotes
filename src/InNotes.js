@@ -181,12 +181,6 @@ const InNotes = () => {
                     }
                 ];
                 delete notesToBeSaved.note;
-            } else if (notesToBeSaved.data) {
-                // Create a new array with updated lastUpdate
-                notesToBeSaved.data = notesToBeSaved.data.map(note => ({
-                    ...note,
-                    lastUpdate: new Date().getTime()
-                }));
             }
 
             if (!notesToBeSaved.key) {
