@@ -29,3 +29,16 @@ chrome.tabs.onUpdated.addListener(
         }
     }
 );
+
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+      if (request.message === "openRegistrationPopup") {
+          chrome.windows.create({
+              url: "popup.html", // Replace with the actual URL of your popup
+              type: "popup",
+              width: 400,
+              height: 600
+          });
+      }
+  }
+);

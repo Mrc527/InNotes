@@ -162,6 +162,10 @@ const InNotes = () => {
     const [loading, setLoading] = useState(true);
     const [registrationError, setRegistrationError] = useState(false);
 
+    const openRegistrationPopup = () => {
+        chrome.runtime.sendMessage({message: "openRegistrationPopup"});
+    };
+
     useEffect(() => {
         if (username === "") {
             return;
@@ -339,7 +343,7 @@ const InNotes = () => {
         if (registrationError) {
             return (
                 <div>
-                    Please <a href="#">register</a> to use InNotes.
+                    Please <a href="#" onClick={openRegistrationPopup}>register</a> to use InNotes.
                 </div>
             );
         }
