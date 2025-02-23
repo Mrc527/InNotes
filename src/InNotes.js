@@ -1,50 +1,123 @@
-// /src/InNotes.js
 /* global chrome */
 import React, {useEffect, useState, useCallback} from "react";
 import "./App.css";
 import {loadData, saveData} from "./utils";
+import TimeAgo from 'javascript-time-ago'
+import en from 'javascript-time-ago/locale/en'
 
-const NoteItem = ({note, index, editNote, deleteNote}) => {
-    const [isEditing, setIsEditing] = useState(false);
+TimeAgo.addDefaultLocale(en)
+TimeAgo.addLocale(en)
+
+const timeAgo = new TimeAgo('en-US')
+
+const editButtonStyle = "notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--primary";
+const saveButtonStyle = "notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--primary";
+const cancelButtonStyle = "notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--secondary artdeco-button--muted";
+const deleteButtonStyle = "notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--secondary artdeco-button--destructive";
+
+
+const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, cancelNewNote}) => {
+    const [isEditing, setIsEditing] = useState(isNew || false);
     const [text, setText] = useState(decodeURIComponent(note.text)); // Initialize with decoded text
+    const textAreaRef = React.useRef(null);
+
+    useEffect(() => {
+        if (isEditing && autoFocus && textAreaRef.current) {
+            textAreaRef.current.focus();
+        }
+    }, [isEditing, autoFocus]);
 
     const handleEdit = () => {
+        if (text.trim() === "") {
+            if (isNew) {
+                cancelNewNote(index);
+            }
+            return;
+        }
         editNote(index, text);
         setIsEditing(false);
     };
 
+    const handleTextChange = (e) => {
+        setText(e.target.value);
+        textAreaRef.current.style.height = 'auto';
+        textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Escape') {
+            if (isNew) {
+                cancelNewNote(index);
+            } else {
+                setText(decodeURIComponent(note.text));
+                setIsEditing(false);
+            }
+        }
+    };
+
+    const handleCancel = () => {
+        if (isNew) {
+            cancelNewNote(index);
+        } else {
+            setText(decodeURIComponent(note.text));
+            setIsEditing(false);
+        }
+    };
+
+    const lastUpdateDate = new Date(note.lastUpdate);
+    const timeAgoString = timeAgo.format(lastUpdateDate);
+    const fullDateString = lastUpdateDate.toLocaleString();
+
     return (
-        <div className="note-item">
+        <div className="note-item" style={{marginBottom: "2rem"}}>
             {isEditing ? (
                 <>
-                    <textarea value={text} onChange={(e) => setText(e.target.value)}/>
-                    <button onClick={handleEdit}>Save</button>
-                    <button onClick={() => setIsEditing(false)}>Cancel</button>
+                    <textarea
+                        ref={textAreaRef}
+                        value={text}
+                        onChange={handleTextChange}
+                        onKeyDown={handleKeyDown}
+                        style={{
+                            width: '100%',
+                            boxSizing: 'border-box',
+                            overflowY: 'auto',
+                            minHeight: '5em',
+                            maxHeight: '10em',
+                            /* height: 'auto' */
+                        }}
+                    />
+                    <button onClick={handleEdit} className={saveButtonStyle}>Save</button>
+                    <button onClick={handleCancel} className={cancelButtonStyle}>Cancel</button>
                 </>
             ) : (
                 <>
-                    <div className="display-linebreak">{decodeURIComponent(note.text)}</div>
-                    <button onClick={() => setIsEditing(true)}>Edit</button>
-                    <button onClick={() => deleteNote(index)}>Delete</button>
+                    <div style={{position: 'relative', minHeight: "4rem"}}>
+                        <div style={{position: 'absolute', top: '0', right: '0'}}>
+                            <button onClick={() => setIsEditing(true)} className={editButtonStyle}>Edit</button>
+                            <button onClick={() => deleteNote(index)} className={deleteButtonStyle}>Delete</button>
+                        </div>
+                        <div className="display-linebreak">{decodeURIComponent(note.text)}</div>
+                        <div title={fullDateString} style={{fontSize: '0.8em', color: '#888'}}>
+                            Last modified: {timeAgoString}
+                        </div>
+                    </div>
                 </>
             )}
         </div>
     );
 };
 
-
 const InNotes = () => {
     const [notes, setNotes] = useState({});
     const [newNotes, setNewNotes] = useState({});
     const [oldNotes, setOldNotes] = useState({});
-    const [readOnly, setReadOnly] = useState(true);
     const [username, setUsername] = useState(window.location.href.split("/in/")[1].split("/")[0]);
+    const [newNoteIndex, setNewNoteIndex] = useState(null);
 
     useEffect(() => {
         if (username === "") {
             return;
         }
-        setReadOnly(true);
         let key = ""
         try {
             key = document.getElementsByClassName("pv-top-card--list pv-top-card--list-bullet")[0].childNodes[4].childNodes[2].href.split("%22")[1]
@@ -133,17 +206,6 @@ const InNotes = () => {
         setNotes(editedText);
     };
 
-    const editButtonClick = () => {
-        setReadOnly(!readOnly);
-        if (notes !== newNotes) {
-            setNewNotes(notes)
-        }
-    }
-    const cancelButtonClick = () => {
-        setReadOnly(true);
-        setNotes(newNotes)
-    }
-
     chrome.runtime.onMessage.addListener(
         function (request, sender, sendResponse) {
             if (request.message === 'url_update') {
@@ -161,6 +223,7 @@ const InNotes = () => {
         const updatedNotes = {...notes, data: [...(notes.data || []), newNote]};
         setNotes(updatedNotes);
         setNewNotes(updatedNotes);
+        setNewNoteIndex(updatedNotes.data.length - 1); // Set the index of the new note
     };
 
     const editNote = useCallback((index, text) => {
@@ -168,12 +231,18 @@ const InNotes = () => {
         const updatedNotes = {
             ...notes,
             data: notes.data.map((note, i) =>
-                i === index ? {...note, text: encodeURIComponent(text), lastUpdate: new Date().getTime()} : note
+              i === index ? {
+                  ...note,
+                  text: encodeURIComponent(text),
+                  lastUpdate: new Date().getTime()
+              } : note
             )
         };
         setNotes(updatedNotes);
         setNewNotes(updatedNotes);
+        setNewNoteIndex(null);
     }, [notes]);
+
 
     const deleteNote = useCallback((index) => {
         // Create a new object for updatedNotes
@@ -183,49 +252,45 @@ const InNotes = () => {
         };
         setNotes(updatedNotes);
         setNewNotes(updatedNotes);
+        setNewNoteIndex(null);
+    }, [notes]);
+
+    const cancelNewNote = useCallback((index) => {
+        const updatedNotes = {
+            ...notes,
+            data: notes.data.filter((_, i) => i !== index)
+        };
+        setNotes(updatedNotes);
+        setNewNotes(updatedNotes);
+        setNewNoteIndex(null);
     }, [notes]);
 
 
     const renderNotes = () => {
-        if (readOnly) {
-            if (notes.data) {
-                return (
-                    <div>
-                        {notes.data.map((note, index) => (
-                            <div key={index} className="note-item">
-                                <div className="display-linebreak">{decodeURIComponent(note.text)}</div>
-                            </div>
-                        ))}
-                    </div>
-                );
-            } else {
-                return <div
-                    className="display-linebreak">{notes?.note ? decodeURIComponent(notes.note) : "No notes yet for " + username}</div>;
-            }
+        if (notes.data) {
+            return (
+                <>
+                    {notes.data.map((note, index) => (
+                        <NoteItem
+                            key={index}
+                            note={note}
+                            index={index}
+                            editNote={editNote}
+                            deleteNote={deleteNote}
+                            autoFocus={index === newNoteIndex} // Pass autoFocus prop
+                            isNew={index === newNoteIndex}
+                            cancelNewNote={cancelNewNote}
+                        />
+                    ))}
+                </>
+            );
         } else {
-            if (notes.data) {
-                return (
-                    <div>
-                        {notes.data.map((note, index) => (
-                            <NoteItem
-                                key={index}
-                                note={note}
-                                index={index}
-                                editNote={editNote}
-                                deleteNote={deleteNote}
-                            />
-                        ))}
-                        <button onClick={addNote}>Add Note</button>
-                    </div>
-                );
-            } else {
-                return <textarea
-                    name="notes"
-                    onChange={handleChange}
-                    style={{width: "100%", height: "100%", minHeight: "100px", boxSizing: "border-box"}}
-                    value={decodeURIComponent(notes?.note || "")}
-                />;
-            }
+            return <textarea
+                name="notes"
+                onChange={handleChange}
+                style={{width: "100%", height: "100%", minHeight: "100px", boxSizing: "border-box"}}
+                value={decodeURIComponent(notes?.note || "")}
+            />;
         }
     };
 
@@ -241,24 +306,16 @@ const InNotes = () => {
                                          style={{marginRight: "5px"}} width="60" alt={"logo"}/>
                                     InNotes
                                 </span>
-
-                                <button id="innotes-edit" name="editButton" onClick={editButtonClick}
-                                        className={"notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button" + (readOnly ? "--primary" : "--secondary")}>
-                                    {readOnly ? "Edit" : "Save"}
-                                </button>
-                                {!readOnly &&
-                                    <button name="cancelButton" onClick={cancelButtonClick}
-                                            className={"notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--secondary artdeco-button--muted"}>
-                                        Cancel
-                                    </button>
-                                }
                                 <div id="innotes-username" style={{display: "none"}}>{username}</div>
                             </h2>
                         </div>
                     </div>
+                    <div style={{float: 'right', marginTop: '10px'}}>
+                        <button onClick={addNote} className={editButtonStyle}>Add Note</button>
+                    </div>
                 </div>
             </div>
-            <div className="display-flex ph5 pv3 notes-container">
+            <div className="display-flex ph5 pv3 notes-container" style={{flexDirection: "column"}}>
                 {renderNotes()}
             </div>
         </div>

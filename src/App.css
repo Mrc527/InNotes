@@ -36,3 +36,13 @@
         transform: rotate(360deg);
     }
 }
+.artdeco-button--destructive {
+    background-color: #F04B47;
+    border-color: #F04B47;
+    color: white;
+}
+
+.artdeco-button--destructive:hover {
+    background-color: #D03B37;
+    border-color: #D03B37;
+}
