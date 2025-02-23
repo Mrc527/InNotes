@@ -30,7 +30,7 @@ const colorPalette = [
 
 const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, cancelNewNote}) => {
   const [isEditing, setIsEditing] = useState(isNew || false);
-  const [text, setText] = useState(decodeURIComponent(note.text)); // Initialize with decoded text
+  const [text, setText] = useState(decodeURIComponent(note.text));
   const [flagColor, setFlagColor] = useState(note.flagColor || '');
   const textAreaRef = React.useRef(null);
 
@@ -58,7 +58,9 @@ const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, cancelNe
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Escape') {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      handleEdit();
+    } else if (e.key === 'Escape') {
       if (isNew) {
         cancelNewNote(index);
       } else {
@@ -139,18 +141,21 @@ const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, cancelNe
             </div>
           </>
         ) : (
-          <>
-            <div style={{position: 'relative', minHeight: "4rem"}}>
-              <div style={{position: 'absolute', top: '0', right: '0'}}>
-                <button onClick={() => setIsEditing(true)} className={editButtonStyle}>Edit</button>
-                <button onClick={() => deleteNote(index)} className={deleteButtonStyle}>Delete</button>
-              </div>
-              <div className="display-linebreak">{decodeURIComponent(note.text)}</div>
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+            <div style={{flex: 1}}>
+              <div className="display-linebreak" style={{
+                overflowWrap: 'break-word',
+                wordBreak: 'break-word',
+              }}>{decodeURIComponent(note.text)}</div>
               <div title={fullDateString} style={{fontSize: '0.8em', color: '#888'}}>
                 Last modified: {timeAgoString}
               </div>
             </div>
-          </>
+            <div>
+              <button onClick={() => setIsEditing(true)} className={editButtonStyle}>Edit</button>
+              <button onClick={() => deleteNote(index)} className={deleteButtonStyle}>Delete</button>
+            </div>
+          </div>
         )}
       </div>
     </div>
@@ -159,8 +164,6 @@ const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, cancelNe
 
 const InNotes = () => {
   const [notes, setNotes] = useState(null);
-  const [newNotes, setNewNotes] = useState(null);
-  const [oldNotes, setOldNotes] = useState(null);
   const [username, setUsername] = useState(window.location.href.split("/in/")[1].split("/")[0]);
   const [newNoteIndex, setNewNoteIndex] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -171,104 +174,59 @@ const InNotes = () => {
   };
 
   useEffect(() => {
-    if (username === "") {
-      return;
-    }
-    let key = ""
-    try {
-      key = document.getElementsByClassName("pv-top-card--list pv-top-card--list-bullet")[0].childNodes[4].childNodes[2].href.split("%22")[1]
-    } catch (e) {
-    }
-    loadData(key === "" ? username : key, key === "").then((item) => {
-      setLoading(false);
-      if (item) {
-        if (!item.data && item.note) {
-          item.data = [{
-            creationDate: new Date().getTime(),
-            lastUpdate: new Date().getTime(),
-            text: item.note
-          }];
-          delete item.note;
-        }
-        if (item.data && typeof item.data === 'string') {
-          item.data = JSON.parse(item.data);
-        }
-        // Normalize the data to ensure 'creationDate' exists and create a new array
-        const normalizedData = item.data ? item.data.map(note => {
-          const newNote = {...note}; // Create a copy
-          if (newNote.date) {
-            newNote.creationDate = newNote.date;
-            delete newNote.date;
+    if (username) {
+      setLoading(true);
+      setRegistrationError(false);
+      loadData(username, username)
+        .then(item => {
+          setLoading(false);
+          if (item) {
+            if (!item.data && item.note) {
+              item.data = [{
+                creationDate: new Date().getTime(),
+                lastUpdate: new Date().getTime(),
+                text: item.note
+              }];
+              delete item.note;
+            }
+            if (item.data && typeof item.data === 'string') {
+              item.data = JSON.parse(item.data);
+            }
+            const normalizedData = item.data ? item.data.map(note => ({
+              ...note,
+              creationDate: note.date || note.creationDate,
+            })) : [];
+            setNotes({...item, data: normalizedData});
+          } else {
+            setNotes({});
           }
-          return newNote;
-        }) : [];
-        const newItem = {...item, data: normalizedData};
-
-        setOldNotes(newItem);
-        setNotes(newItem);
-        setNewNotes(newItem);
-        setRegistrationError(false);
-      } else {
-        setNotes({});
-        setNewNotes({});
-        setOldNotes({});
-      }
-    }).catch(error => {
-      setLoading(false);
-      setRegistrationError(true);
-      setNotes(null);
-      console.error("Error Load Data", error);
-    });
+        })
+        .catch(error => {
+          setLoading(false);
+          setRegistrationError(true);
+          setNotes(null);
+          console.error("Error loading data", error);
+        });
+    }
   }, [username]);
 
-  const saveDataToBackend = useCallback((notesToBeSaved) => {
-    saveData(username, notesToBeSaved)
-      .then(() => {
-        setOldNotes(notesToBeSaved);
-      })
-      .catch(() => window.alert("Cannot save data.\nInNotes requires a separate login, please check to be logged in via the browser extension."));
+  const saveDataToBackend = useCallback(async (notesToSave) => {
+    try {
+      await saveData(username, notesToSave);
+    } catch (error) {
+      window.alert("Cannot save data. Please check your login.");
+      console.error("Error saving data", error);
+    }
   }, [username]);
 
   useEffect(() => {
-    if (!newNotes) {
-      return;
+    if (notes && notes !== null) {
+      saveDataToBackend(notes);
     }
-
-    // Deep compare newNotes with oldNotes
-    const notesChanged = JSON.stringify(newNotes) !== JSON.stringify(oldNotes);
-
-    if (notesChanged) {
-      // Create a new object for notesToBeSaved
-      let notesToBeSaved = {...newNotes};
-      notesToBeSaved.timestamp = new Date().getTime();
-      notesToBeSaved.linkedinUser = username;
-
-      if (!notesToBeSaved.data && newNotes.note) {
-        notesToBeSaved.data = [
-          {
-            creationDate: new Date().getTime(),
-            lastUpdate: new Date().getTime(),
-            text: newNotes.note
-          }
-        ];
-        delete notesToBeSaved.note;
-      }
-
-      if (!notesToBeSaved.key) {
-        try {
-          notesToBeSaved.key = document.getElementsByClassName("pv-top-card--list pv-top-card--list-bullet")[0].childNodes[4].childNodes[2].href.split("%22")[1];
-        } catch (e) {
-        }
-      }
-
-      saveDataToBackend(notesToBeSaved);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [newNotes, saveDataToBackend]);
+  }, [notes, saveDataToBackend]);
 
   const handleChange = (e) => {
-    const editedText = {note: e.target.value, key: notes.key};
-    setNotes(editedText);
+    setNotes(prevNotes => ({...prevNotes, note: e.target.value}));
   };
 
   chrome.runtime.onMessage.addListener(
@@ -284,61 +242,52 @@ const InNotes = () => {
       lastUpdate: new Date().getTime(),
       text: "",
     };
-    // Create a new object for updatedNotes
-    const updatedNotes = {...notes, data: [...(notes.data || []), newNote]};
-    setNotes(updatedNotes);
-    setNewNotes(updatedNotes);
-    setNewNoteIndex(updatedNotes.data.length - 1); // Set the index of the new note
+    setNotes(prevNotes => {
+      const updatedNotes = {...prevNotes, data: [...(prevNotes.data || []), newNote]};
+      setNewNoteIndex(updatedNotes.data.length - 1);
+      return updatedNotes;
+    });
   };
 
   const editNote = useCallback((index, text, flagColor) => {
-    // Create a new object for updatedNotes
-    const updatedNotes = {
-      ...notes,
-      data: notes.data.map((note, i) => {
-          if (i === index) {
-            const updatedNote = {
-              ...note,
-              text: encodeURIComponent(text),
-              lastUpdate: new Date().getTime()
-            };
-            if (flagColor) {
-              updatedNote.flagColor = flagColor;
-            } else {
-              delete updatedNote.flagColor;
-            }
-            return updatedNote;
+    setNotes(prevNotes => {
+      const updatedData = prevNotes.data.map((note, i) => {
+        if (i === index) {
+          const updatedNote = {
+            ...note,
+            text: encodeURIComponent(text),
+            lastUpdate: new Date().getTime()
+          };
+          if (flagColor) {
+            updatedNote.flagColor = flagColor;
           } else {
-            return {...note}; // Copy other notes
+            delete updatedNote.flagColor;
           }
+          return updatedNote;
+        } else {
+          return {...note};
         }
-      )
-    };
-    setNotes(updatedNotes);
-    setNewNotes(updatedNotes);
+      });
+      return {...prevNotes, data: updatedData};
+    });
     setNewNoteIndex(null);
-  }, [notes]);
+  }, []);
 
   const deleteNote = useCallback((index) => {
-    // Create a new object for updatedNotes
-    const updatedNotes = {
-      ...notes,
-      data: notes.data.filter((_, i) => i !== index)
-    };
-    setNotes(updatedNotes);
-    setNewNotes(updatedNotes);
+    setNotes(prevNotes => {
+      const updatedData = prevNotes.data.filter((_, i) => i !== index);
+      return {...prevNotes, data: updatedData};
+    });
     setNewNoteIndex(null);
-  }, [notes]);
+  }, []);
 
   const cancelNewNote = useCallback((index) => {
-    const updatedNotes = {
-      ...notes,
-      data: notes.data.filter((_, i) => i !== index)
-    };
-    setNotes(updatedNotes);
-    setNewNotes(updatedNotes);
+    setNotes(prevNotes => {
+      const updatedData = prevNotes.data.filter((_, i) => i !== index);
+      return {...prevNotes, data: updatedData};
+    });
     setNewNoteIndex(null);
-  }, [notes]);
+  }, []);
 
 
   const renderNotes = () => {
@@ -370,7 +319,7 @@ const InNotes = () => {
               index={index}
               editNote={editNote}
               deleteNote={deleteNote}
-              autoFocus={index === newNoteIndex} // Pass autoFocus prop
+              autoFocus={index === newNoteIndex}
               isNew={index === newNoteIndex}
               cancelNewNote={cancelNewNote}
             />
