@@ -20,14 +20,12 @@ export const PopupComponent = () => {
 
     // get notes to display in popup.html
     useEffect(() => {
-        console.log("Current Settings",settings);
         if(settings && settings.username && settings.password) {
             setUsername(settings.username)
             setPassword(settings.password)
             chrome.storage.sync.set({"InNotes_Background": settings}).then(() => {
             })
             if(!settings.validLogin) {
-                console.log("Getting Full Data")
                 getFullData().then((item) => {
                     saveSettings({validLogin: true})
                     setNotes(item)
@@ -76,7 +74,6 @@ export const PopupComponent = () => {
     }
     const saveSettings = (s) => {
         const newSettings = {...settings,...s}
-        console.log("Saving Settings",newSettings)
         setSettings(newSettings)
     }
     const logout = () => {
@@ -91,7 +88,6 @@ export const PopupComponent = () => {
         let newPassword = password
         if(newPassword && !newPassword.startsWith("-IN-"))
         {
-            console.log("Calculating password hash")
             newPassword ="-IN-"+MD5(newPassword).toString();
             setPassword(newPassword);
         }
