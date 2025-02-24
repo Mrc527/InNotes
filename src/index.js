@@ -9,8 +9,6 @@ import {TOP_CARD_CLASS_NAME} from "./constants";
 import InNotes from "./InNotes";
 import InNotesButton from "./InNotesMessagingCollapse";
 
-//window.onload = loadReact;
-//window.addEventListener("load", loadReact, false);
 window.addEventListener('load', loadReact);
 
 function loadReact() {
