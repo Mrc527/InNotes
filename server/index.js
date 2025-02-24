@@ -94,13 +94,15 @@ app.get('/note/:id', async (req, res) => {
     }
     const requestedId = req.params.id
     const requestedUsername = req.query.username
-    let selectedColumn = "linkedinKey"
-    if(requestedUsername){
-        selectedColumn = "linkedinUser"
+    let queryResult = [];
+    [queryResult] = await pool.query(`SELECT * from data where userId = ? and linkedinKey=?`,[userid,requestedId])
+    if((!queryResult || !queryResult.length) && requestedUsername ){
+        console.log("Searching by user")
+        queryResult = [];
+        [queryResult] = await pool.query(`SELECT * from data where userId = ? and linkedinUser=?`,[userid,requestedUsername])
     }
-    const [queryResult] = await pool.query(`SELECT * from data where userId = ? and ${selectedColumn}=?`,[userid,requestedId])
     const result = queryResult[0]
-    console.log("Result Query ["+userid+","+requestedId+"]-> "+ JSON.stringify(result || {}))
+    console.log("Result Query ["+userid+","+requestedId+","+requestedUsername+"]-> "+ JSON.stringify(result || {}))
 
     res.header("Access-Control-Allow-Origin", "*")
     res.header("Access-Control-Allow-Headers", "*")

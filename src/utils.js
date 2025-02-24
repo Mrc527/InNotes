@@ -68,10 +68,11 @@ export async function loadData(key,username) {
     let url = "/note/";
     if (key !== undefined && key !== "") {
         url += key + "/";
-    } else if (username) {
-        url += username+"/?username=true";
     } else {
-        return null;
+        url += "xx/";
+    }
+    if (username) {
+        url += "?username="+username;
     }
     return await getRequest(url, null);
 
