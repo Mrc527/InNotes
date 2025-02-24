@@ -28,11 +28,11 @@ function loadReact() {
     popupRoot
   );
 
-  const linkedInElement = document.getElementsByClassName(TOP_CARD_CLASS_NAME);
+  const linkedInElement = document.querySelector(TOP_CARD_CLASS_NAME);
   const insertionPoint = document.createElement("div");
   insertionPoint.id = "insertion-point";
-  if (linkedInElement && linkedInElement.length > 0) {
-    linkedInElement[0].parentNode.insertBefore(insertionPoint, linkedInElement[0].nextSibling);
+  if (linkedInElement) {
+    linkedInElement.parentNode.insertBefore(insertionPoint, linkedInElement.nextSibling);
     //updateData()
   } else {
     injectReactInChat();
