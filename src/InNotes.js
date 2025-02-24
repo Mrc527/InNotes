@@ -1,5 +1,5 @@
 /* global chrome */
-import React, {useEffect, useState, useCallback} from "react";
+import React, {useEffect, useState, useCallback, useRef} from "react";
 import "./App.css";
 import {loadData, saveData} from "./utils";
 import TimeAgo from 'javascript-time-ago'
@@ -27,6 +27,30 @@ const colorPalette = [
   {name: 'Lime', code: '#32CD32'},         // Lime
   {name: 'SlateGray', code: '#708090'}    // SlateGray
 ];
+const getKey = () => {
+  return new Promise((resolve) => {
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      // Document is already loaded
+      resolve(getKeyInner());
+    } else {
+      // Wait for the document to load
+      document.addEventListener('DOMContentLoaded', () => {
+        resolve(getKeyInner());
+      });
+    }
+  });
+};
+const getKeyInner = () => {
+  let value = "";
+  try {
+    const href = decodeURIComponent(document.querySelector('a[href*="linkedin.com/in/"][href*="miniProfileUrn="]')?.href);
+    const miniProfileUrn = href.substring(href.indexOf("miniProfileUrn=") + "miniProfileUrn=".length);
+    value = miniProfileUrn.substring(miniProfileUrn.indexOf(":") + 3);
+    value = value.substring(value.lastIndexOf("fs_miniProfile:") + 15);
+  } catch (e) {
+  }
+  return value;
+};
 
 const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, cancelNewNote}) => {
   const [isEditing, setIsEditing] = useState(isNew || false);
@@ -163,7 +187,7 @@ const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, cancelNe
 };
 
 const InNotes = () => {
-  const [notes, setNotes] = useState(null);
+  const [notes, setNotes] = useState({});
   const [username, setUsername] = useState(window.location.href.split("/in/")[1].split("/")[0]);
   const [newNoteIndex, setNewNoteIndex] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -173,11 +197,13 @@ const InNotes = () => {
     chrome.runtime.sendMessage({message: "openRegistrationPopup"});
   };
 
+  const previousNotes = useRef(notes);
+
   useEffect(() => {
     if (username) {
       setLoading(true);
       setRegistrationError(false);
-      loadData(username, username)
+      getKey().then(key => loadData(key, username)
         .then(item => {
           setLoading(false);
           if (item) {
@@ -196,7 +222,7 @@ const InNotes = () => {
               ...note,
               creationDate: note.date || note.creationDate,
             })) : [];
-            setNotes({...item, data: normalizedData});
+            setNotes({ ...item, data: normalizedData });
           } else {
             setNotes({});
           }
@@ -206,7 +232,8 @@ const InNotes = () => {
           setRegistrationError(true);
           setNotes(null);
           console.error("Error loading data", error);
-        });
+        })
+      );
     }
   }, [username]);
 
@@ -220,11 +247,39 @@ const InNotes = () => {
   }, [username]);
 
   useEffect(() => {
-    if (notes && notes !== null) {
-      saveDataToBackend(notes);
-    }
-  }, [notes, saveDataToBackend]);
+    getKey().then(key => {
+      const notesToBeSaved = {...notes}
+      notesToBeSaved.timestamp = new Date().getTime()
+      if (!notesToBeSaved.linkedinUser) {
+        notesToBeSaved.linkedinUser = username
+      }
+      if (!notesToBeSaved.linkedinKey && key !== "") {
+        notesToBeSaved.linkedinKey = key
+      }
+      if (!notesToBeSaved.key && key !== "") {
+        notesToBeSaved.key = key
+      }
 
+      if (notesToBeSaved && notesHasChanged(previousNotes.current,notesToBeSaved) && (notesToBeSaved.note || (notesToBeSaved.data && notesToBeSaved.data.length > 0))) {
+        saveDataToBackend(notesToBeSaved);
+      }
+      previousNotes.current = notes;
+    })
+  }, [notes, saveDataToBackend, username]);
+
+  const notesHasChanged = (previous, current) => {
+    if (JSON.stringify(previous) === JSON.stringify(current)){
+      return false;
+    }
+
+    if (Object.keys(previous).length === 0) {
+      if ( current.id > 0){
+        // If there is an ID, it means the data has just loaded from the backend.
+        return false;
+      }
+    }
+    return true;
+  }
   const handleChange = (e) => {
     setNotes(prevNotes => ({...prevNotes, note: e.target.value}));
   };
@@ -352,6 +407,11 @@ const InNotes = () => {
               </h2>
             </div>
           </div>
+          {!registrationError && (
+            <div style={{float: 'right', marginTop: '10px'}}>
+              <button onClick={addNote} className={editButtonStyle}>Add Note</button>
+            </div>
+          )}
         </div>
       </div>
       <div className="display-flex ph5 pv3 notes-container" style={{flexDirection: "column"}}>

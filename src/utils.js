@@ -65,12 +65,16 @@ export async function loadDataFromUniqueKey(key) {
 
 
 export async function loadData(key,username) {
-    //console.log("loading data for key "+key)
-    let url = "/note/"+key+"/"
-    if(username){
-        url=url+"?username=true"
+    let url = "/note/";
+    if (key !== undefined && key !== "") {
+        url += key + "/";
+    } else if (username) {
+        url += username+"/?username=true";
+    } else {
+        return null;
     }
-    return await getRequest(url, null)
+    return await getRequest(url, null);
+
 
 }
 
