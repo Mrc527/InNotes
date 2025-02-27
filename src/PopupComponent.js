@@ -129,7 +129,7 @@ const useSearch = (searchTerm, settings) => {
         };
     }, [searchTerm, settings, debouncedSearch]);
 
-    return {searchResults, loading, error};
+    return { searchResults, loading, error };
 };
 
 const getSnippet = (text, searchTerm, index) => {
@@ -299,12 +299,12 @@ export const PopupComponent = () => {
                             renderItem={item => {
 
                                 return (
-                                  <List.Item>
+                                  <List.Item style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                                       <a href={`https://www.linkedin.com/in/${item.linkedinUser}`} target="_blank"
                                          rel="noopener noreferrer">
                                           {item.linkedinUser}
                                       </a>
-                                      <div style={{fontSize: '0.8em', color: '#666'}}>
+                                      <div style={{fontSize: '0.8em', color: '#666', flexShrink: 1, textAlign: 'right', minWidth: '50%'}}>
                                           {generateSnippet(item)}
                                       </div>
                                   </List.Item>
@@ -318,7 +318,7 @@ export const PopupComponent = () => {
                     <Collapse style={{marginBottom: '16px'}}>
                         <Panel header="Import/Export Data" key="1" style={collapseHeaderStyle}>
                             <Card title="Download Data" bordered={false}>
-                            <div>You currently have data
+                                <div>You currently have data
                                     for {notes ? Object.keys(notes).length : "0"} users
                                 </div>
                                 {isSafari && (
