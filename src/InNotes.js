@@ -187,7 +187,7 @@ const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, cancelNe
 };
 
 const InNotes = () => {
-  const [notes, setNotes] = useState({});
+  const [notes, setNotes] = useState(null);
   const [username, setUsername] = useState(window.location.href.split("/in/")[1].split("/")[0]);
   const [newNoteIndex, setNewNoteIndex] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -387,6 +387,14 @@ const InNotes = () => {
       return (
         <div>
           Please <a href="#" onClick={openRegistrationPopup}>register</a> to use InNotes.
+        </div>
+      );
+    }
+
+    if (notes && (!notes.data || notes.data.length === 0)) {
+      return (
+        <div>
+          Click on "Add Note" to create your first note.
         </div>
       );
     }
