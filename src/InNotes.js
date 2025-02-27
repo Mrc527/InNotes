@@ -267,13 +267,14 @@ const InNotes = () => {
   }, [notes, saveDataToBackend, username]);
 
   const noteHasToBeSaved = (previous, current) => {
-    console.log("Checking for changes")
+    console.log("Checking for changes",JSON.stringify(previous),JSON.stringify(current))
     if (JSON.stringify(previous) === JSON.stringify(current)){
       return false;
     }
-    if(!previous.id && !previous.username){
+    if(!previous?.id && !previous?.username){
       return false;
     }
+
     if(!current.note && (!current.data || current.data.length === 0)){
       if(previous.note || (previous.data && previous.data.length > 0)){
         return true;
@@ -298,9 +299,8 @@ const InNotes = () => {
     }
 
     console.log("JSON has changed", findDifferences(previous, current));
-
     if (Object.keys(previous).length === 0) {
-      if ( current.id > 0){
+      if ( current?.id > 0){
         // If there is an ID, it means the data has just loaded from the backend.
         return false;
       }
