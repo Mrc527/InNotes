@@ -249,7 +249,6 @@ const InNotes = () => {
   useEffect(() => {
     getKey().then(key => {
       const notesToBeSaved = {...notes}
-      notesToBeSaved.timestamp = new Date().getTime()
       if (!notesToBeSaved.linkedinUser) {
         notesToBeSaved.linkedinUser = username
       }
@@ -259,18 +258,46 @@ const InNotes = () => {
       if (!notesToBeSaved.key && key !== "") {
         notesToBeSaved.key = key
       }
-
-      if (notesToBeSaved && notesHasChanged(previousNotes.current,notesToBeSaved) && (notesToBeSaved.note || (notesToBeSaved.data && notesToBeSaved.data.length > 0))) {
+      if (notesToBeSaved && noteHasToBeSaved(previousNotes.current,notesToBeSaved)) {
+        notesToBeSaved.timestamp = new Date().getTime()
         saveDataToBackend(notesToBeSaved);
       }
-      previousNotes.current = notes;
+      previousNotes.current = notesToBeSaved;
     })
   }, [notes, saveDataToBackend, username]);
 
-  const notesHasChanged = (previous, current) => {
+  const noteHasToBeSaved = (previous, current) => {
+    console.log("Checking for changes")
     if (JSON.stringify(previous) === JSON.stringify(current)){
       return false;
     }
+    if(!previous.id && !previous.username){
+      return false;
+    }
+    if(!current.note && (!current.data || current.data.length === 0)){
+      if(previous.note || (previous.data && previous.data.length > 0)){
+        return true;
+      }
+    }
+
+    function findDifferences(previous, current) {
+      const differences = {};
+
+      for (let key in current) {
+        if (current.hasOwnProperty(key)) {
+          if (previous[key] !== current[key]) {
+            differences[key] = {
+              previous: previous[key],
+              current: current[key]
+            };
+          }
+        }
+      }
+
+      return differences;
+    }
+
+    console.log("JSON has changed", findDifferences(previous, current));
 
     if (Object.keys(previous).length === 0) {
       if ( current.id > 0){
