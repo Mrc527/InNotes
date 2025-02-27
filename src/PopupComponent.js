@@ -229,6 +229,31 @@ export const PopupComponent = () => {
         borderBottom: '1px solid #f0f0f0',
     };
 
+    const generateSnippet = (item) => {
+        let text = '';
+        let searchTermIndex = -1;
+
+        if (item.data && item.data.length > 0) {
+            for (let i = 0; i < item.data.length; i++) {
+                text = decodeURIComponent(item.data[i].text);
+                searchTermIndex = text.toLowerCase().indexOf(searchTerm.toLowerCase());
+                if (searchTermIndex > -1) {
+                    break;
+                }
+            }
+            if (searchTermIndex === -1) {
+                text = decodeURIComponent(item.note);
+                searchTermIndex = text.toLowerCase().indexOf(searchTerm.toLowerCase());
+            }
+        } else {
+            text = decodeURIComponent(item.note);
+            searchTermIndex = text.toLowerCase().indexOf(searchTerm.toLowerCase());
+        }
+
+        return getSnippet(text, searchTerm, searchTermIndex);
+    }
+
+
     return (
         <div className="popup-container" style={{ minWidth: '500px', padding: '16px' }}>
             <Image preview={false} style={{margin: "auto", display: "block", width: "150px"}}
@@ -272,13 +297,7 @@ export const PopupComponent = () => {
                           <List
                             dataSource={searchResults}
                             renderItem={item => {
-                                console.log(item);
-                                let text = item.data && item.data.length > 0 ? decodeURIComponent(item.data[0].text) : decodeURIComponent(item.note);
-                                console.log(text);
-                                const searchTermIndex = text.toLowerCase().indexOf(searchTerm.toLowerCase());
-                                console.log(searchTermIndex);
-                                const snippet = getSnippet(text, searchTerm, searchTermIndex);
-                                console.log(snippet);
+
                                 return (
                                   <List.Item>
                                       <a href={`https://www.linkedin.com/in/${item.linkedinUser}`} target="_blank"
@@ -286,7 +305,7 @@ export const PopupComponent = () => {
                                           {item.linkedinUser}
                                       </a>
                                       <div style={{fontSize: '0.8em', color: '#666'}}>
-                                          {snippet}
+                                          {generateSnippet(item)}
                                       </div>
                                   </List.Item>
                                 );
