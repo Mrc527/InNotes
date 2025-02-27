@@ -167,7 +167,7 @@ export const PopupComponent = () => {
     };
 
     return (
-        <>
+        <div className="popup-container">
             <Image preview={false} style={{margin: "auto", display: "block", width: "200px"}}
                    src="icons/InNotes.png"
                    alt="logo"/>
@@ -228,6 +228,6 @@ export const PopupComponent = () => {
                 www.visin.ch</a><br/>
                 <span>Version 1.1.8</span>
             </div>
-        </>
+        </div>
     );
 };
