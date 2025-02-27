@@ -223,6 +223,38 @@ app.post('/user/', async (req, res) => {
     }
 })
 
+app.get('/search', async (req, res) => {
+    console.log("Handle SEARCH", req.query);
+    let userid = await getUserIdFromRequest(req);
+    if (!userid) {
+        res.sendStatus(401);
+        return;
+    }
+
+    const searchTerm = req.query.searchTerm || '';
+    if (!searchTerm) {
+        res.status(400).send("Search term is required");
+        return;
+    }
+
+    try {
+        const [results] = await pool.query(`
+            SELECT DISTINCT linkedinUser
+            FROM data
+            WHERE userId = ? AND data LIKE ?
+        `, [userid, `%${searchTerm}%`]);
+
+        console.log("Search Results [" + userid + ", " + searchTerm + "] -> " + JSON.stringify(results || {}));
+
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "*");
+        res.send(JSON.stringify(results || {}));
+    } catch (error) {
+        console.error("Error during search", error);
+        res.status(500).send("Search failed");
+    }
+});
+
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })
