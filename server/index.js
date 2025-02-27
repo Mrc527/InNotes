@@ -241,8 +241,8 @@ app.get('/search', async (req, res) => {
         const [results] = await pool.query(`
             SELECT DISTINCT linkedinUser
             FROM data
-            WHERE userId = ? AND data LIKE ?
-        `, [userid, `%${searchTerm}%`]);
+            WHERE userId = ? AND (data LIKE ? OR note LIKE ?)
+        `, [userid, `%${searchTerm}%`,`%${searchTerm}%`]);
 
         console.log("Search Results [" + userid + ", " + searchTerm + "] -> " + JSON.stringify(results || {}));
 

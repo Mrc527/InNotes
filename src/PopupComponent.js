@@ -3,10 +3,11 @@ import React, {useEffect, useState, useCallback} from "react";
 import {Button, Card, Image, Input, Collapse, List} from 'antd';
 import {isSafari} from 'react-device-detect';
 import MD5 from "crypto-js/md5";
+import {debounce} from 'lodash';
 
 import {getFullData, registerNewUser, saveFullData, getRequest} from "./utils";
 
-const {Panel} = Collapse;
+const { Panel } = Collapse;
 
 const useAuth = () => {
     const [settings, setSettings] = useState({});
@@ -92,9 +93,9 @@ const useSearch = (searchTerm, settings) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            if (!searchTerm) {
+    const debouncedSearch = useCallback(
+        debounce(async (term) => {
+            if (!term) {
                 setSearchResults([]);
                 return;
             }
@@ -103,7 +104,7 @@ const useSearch = (searchTerm, settings) => {
             setError(null);
 
             try {
-                const results = await getRequest(`/search?searchTerm=${searchTerm}`, {}, {
+                const results = await getRequest(`/search?searchTerm=${term}`, {}, {
                     username: settings.username,
                     password: settings.password
                 });
@@ -114,10 +115,18 @@ const useSearch = (searchTerm, settings) => {
             } finally {
                 setLoading(false);
             }
-        };
+        }, 300), // 300ms debounce delay
+        [settings]
+    );
 
-        fetchData();
-    }, [searchTerm, settings]);
+    useEffect(() => {
+        debouncedSearch(searchTerm);
+
+        // Cleanup function to cancel the debounced function on unmount or when dependencies change
+        return () => {
+            debouncedSearch.cancel();
+        };
+    }, [searchTerm, settings, debouncedSearch]);
 
     return { searchResults, loading, error };
 };
@@ -306,3 +315,5 @@ export const PopupComponent = () => {
         </div>
     );
 };
+
+export default PopupComponent;
