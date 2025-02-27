@@ -222,7 +222,6 @@ app.post('/user/', async (req, res) => {
         return;
     }
 })
-
 app.get('/search', async (req, res) => {
     console.log("Handle SEARCH", req.query);
     let userid = await getUserIdFromRequest(req);
@@ -239,10 +238,11 @@ app.get('/search', async (req, res) => {
 
     try {
         const [results] = await pool.query(`
-            SELECT DISTINCT linkedinUser
+            SELECT linkedinUser, note, data
             FROM data
-            WHERE userId = ? AND (data LIKE ? OR note LIKE ?)
-        `, [userid, `%${searchTerm}%`,`%${searchTerm}%`]);
+            WHERE userId = ?
+              AND (data LIKE ? OR note LIKE ?)
+        `, [userid, `%${searchTerm}%`, `%${searchTerm}%`]);
 
         console.log("Search Results [" + userid + ", " + searchTerm + "] -> " + JSON.stringify(results || {}));
 

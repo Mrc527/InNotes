@@ -108,7 +108,8 @@ const useSearch = (searchTerm, settings) => {
                     username: settings.username,
                     password: settings.password
                 });
-                setSearchResults(results);
+                const parsed = results.map(r => ({...r, data: JSON.parse(r.data)}));
+                setSearchResults(parsed);
             } catch (err) {
                 setError(err.message || "Search failed");
                 setSearchResults([]);
@@ -128,7 +129,14 @@ const useSearch = (searchTerm, settings) => {
         };
     }, [searchTerm, settings, debouncedSearch]);
 
-    return { searchResults, loading, error };
+    return {searchResults, loading, error};
+};
+
+const getSnippet = (text, searchTerm, index) => {
+    const snippetLength = 50; // Number of characters to show before and after the search term
+    const startIndex = Math.max(0, index - snippetLength);
+    const endIndex = Math.min(text.length, index + searchTerm.length + snippetLength);
+    return `...${text.substring(startIndex, endIndex)}...`;
 };
 
 export const PopupComponent = () => {
@@ -260,24 +268,38 @@ export const PopupComponent = () => {
                     {searchLoading && <p>Searching...</p>}
                     {searchError && <p style={{ color: 'red' }}>Error: {searchError}</p>}
                     {searchResults && searchResults.length > 0 && (
-                        <Card title="Search Results" bordered={false}>
-                            <List
-                                dataSource={searchResults}
-                                renderItem={item => (
-                                    <List.Item>
-                                        <a href={`https://www.linkedin.com/in/${item.linkedinUser}`} target="_blank" rel="noopener noreferrer">
-                                            {item.linkedinUser}
-                                        </a>
-                                    </List.Item>
-                                )}
-                            />
-                        </Card>
+                      <Card title="Search Results" bordered={false}>
+                          <List
+                            dataSource={searchResults}
+                            renderItem={item => {
+                                console.log(item);
+                                let text = item.data && item.data.length > 0 ? decodeURIComponent(item.data[0].text) : decodeURIComponent(item.note);
+                                console.log(text);
+                                const searchTermIndex = text.toLowerCase().indexOf(searchTerm.toLowerCase());
+                                console.log(searchTermIndex);
+                                const snippet = getSnippet(text, searchTerm, searchTermIndex);
+                                console.log(snippet);
+                                return (
+                                  <List.Item>
+                                      <a href={`https://www.linkedin.com/in/${item.linkedinUser}`} target="_blank"
+                                         rel="noopener noreferrer">
+                                          {item.linkedinUser}
+                                      </a>
+                                      <div style={{fontSize: '0.8em', color: '#666'}}>
+                                          {snippet}
+                                      </div>
+                                  </List.Item>
+                                );
+                            }}
+                          />
+                      </Card>
                     )}
+
 
                     <Collapse style={{marginBottom: '16px'}}>
                         <Panel header="Import/Export Data" key="1" style={collapseHeaderStyle}>
                             <Card title="Download Data" bordered={false}>
-                                <div>You currently have data
+                            <div>You currently have data
                                     for {notes ? Object.keys(notes).length : "0"} users
                                 </div>
                                 {isSafari && (
