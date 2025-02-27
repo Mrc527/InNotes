@@ -222,9 +222,11 @@ const InNotes = () => {
               ...note,
               creationDate: note.date || note.creationDate,
             })) : [];
-            setNotes({ ...item, data: normalizedData });
+            setNotes({...item, data: normalizedData});
+            previousNotes.current = {...item, data: normalizedData}
           } else {
             setNotes({});
+            previousNotes.current = {}
           }
         })
         .catch(error => {
@@ -249,16 +251,13 @@ const InNotes = () => {
   useEffect(() => {
     getKey().then(key => {
       const notesToBeSaved = {...notes}
-      if (!notesToBeSaved.linkedinUser) {
+      if (!notesToBeSaved.linkedinUser || notesToBeSaved.linkedinUser === "") {
         notesToBeSaved.linkedinUser = username
       }
-      if (!notesToBeSaved.linkedinKey && key !== "") {
-        notesToBeSaved.linkedinKey = key
+      if ((!notesToBeSaved.linkedinKey || notesToBeSaved.linkedinKey === "") && (key !== "" || previousNotes.current.linkedinKey !== "")) {
+        notesToBeSaved.linkedinKey = key !== "" ? key : previousNotes.current.linkedinKey;
       }
-      if (!notesToBeSaved.key && key !== "") {
-        notesToBeSaved.key = key
-      }
-      if (notesToBeSaved && noteHasToBeSaved(previousNotes.current,notesToBeSaved)) {
+      if (notesToBeSaved && noteHasToBeSaved(previousNotes.current, notesToBeSaved)) {
         notesToBeSaved.timestamp = new Date().getTime()
         saveDataToBackend(notesToBeSaved);
       }
@@ -267,19 +266,23 @@ const InNotes = () => {
   }, [notes, saveDataToBackend, username]);
 
   const noteHasToBeSaved = (previous, current) => {
-    console.log("Checking for changes",JSON.stringify(previous),JSON.stringify(current))
-    if (JSON.stringify(previous) === JSON.stringify(current)){
+    console.log("Checking for changes", JSON.stringify(previous), JSON.stringify(current))
+    if (JSON.stringify(previous) === JSON.stringify(current)) {
       return false;
     }
-    if(!previous?.id && !previous?.username){
+    if (!previous?.linkedinKey && !previous?.linkedinUser) {
       return false;
     }
 
-    if(!current.note && (!current.data || current.data.length === 0)){
-      if(previous.note || (previous.data && previous.data.length > 0)){
+    if (!current.note && (!current.data || current.data.length === 0)) {
+      if (previous.note || (previous.data && previous.data.length > 0)) {
         return true;
       }
     }
+    if (!previous.data && current.data && current.data.length === 0) {
+      return false;
+    }
+
 
     function findDifferences(previous, current) {
       const differences = {};
@@ -298,9 +301,17 @@ const InNotes = () => {
       return differences;
     }
 
-    console.log("JSON has changed", findDifferences(previous, current));
+    const differences = findDifferences(previous, current);
+
+    if (Object.keys(differences).length === 1 && differences.linkedinUser) {
+      return false;
+    }
+
+
+    console.log("JSON has changed", differences);
+
     if (Object.keys(previous).length === 0) {
-      if ( current?.id > 0){
+      if (current?.id > 0) {
         // If there is an ID, it means the data has just loaded from the backend.
         return false;
       }
