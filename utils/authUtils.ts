@@ -15,7 +15,7 @@ export default async function getUserIdFromRequest(req: NextRequest) {
       [username, password]
     );
 
-    const rows = result as any[];
+    const rows = result as [{ id: string }];
 
     if (rows && rows.length === 1 && rows[0].id) {
       console.log(`u -> ${username}, id -> ${rows[0].id}`);
