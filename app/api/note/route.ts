@@ -1,43 +1,7 @@
 import mysql from 'mysql2/promise';
 import { NextRequest, NextResponse } from 'next/server';
-
-const pool = mysql.createPool({
-    connectionLimit: 100,
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE,
-    debug: false
-});
-
-async function getUserIdFromRequest(req: NextRequest) {
-    const username = req.headers.get('username');
-    const password = req.headers.get('password');
-
-    if (!username || !password) {
-        return undefined;
-    }
-
-    try {
-        const [result] = await pool.query(
-            'SELECT id FROM users WHERE username = ? AND password = ?',
-            [username, password]
-        );
-
-        const rows = result as any[];
-
-        if (rows && rows.length === 1 && rows[0].id) {
-            console.log(`u -> ${username}, id -> ${rows[0].id}`);
-            return rows[0].id;
-        } else {
-            console.log(`u -> ${username} -> unauthorized`);
-            return undefined;
-        }
-    } catch (error: any) {
-        console.error("Error fetching user ID:", error);
-        return undefined;
-    }
-}
+import executeQuery from "@/utils/dbUtils";
+import getUserIdFromRequest from "@/utils/authUtils";
 
 export async function GET(req: NextRequest) {
     const userId = await getUserIdFromRequest(req);
@@ -46,7 +10,7 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const [queryResult] = await pool.query('SELECT * FROM data WHERE userId = ?', [userId]);
+        const [queryResult] = await executeQuery('SELECT * FROM data WHERE userId = ?', [userId]);
 
         if (!Array.isArray(queryResult) || queryResult.length === 0) {
             console.log(`No data found for userId: ${userId}`);
@@ -80,7 +44,7 @@ export async function POST(req: NextRequest) {
             key = "";
         }
 
-        await pool.query(
+        await executeQuery(
             `INSERT INTO data (userId, linkedinKey, linkedinUser, note, lastUpdate, data)
              VALUES (?, ?, ?, ?, ?, ?)
              ON DUPLICATE KEY UPDATE

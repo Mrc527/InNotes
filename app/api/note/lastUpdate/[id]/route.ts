@@ -1,43 +1,6 @@
-import mysql from 'mysql2/promise';
 import { NextRequest, NextResponse } from 'next/server';
-
-const pool = mysql.createPool({
-    connectionLimit: 100,
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE,
-    debug: false
-});
-
-async function getUserIdFromRequest(req: NextRequest) {
-    const username = req.headers.get('username');
-    const password = req.headers.get('password');
-
-    if (!username || !password) {
-        return undefined;
-    }
-
-    try {
-        const [result] = await pool.query(
-            'SELECT id FROM users WHERE username = ? AND password = ?',
-            [username, password]
-        );
-
-        const rows = result as any[];
-
-        if (rows && rows.length === 1 && rows[0].id) {
-            console.log(`u -> ${username}, id -> ${rows[0].id}`);
-            return rows[0].id;
-        } else {
-            console.log(`u -> ${username} -> unauthorized`);
-            return undefined;
-        }
-    } catch (error: any) {
-        console.error("Error fetching user ID:", error);
-        return undefined;
-    }
-}
+import getUserIdFromRequest from "@/utils/authUtils";
+import executeQuery from "@/utils/dbUtils";
 
 export async function GET(
   req: NextRequest,
@@ -56,7 +19,7 @@ export async function GET(
     }
 
     try {
-        const [result] = await pool.query(
+        const [result] = await executeQuery(
             `SELECT lastUpdate FROM data WHERE userId = ? AND ${selectedColumn} = ?`,
             [userId, id]
         );
