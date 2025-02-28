@@ -39,7 +39,11 @@ async function getUserIdFromRequest(req: NextRequest) {
     }
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+interface Params {
+    id: string;
+}
+
+export async function GET(req: NextRequest, { params }: { params: Params }) {
     const userId = await getUserIdFromRequest(req);
     if (!userId) {
         return new NextResponse(null, { status: 401 });
