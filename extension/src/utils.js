@@ -1,5 +1,6 @@
 /* global chrome */
-const URL = "https://innotes.visin.ch"
+const URL = "https://innotes.me/api"
+//const URL = "http://localhost:3001/api"
 //const URL = "http://localhost"
 
 export async function getRequest(url = "", data = {}, headers = {}) {
@@ -67,9 +68,9 @@ export async function loadDataFromUniqueKey(key) {
 export async function loadData(key,username) {
     let url = "/note/";
     if (key !== undefined && key !== "") {
-        url += key + "/";
+        url += key;
     } else {
-        url += "xx/";
+        url += "xx";
     }
     if (username) {
         url += "?username="+username;
@@ -81,10 +82,10 @@ export async function loadData(key,username) {
 
 
 export async function saveData(key, value) {
-    return await postData("/note/", value)
+    return await postData("/note", value)
 }
 export async function registerNewUser(value) {
-    return await postData("/user/", value)
+    return await postData("/user", value)
 }
 
 export async function saveFullData(value) {
@@ -99,5 +100,5 @@ export async function saveFullData(value) {
 }
 
 export async function getFullData() {
-    return await getRequest("/note/", null)
+    return await getRequest("/note", null)
 }
