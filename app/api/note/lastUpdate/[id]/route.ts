@@ -39,13 +39,15 @@ async function getUserIdFromRequest(req: NextRequest) {
     }
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-    const userId = await getUserIdFromRequest(req);
+export async function GET(
+  req: NextRequest,
+  {params}: { params: Promise<{ id: string }> }
+) {    const userId = await getUserIdFromRequest(req);
     if (!userId) {
         return new NextResponse(null, { status: 401 });
     }
 
-    const id = params.id;
+    const id = (await params).id;
     const requestedUsername = req.nextUrl.searchParams.get('username');
     let selectedColumn = "linkedinKey";
 
