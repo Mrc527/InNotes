@@ -89,6 +89,7 @@ export const PopupComponent = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const { searchResults, loading: searchLoading, error: searchError } = useSearch(searchTerm, settings);
     const [stripeLoading, setStripeLoading] = useState(false);
+    const [isImportExportOpen, setIsImportExportOpen] = useState(false);
 
     const doDownload = useCallback(() => {
         const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
@@ -220,25 +221,30 @@ export const PopupComponent = () => {
 
 
                     <div style={{ marginBottom: '16px', border: '1px solid #ddd', borderRadius: '5px' }}>
-                        <div style={{ fontWeight: 'bold', fontSize: '16px', padding: '10px', borderBottom: '1px solid #f0f0f0', cursor: 'pointer' }}>
+                        <div
+                            style={{ fontWeight: 'bold', fontSize: '16px', padding: '10px', borderBottom: '1px solid #f0f0f0', cursor: 'pointer' }}
+                            onClick={() => setIsImportExportOpen(!isImportExportOpen)}
+                        >
                             Import/Export Data
                         </div>
-                        <div>
-                            <div style={{ border: '1px solid #ddd', borderRadius: '5px', padding: '10px', marginBottom: '10px' }}>
-                                <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Download Data</div>
-                                <div>You currently have data for {notes ? Object.keys(notes).length : "0"} users</div>
-                                {isSafari && (
-                                    <div style={{ height: "100px", width: "400px", overflow: "overlay" }}>
-                                        <pre className="card-text"><code id="card-text">{JSON.stringify(notes, undefined, 2)}</code></pre>
-                                    </div>
-                                )}
-                                <button onClick={doDownload} disabled={isSafari} style={{ margin: '5px' }}>Download to JSON</button>
+                        {isImportExportOpen && (
+                            <div>
+                                <div style={{ border: '1px solid #ddd', borderRadius: '5px', padding: '10px', marginBottom: '10px' }}>
+                                    <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Download Data</div>
+                                    <div>You currently have data for {notes ? Object.keys(notes).length : "0"} users</div>
+                                    {isSafari && (
+                                        <div style={{ height: "100px", width: "400px", overflow: "overlay" }}>
+                                            <pre className="card-text"><code id="card-text">{JSON.stringify(notes, undefined, 2)}</code></pre>
+                                        </div>
+                                    )}
+                                    <button onClick={doDownload} disabled={isSafari} style={{ margin: '5px' }}>Download to JSON</button>
+                                </div>
+                                <div style={{ border: '1px solid #ddd', borderRadius: '5px', padding: '10px', marginBottom: '10px' }}>
+                                    <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Upload Data</div>
+                                    <input type="file" id="file_upload" onChange={doUpload} />
+                                </div>
                             </div>
-                            <div style={{ border: '1px solid #ddd', borderRadius: '5px', padding: '10px', marginBottom: '10px' }}>
-                                <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Upload Data</div>
-                                <input type="file" id="file_upload" onChange={doUpload} />
-                            </div>
-                        </div>
+                        )}
                     </div>
                     <button onClick={logout} style={{ marginTop: '10px', display: 'block', margin: '0 auto', marginBottom: '16px' }}>Logout</button>
                     <PremiumFeatures stripeLoading={stripeLoading} handleStripeCheckout={handleStripeCheckout} />
