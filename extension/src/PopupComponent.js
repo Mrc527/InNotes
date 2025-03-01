@@ -1,8 +1,9 @@
+/* global chrome */
 import React, {useEffect, useState, useCallback} from "react";
 import {isSafari} from 'react-device-detect';
 import {debounce} from 'lodash';
 
-import {getFullData, saveFullData, getRequest, registerNewUser} from "./utils";
+import {getFullData, saveFullData, getRequest, registerNewUser, postData} from "./utils";
 import {useAuth} from "./Auth";
 import LoginRegisterForm from "./components/LoginRegisterForm";
 import PremiumFeatures from "./components/PremiumFeatures";
@@ -153,15 +154,17 @@ export const PopupComponent = () => {
     const handleStripeCheckout = async () => {
         setStripeLoading(true);
         try {
-            // Replace '/create-checkout-session' with your actual endpoint
-            const response = await getRequest('/stripe', {priceId: 'price_1Oq9Jb2eZvKYlo2C9w6Q3KRx'}, {method: 'POST'});
+            const response = await postData('/stripe', {priceId: 'price_1Qxlx3KkAMzrwMPSSBJAg2S2'});
+            const data = await response.json();
 
-            if (response.url) {
-                window.location.href = response.url; // Redirect to Stripe Checkout
+            if (data?.url) {
+                console.log("Opening Stripe Checkout in a new tab:", data?.url);
+                chrome.tabs.create({ url: data.url }); // Open in a new tab
             } else {
                 console.error("No URL received from the server.");
                 alert("Failed to initiate checkout. Please try again.");
             }
+
         } catch (error) {
             console.error("Error creating checkout session:", error);
             alert("Failed to initiate checkout. Please try again.");

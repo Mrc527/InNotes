@@ -33,7 +33,7 @@ export async function getRequest(url = "", data = {}, headers = {}) {
 }
 
 
-async function postData(url = "", data = {}, headers = {}) {
+export async function postData(url = "", data = {}, headers = {}) {
     const settings = (await chrome.storage.sync.get("InNotes_Background"))["InNotes_Background"] || []
     // Default options are marked with *
     return fetch(URL + url, {
