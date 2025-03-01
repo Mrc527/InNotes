@@ -26,14 +26,16 @@ export async function GET(req: NextRequest) {
     const user = rows[0];
     delete user.password; // Remove password before sending
 
-    if (user.status !== 'free' && user.subscriptionId) {
+    if (user.subscriptionId) {
       try {
         const subscription = await stripe.subscriptions.retrieve(
           user.subscriptionId
         );
 
-        if (subscription.status !== 'active') {
-          // Subscription is not active, downgrade user to "free"
+        if (subscription.status === 'active' && user.status !== 'premium') {
+          await executeQuery('UPDATE users SET status = ? WHERE id = ?', ['premium', userid]);
+          user.status = 'premium'; // Update the user object as well
+        } else if (subscription.status !== 'active' && user.status === 'premium') {
           await executeQuery('UPDATE users SET status = ? WHERE id = ?', ['free', userid]);
           user.status = 'free'; // Update the user object as well
         }

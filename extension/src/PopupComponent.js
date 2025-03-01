@@ -283,7 +283,7 @@ export const PopupComponent = () => {
                             </div>
                         )}
                     </div>
-                    {user?.status === "pro" && (
+                    {user?.status === 'premium' && (
                       <div style={{
                           width: '100%',
                           marginBottom: '16px',

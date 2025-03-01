@@ -58,8 +58,7 @@ async function updateUserInfo(userId: string, email: string, customer: any, subs
       throw new Error(`User with ID ${userId} not found in database.`);
     }
 
-    // Update user status to "pro"
-    await executeQuery("UPDATE users SET status = 'pro' WHERE id = ?", [userId]);
+    await executeQuery("UPDATE users SET status = 'premium' WHERE id = ?", [userId]);
 
     // Update email if different
     if (email && userResult.email !== email) {
