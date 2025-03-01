@@ -178,7 +178,7 @@ const useData = (validLogin: boolean, username?: string, password?: string) => {
 };
 
 const useSearch = (searchTerm: string, settings: Settings) => {
-    const [searchResults, setSearchResults] = useState([]);
+    const [searchResults, setSearchResults] = useState([] as any[]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -194,7 +194,7 @@ const useSearch = (searchTerm: string, settings: Settings) => {
 
             try {
                 const results = await getRequest(`/search?searchTerm=${term}`, settings.username, settings.password);
-                const parsed = (results as any[]).map(r => ({...r, data: JSON.parse(r.data)}));
+                const parsed: any[] = (results as any[]).map(r => ({...r, data: JSON.parse(r.data)}));
                 setSearchResults(parsed);
             } catch (err: any) {
                 setError(err.message || "Search failed");
@@ -275,7 +275,7 @@ const PopupComponent = () => {
         registerNewUser({username, password})
             .then(response => {
                 if (response.ok) {
-                    saveSettings();
+                    saveSettings({});
                     window.alert("User registration successful.");
                 } else {
                     return response.text().then(text => {
@@ -289,7 +289,7 @@ const PopupComponent = () => {
             });
     }, [username, password, saveSettings]);
 
-    const handlePasswordKeyDown = (e) => {
+    const handlePasswordKeyDown = (e: any) => {
         if (e.key === 'Enter') {
             submitCredentials();
         }
