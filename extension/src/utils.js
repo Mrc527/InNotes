@@ -1,7 +1,6 @@
 /* global chrome */
-const URL = "https://innotes.me/api"
-//const URL = "http://localhost:3000/api"
-//const URL = "http://localhost"
+
+import {URL} from "./constants";
 
 export async function getRequest(url = "", data = {}, headers = {}) {
     const settings = (await chrome.storage.sync.get("InNotes_Background"))["InNotes_Background"]

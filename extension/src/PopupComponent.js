@@ -4,8 +4,8 @@ import {debounce} from 'lodash';
 
 import {getFullData, saveFullData, getRequest, registerNewUser} from "./utils";
 import {useAuth} from "./Auth";
-import LoginRegisterForm from "./LoginRegisterForm";
-import PremiumFeatures from "./PremiumFeatures";
+import LoginRegisterForm from "./components/LoginRegisterForm";
+import PremiumFeatures from "./components/PremiumFeatures";
 
 const useData = (validLogin) => {
     const [notes, setNotes] = useState([]);
