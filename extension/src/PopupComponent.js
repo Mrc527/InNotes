@@ -253,7 +253,9 @@ export const PopupComponent = () => {
                         </div>
                     )}
 
-                    <PremiumFeatures stripeLoading={stripeLoading} handleStripeCheckout={handleStripeCheckout} />
+                    {user?.status === "free" && (
+                        <PremiumFeatures stripeLoading={stripeLoading} handleStripeCheckout={handleStripeCheckout} />
+                    )}
 
                     <div style={{ marginBottom: '16px', border: '1px solid #ddd', borderRadius: '5px' }}>
                         <div
@@ -281,6 +283,21 @@ export const PopupComponent = () => {
                             </div>
                         )}
                     </div>
+                    {user?.status === "pro" && (
+                      <div style={{
+                          width: '100%',
+                          marginBottom: '16px',
+                          border: '1px solid #ddd',
+                          borderRadius: '5px',
+                          padding: '10px',
+                          textAlign: 'center',
+                          boxSizing: 'border-box',
+                      }}>
+                          We're so grateful for your support! Thank you for being a Pro member!🚀
+                      </div>
+                    )}
+
+
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         <button onClick={logout} style={{ marginTop: '10px', marginBottom: '16px' }}>Logout</button>
                     </div>
