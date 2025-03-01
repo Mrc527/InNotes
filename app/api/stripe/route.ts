@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import getUserIdFromRequest from "@/utils/authUtils";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-02-24.acacia',
@@ -11,9 +12,12 @@ const HOST_NAME =
     : 'http://localhost:3000'; // Default to localhost in development
 
 export async function POST(req: NextRequest) {
+  const userId = await getUserIdFromRequest(req);
+  if (!userId) {
+    return new NextResponse(null, { status: 401 });
+  }
   try {
     const { priceId } = await req.json();
-//price_1Qxlx3KkAMzrwMPSSBJAg2S2
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
@@ -21,9 +25,11 @@ export async function POST(req: NextRequest) {
           quantity: 1,
         },
       ],
+      metadata : { userId : userId },
+      //customer: 'cus_123',
       mode: 'subscription',
-      success_url: `${HOST_NAME}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${HOST_NAME}/cancel`,
+      success_url: `${HOST_NAME}/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${HOST_NAME}/stripe/cancel`,
     });
 
 
