@@ -94,7 +94,6 @@ export default async function SuccessPage(params: Props ) { // MODIFY THIS LINE
   }
 
   const sessionData = session_id ? await getSessionData(session_id) : null;
-  console.log(sessionData);
   if (!sessionData) {
     return (
       <div style={{textAlign: 'center', padding: '20px', color: 'var(--text-color)'}}>
