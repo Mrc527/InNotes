@@ -3,24 +3,24 @@ import getUserIdFromRequest from "@/utils/authUtils";
 import executeQuery from "@/utils/dbUtils";
 
 export async function GET(req: NextRequest) {
-  const userId = await getUserIdFromRequest(req);
-  if (!userId) {
+  const user = await getUserIdFromRequest(req);
+  if (!user) {
     return new NextResponse(null, {status: 401});
   }
 
   try {
-    const [queryResult] = await executeQuery('SELECT * FROM data WHERE userId = ?', [userId]);
+    const [queryResult] = await executeQuery('SELECT * FROM data WHERE userId = ?', [user.id]);
 
     // Narrow the type to allow checking length
     if (!Array.isArray(queryResult) || queryResult.length === 0) {
       // Handle the case where there are no results
-      console.log(`No data found for userId: ${userId}`);
+      console.log(`No data found for userId: ${user.id}`);
       return NextResponse.json({}, {status: 200}); // Or return an appropriate empty response
     }
 
     const rows = queryResult[0] as any[];
 
-    console.log(`Result Self Data [${userId}] -> ${JSON.stringify(rows || {})}`);
+    console.log(`Result Self Data [${user.id}] -> ${JSON.stringify(rows || {})}`);
     return NextResponse.json(rows || {}, {status: 200});
   } catch (error: any) {
     console.error("Error fetching notes:", error);

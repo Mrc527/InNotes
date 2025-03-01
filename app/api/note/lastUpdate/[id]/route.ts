@@ -5,8 +5,9 @@ import executeQuery from "@/utils/dbUtils";
 export async function GET(
   req: NextRequest,
   {params}: { params: Promise<{ id: string }> }
-) {    const userId = await getUserIdFromRequest(req);
-    if (!userId) {
+) {
+    const user = await getUserIdFromRequest(req);
+    if (!user) {
         return new NextResponse(null, { status: 401 });
     }
 
@@ -21,14 +22,14 @@ export async function GET(
     try {
         const [result] = await executeQuery(
             `SELECT lastUpdate FROM data WHERE userId = ? AND ${selectedColumn} = ?`,
-            [userId, id]
+            [user.id, id]
         );
 
         const rows = result as any[];
         const lastUpdate = rows && rows.length > 0 && rows[0].lastUpdate ? rows[0].lastUpdate : 0;
 
         console.log("result", result);
-        return NextResponse.json({ "lastUpdate": lastUpdate, "userId": userId }, { status: 200 });
+        return NextResponse.json({ "lastUpdate": lastUpdate, "userId": user.id }, { status: 200 });
     } catch (error: any) {
         console.error("Error fetching last update:", error);
         return NextResponse.json({ error: "Failed to fetch last update" }, { status: 500 });

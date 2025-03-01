@@ -4,8 +4,8 @@ import executeQuery from "@/utils/dbUtils";
 
 
 export async function GET(req: NextRequest) {
-    const userId = await getUserIdFromRequest(req);
-    if (!userId) {
+    const user = await getUserIdFromRequest(req);
+    if (!user) {
         return new NextResponse(null, { status: 401 });
     }
 
@@ -20,10 +20,10 @@ export async function GET(req: NextRequest) {
              FROM data
              WHERE userId = ?
                AND (data LIKE ? OR note LIKE ?)`,
-            [userId, `%${searchTerm}%`, `%${searchTerm}%`]
+            [user.id, `%${searchTerm}%`, `%${searchTerm}%`]
         );
 
-        console.log(`Search Results [${userId}, ${searchTerm}] -> ${JSON.stringify(results || {})}`);
+        console.log(`Search Results [${user.id}, ${searchTerm}] -> ${JSON.stringify(results || {})}`);
         return NextResponse.json(results || {}, { status: 200 });
     } catch (error: any) {
         console.error("Error during search", error);

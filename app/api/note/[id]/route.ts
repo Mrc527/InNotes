@@ -6,8 +6,8 @@ export async function GET(
   req: NextRequest,
   {params}: { params: Promise<{ id: string }> }
 ) {
-  const userId = await getUserIdFromRequest(req);
-  if (!userId) {
+  const user = await getUserIdFromRequest(req);
+  if (!user) {
     return new NextResponse(null, {status: 401});
   }
 
@@ -17,7 +17,7 @@ export async function GET(
   try {
     let queryResult = await executeQuery(
       'SELECT * FROM data WHERE userId = ? AND linkedinKey = ?',
-      [userId, id]
+      [user.id, id]
     );
 
     let rows = queryResult[0] as any[];
@@ -26,14 +26,14 @@ export async function GET(
       console.log("Searching by user");
       queryResult = await executeQuery(
         'SELECT * FROM data WHERE userId = ? AND linkedinUser = ?',
-        [userId, requestedUsername]
+        [user.id, requestedUsername]
       );
       rows = queryResult[0] as any[];
     }
 
     const result = rows && rows.length > 0 ? rows[0] : null;
 
-    console.log(`Result Query [${userId}, ${id}, ${requestedUsername}] -> ${JSON.stringify(result || {})}`);
+    console.log(`Result Query [${user.id}, ${id}, ${requestedUsername}] -> ${JSON.stringify(result || {})}`);
     return NextResponse.json(result || {}, {status: 200});
   } catch (error: any) {
     console.error("Error fetching note by ID:", error);

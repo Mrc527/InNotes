@@ -12,8 +12,8 @@ const HOST_NAME =
     : 'http://localhost:3000'; // Default to localhost in development
 
 export async function POST(req: NextRequest) {
-  const userId = await getUserIdFromRequest(req);
-  if (!userId) {
+  const user = await getUserIdFromRequest(req);
+  if (!user) {
     return new NextResponse(null, { status: 401 });
   }
   try {
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
           quantity: 1,
         },
       ],
-      metadata : { userId : userId },
+      metadata : { userId : user.id },
       //customer: 'cus_123',
       mode: 'subscription',
       success_url: `${HOST_NAME}/stripe/success?session_id={CHECKOUT_SESSION_ID}`,

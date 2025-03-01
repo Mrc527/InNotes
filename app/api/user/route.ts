@@ -1,16 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server';
+import {NextRequest, NextResponse} from 'next/server';
 import getUserIdFromRequest from "@/utils/authUtils";
 import executeQuery from "@/utils/dbUtils";
 
 
 export async function GET(req: NextRequest) {
-    const userId = await getUserIdFromRequest(req);
-    if (!userId) {
-        return new NextResponse(null, { status: 401 });
-    }
-
+  const user = await getUserIdFromRequest(req);
+  if (!user) {
+    return new NextResponse(null, {status: 401});
+  }
+  const userid= user.id;
   try {
-    const [result] = await executeQuery('SELECT * FROM users WHERE id = ?', [userId]);
+    const [result] = await executeQuery('SELECT * FROM users WHERE id = ?', [userid]);
 
     // Correctly type the result
     const rows = result as any[];
@@ -25,27 +25,27 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(user, {status: 200});
   } catch (error) {
     console.error("Error fetching user:", error);
-    return NextResponse.json({error: "Failed to fetch user" }, { status: 500 });
-}
+    return NextResponse.json({error: "Failed to fetch user"}, {status: 500});
+  }
 
 }
 
 export async function POST(req: NextRequest) {
-    const { username, password } = await req.json();
+  const {username, password} = await req.json();
 
-    if (!username || !password) {
-        return NextResponse.json({ error: "Username and password are required" }, { status: 400 });
-    }
+  if (!username || !password) {
+    return NextResponse.json({error: "Username and password are required"}, {status: 400});
+  }
 
-    try {
-        const result = await executeQuery(
-            'INSERT INTO users (username, password) VALUES (?, ?)',
-            [username, password]
-        );
+  try {
+    const result = await executeQuery(
+      'INSERT INTO users (username, password) VALUES (?, ?)',
+      [username, password]
+    );
 
-        return NextResponse.json(result, { status: 200 });
-    } catch (error : any) {
-      console.error("Error user registration -> ", error.message);
-      return NextResponse.json({ error: error.message }, { status: 403 });
-    }
+    return NextResponse.json(result, {status: 200});
+  } catch (error: any) {
+    console.error("Error user registration -> ", error.message);
+    return NextResponse.json({error: error.message}, {status: 403});
+  }
 }

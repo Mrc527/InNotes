@@ -4,21 +4,21 @@ import executeQuery from "@/utils/dbUtils";
 import getUserIdFromRequest from "@/utils/authUtils";
 
 export async function GET(req: NextRequest) {
-    const userId = await getUserIdFromRequest(req);
-    if (!userId) {
+    const user = await getUserIdFromRequest(req);
+    if (!user) {
         return new NextResponse(null, { status: 401 });
     }
 
     try {
-        const [queryResult] = await executeQuery('SELECT * FROM data WHERE userId = ?', [userId]);
+        const [queryResult] = await executeQuery('SELECT * FROM data WHERE userId = ?', [user.id]);
 
         if (!Array.isArray(queryResult) || queryResult.length === 0) {
-            console.log(`No data found for userId: ${userId}`);
+            console.log(`No data found for userId: ${user.id}`);
             return NextResponse.json({}, { status: 200 });
         }
 
         const rows = queryResult[0] as any[];
-        console.log(`Result Self Data [${userId}] -> ${JSON.stringify(rows || {})}`);
+        console.log(`Result Self Data [${user.id}] -> ${JSON.stringify(rows || {})}`);
         return NextResponse.json(rows || {}, { status: 200 });
     } catch (error: any) {
         console.error("Error fetching notes:", error);
@@ -27,8 +27,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-    const userId = await getUserIdFromRequest(req);
-    if (!userId) {
+    const user = await getUserIdFromRequest(req);
+    if (!user) {
         return new NextResponse(null, { status: 401 });
     }
 
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
              VALUES (?, ?, ?, ?, ?, ?)
              ON DUPLICATE KEY UPDATE
              note = ?, linkedinUser = ?, lastUpdate = ?, linkedinKey = ?, data = ?`,
-            [userId, key, linkedinUser, note, new Date().getTime(), data, note, linkedinUser, new Date().getTime(), key, data]
+            [user.id, key, linkedinUser, note, new Date().getTime(), data, note, linkedinUser, new Date().getTime(), key, data]
         );
 
         return new NextResponse(null, { status: 200 });
