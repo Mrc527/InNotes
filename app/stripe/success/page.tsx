@@ -15,8 +15,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-02-24.acacia',
 });
 
-type Props = Promise<{
-  searchParams: {session_id: string};
+type SearchParamType = Promise<{
+  session_id: string
 }>;
 
 async function getSessionData(sessionId: string): Promise<SessionData | null> {
@@ -83,8 +83,8 @@ async function updateUserInfo(userId: string, email: string, customer: any, subs
   }
 }
 
-export default async function SuccessPage(params: Props ) { // MODIFY THIS LINE
-  const session_id = (await params).searchParams.session_id
+export default async function SuccessPage(params: {searchParams: SearchParamType} ) { // MODIFY THIS LINE
+  const session_id = (await params.searchParams).session_id
   if (!session_id) {
     return (
       <div style={{textAlign: 'center', padding: '20px', color: 'var(--text-color)'}}>
