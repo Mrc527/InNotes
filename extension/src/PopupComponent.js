@@ -7,6 +7,7 @@ import {getFullData, saveFullData, getRequest, registerNewUser, postData} from "
 import {useAuth} from "./Auth";
 import LoginRegisterForm from "./components/LoginRegisterForm";
 import PremiumFeatures from "./components/PremiumFeatures";
+import MD5 from "crypto-js/md5";
 
 const useData = (validLogin) => {
     const [notes, setNotes] = useState([]);
@@ -175,7 +176,7 @@ export const PopupComponent = () => {
 
 
     const handleRegister = useCallback(() => {
-        registerNewUser({username, password})
+        registerNewUser({username, password: "-IN-" + MD5(password).toString()})
             .then(response => {
                 if (response.ok) {
                     saveSettings();
