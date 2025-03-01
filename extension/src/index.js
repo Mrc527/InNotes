@@ -1,6 +1,6 @@
 /* global chrome */
 import React from "react";
-import ReactDOM from "react-dom";
+import ReactDOM from "react-dom/client";
 import "./index.css";
 import * as serviceWorker from "./serviceWorker";
 
@@ -18,13 +18,16 @@ function loadReact() {
   }
   const popupRoot = document.getElementById("popup-root");
   // PopupComponent / popup.html
-  popupRoot && // to suppress minified react error 200
-  ReactDOM.render(
-    <React.Fragment>
-      <PopupComponent/>
-    </React.Fragment>,
-    popupRoot
-  );
+  if (popupRoot) {
+    // to suppress minified react error 200
+    const root = ReactDOM.createRoot(popupRoot);
+    root.render(
+      <React.Fragment>
+        <PopupComponent/>
+      </React.Fragment>
+    );
+  }
+
 
   const linkedInElement = document.querySelector(TOP_CARD_CLASS_NAME);
   const insertionPoint = document.createElement("div");
@@ -39,13 +42,15 @@ function loadReact() {
   }
 
 // content script
-  !popupRoot &&
-  ReactDOM.render(
-    <React.StrictMode>
-      <InNotes/>
-    </React.StrictMode>,
-    document.getElementById("insertion-point")
-  );
+  if (!popupRoot) {
+    const insertionPointElement = document.getElementById("insertion-point");
+    const root = ReactDOM.createRoot(insertionPointElement);
+    root.render(
+      <React.StrictMode>
+        <InNotes/>
+      </React.StrictMode>
+    );
+  }
 
 
 // If you want your app to work offline and load faster, you can change
@@ -64,11 +69,12 @@ function injectReactInChat() {
     const insertionPoint = document.createElement("div");
     insertionPoint.id = "insertion-point-chat";
     chats[0].parentNode.insertBefore(insertionPoint, chats[0].nextSibling);
-    ReactDOM.render(
+    const chatInsertionPoint = document.getElementById("insertion-point-chat");
+    const root = ReactDOM.createRoot(chatInsertionPoint);
+    root.render(
       <React.StrictMode>
         <InNotesButton/>
-      </React.StrictMode>,
-      document.getElementById("insertion-point-chat")
+      </React.StrictMode>
     );
   }
 }

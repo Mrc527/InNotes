@@ -13,10 +13,10 @@
     "crypto-js": "^4.2.0",
     "javascript-time-ago": "^2.5.11",
     "lodash": "^4.17.21",
-    "react": "^17.0.1",
+    "react": "^19.0.0",
     "react-device-detect": "^2.2.3",
-    "react-dom": "^17.0.1",
-    "react-scripts": "3.4.3",
+    "react-dom": "^19.0.0",
+    "react-scripts": "5.0.0",
     "react-shadow": "^18.4.2",
     "rewire": "^5.0.0",
     "styled-components": "^5.2.0"
