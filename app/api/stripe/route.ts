@@ -10,7 +10,7 @@ const HOST_NAME =
   process.env.NODE_ENV === 'production'
     ? `https://${process.env.VERCEL_URL}` // Use Vercel URL if available
     : 'http://localhost:3000'; // Default to localhost in development
-
+console.log("HOST", HOST_NAME);
 export async function POST(req: NextRequest) {
   const user = await getUserIdFromRequest(req);
   if (!user) {
