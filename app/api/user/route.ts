@@ -1,7 +1,11 @@
 import {NextRequest, NextResponse} from 'next/server';
 import getUserIdFromRequest from "@/utils/authUtils";
 import executeQuery from "@/utils/dbUtils";
+import Stripe from 'stripe';
 
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2025-02-24.acacia",
+});
 
 export async function GET(req: NextRequest) {
   const user = await getUserIdFromRequest(req);
@@ -21,6 +25,26 @@ export async function GET(req: NextRequest) {
 
     const user = rows[0];
     delete user.password; // Remove password before sending
+
+    if (user.status !== 'free' && user.subscriptionId) {
+      try {
+        const subscription = await stripe.subscriptions.retrieve(
+          user.stripe_subscription_id
+        );
+
+        if (subscription.status !== 'active') {
+          // Subscription is not active, downgrade user to "free"
+          await executeQuery('UPDATE users SET status = ? WHERE id = ?', ['free', userid]);
+          user.status = 'free'; // Update the user object as well
+        }
+      } catch (stripeError: any) {
+        console.error("Error checking Stripe subscription:", stripeError.message);
+        // Handle Stripe API errors gracefully. Downgrade user to avoid infinite loops if stripe is down
+        await executeQuery('UPDATE users SET status = ? WHERE id = ?', ['free', userid]);
+        user.status = 'free'; // Update the user object as well
+      }
+    }
+
     console.log("result", user);
     return NextResponse.json(user, {status: 200});
   } catch (error) {
