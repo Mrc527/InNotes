@@ -39,7 +39,7 @@
 		B534232D29F2D644006B3C3C /* main.js in Resources */ = {isa = PBXBuildFile; fileRef = B534231F29F2D644006B3C3C /* main.js */; };
 		B534232E29F2D644006B3C3C /* icons in Resources */ = {isa = PBXBuildFile; fileRef = B534232029F2D644006B3C3C /* icons */; };
 		B534232F29F2D644006B3C3C /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = B534232129F2D644006B3C3C /* manifest.json */; };
-		B534233029F2D644006B3C3C /* service-worker.js in Resources */ = {isa = PBXBuildFile; fileRef = B534232229F2D644006B3C3C /* service-worker.js */; };
+		B534233029F2D644006B3C3C /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = B534232229F2D644006B3C3C /* background.js */; };
 		B534233129F2D644006B3C3C /* robots.txt in Resources */ = {isa = PBXBuildFile; fileRef = B534232329F2D644006B3C3C /* robots.txt */; };
 		B534233229F2D644006B3C3C /* logo192.png in Resources */ = {isa = PBXBuildFile; fileRef = B534232429F2D644006B3C3C /* logo192.png */; };
 		B534233329F2D644006B3C3C /* favicon.ico in Resources */ = {isa = PBXBuildFile; fileRef = B534231529F2D644006B3C3C /* favicon.ico */; };
@@ -52,7 +52,7 @@
 		B534233B29F2D644006B3C3C /* main.js in Resources */ = {isa = PBXBuildFile; fileRef = B534231F29F2D644006B3C3C /* main.js */; };
 		B534233C29F2D644006B3C3C /* icons in Resources */ = {isa = PBXBuildFile; fileRef = B534232029F2D644006B3C3C /* icons */; };
 		B534233D29F2D644006B3C3C /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = B534232129F2D644006B3C3C /* manifest.json */; };
-		B534233E29F2D644006B3C3C /* service-worker.js in Resources */ = {isa = PBXBuildFile; fileRef = B534232229F2D644006B3C3C /* service-worker.js */; };
+		B534233E29F2D644006B3C3C /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = B534232229F2D644006B3C3C /* background.js */; };
 		B534233F29F2D644006B3C3C /* robots.txt in Resources */ = {isa = PBXBuildFile; fileRef = B534232329F2D644006B3C3C /* robots.txt */; };
 		B534234029F2D644006B3C3C /* logo192.png in Resources */ = {isa = PBXBuildFile; fileRef = B534232429F2D644006B3C3C /* logo192.png */; };
 /* End PBXBuildFile section */
@@ -135,7 +135,7 @@
 		B534231F29F2D644006B3C3C /* main.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = main.js; path = ../../build/main.js; sourceTree = "<group>"; };
 		B534232029F2D644006B3C3C /* icons */ = {isa = PBXFileReference; lastKnownFileType = folder; name = icons; path = ../../build/icons; sourceTree = "<group>"; };
 		B534232129F2D644006B3C3C /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../build/manifest.json; sourceTree = "<group>"; };
-		B534232229F2D644006B3C3C /* service-worker.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "service-worker.js"; path = "../../build/service-worker.js"; sourceTree = "<group>"; };
+		B534232229F2D644006B3C3C /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = ../../build/background.js; sourceTree = "<group>"; };
 		B534232329F2D644006B3C3C /* robots.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = robots.txt; path = ../../build/robots.txt; sourceTree = "<group>"; };
 		B534232429F2D644006B3C3C /* logo192.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = logo192.png; path = ../../build/logo192.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -281,7 +281,7 @@
 				B534231F29F2D644006B3C3C /* main.js */,
 				B534232029F2D644006B3C3C /* icons */,
 				B534232129F2D644006B3C3C /* manifest.json */,
-				B534232229F2D644006B3C3C /* service-worker.js */,
+				B534232229F2D644006B3C3C /* background.js */,
 				B534232329F2D644006B3C3C /* robots.txt */,
 				B534232429F2D644006B3C3C /* logo192.png */,
 			);
@@ -441,7 +441,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B534233E29F2D644006B3C3C /* service-worker.js in Resources */,
+				B534233E29F2D644006B3C3C /* background.js in Resources */,
 				B534234029F2D644006B3C3C /* logo192.png in Resources */,
 				B534233729F2D644006B3C3C /* popup.html in Resources */,
 				B534233329F2D644006B3C3C /* favicon.ico in Resources */,
@@ -461,7 +461,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B534233029F2D644006B3C3C /* service-worker.js in Resources */,
+				B534233029F2D644006B3C3C /* background.js in Resources */,
 				B534233229F2D644006B3C3C /* logo192.png in Resources */,
 				B534232929F2D644006B3C3C /* popup.html in Resources */,
 				B534232529F2D644006B3C3C /* favicon.ico in Resources */,

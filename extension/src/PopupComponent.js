@@ -68,9 +68,33 @@ const useSearch = (searchTerm, settings) => {
 const getSnippet = (text, searchTerm, index) => {
     const snippetLength = 50; // Number of characters to show before and after the search term
     const startIndex = Math.max(0, index - snippetLength);
-    const endIndex = Math.min(text.length, index + searchTerm.length + snippetLength);
-    return `...${text.substring(startIndex, endIndex)}...`;
+    const endIndex = Math.min(text.length, index + (searchTerm?.length || 0) + snippetLength);
+    return `...${text?.substring(startIndex, endIndex)}...`;
 };
+
+const generateSnippet = (item, searchTerm) => {
+    let text = '';
+    let searchTermIndex = -1;
+
+    if (item.data && item.data.length > 0) {
+        for (let i = 0; i < item.data.length; i++) {
+            text = decodeURIComponent(item.data[i].text);
+            searchTermIndex = text.toLowerCase().indexOf(searchTerm.toLowerCase());
+            if (searchTermIndex > -1) {
+                break;
+            }
+        }
+        if (searchTermIndex === -1) {
+            text = decodeURIComponent(item.note);
+            searchTermIndex = text.toLowerCase().indexOf(searchTerm.toLowerCase());
+        }
+    } else {
+        text = decodeURIComponent(item.note);
+        searchTermIndex = text.toLowerCase().indexOf(searchTerm.toLowerCase());
+    }
+
+    return getSnippet(text, searchTerm, searchTermIndex);
+}
 
 export const PopupComponent = () => {
     const {
@@ -114,7 +138,7 @@ export const PopupComponent = () => {
                 saveFullData(values);
             } catch (error) {
                 console.error("Error parsing or saving uploaded data", error);
-                window.alert("Error uploading data. Please ensure the file is a valid InNotes JSON.");
+                window.alert("Error parsing or saving uploaded data", error);
             }
         };
         fileReader.readAsText(e.target.files[0], "UTF-8");
@@ -211,7 +235,7 @@ export const PopupComponent = () => {
                                             {item.linkedinUser}
                                         </a>
                                         <div style={{ fontSize: '0.8em', color: '#666', flexShrink: 1, textAlign: 'right', minWidth: '50%' }}>
-                                            {getSnippet(item)}
+                                            {generateSnippet(item, searchTerm)}
                                         </div>
                                     </li>
                                 ))}
