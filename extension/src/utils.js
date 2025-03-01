@@ -1,6 +1,6 @@
 /* global chrome */
 const URL = "https://innotes.me/api"
-//const URL = "http://localhost:3001/api"
+//const URL = "http://localhost:3000/api"
 //const URL = "http://localhost"
 
 export async function getRequest(url = "", data = {}, headers = {}) {
@@ -56,9 +56,6 @@ async function postData(url = "", data = {}, headers = {}) {
 
 }
 
-function getKeyByValue(object, value) {
-    return Object.keys(object).find(key => object[key].key === value);
-}
 
 export async function loadDataFromUniqueKey(key) {
     return await loadData(key,false)

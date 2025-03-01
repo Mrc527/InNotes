@@ -1,78 +1,11 @@
-/* global chrome */
 import React, {useEffect, useState, useCallback} from "react";
-import {Button, Card, Image, Input, Collapse, List} from 'antd';
 import {isSafari} from 'react-device-detect';
-import MD5 from "crypto-js/md5";
 import {debounce} from 'lodash';
 
-import {getFullData, registerNewUser, saveFullData, getRequest} from "./utils";
-
-const { Panel } = Collapse;
-
-const useAuth = () => {
-    const [settings, setSettings] = useState({});
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [loginError, setLoginError] = useState(false);
-
-    useEffect(() => {
-        chrome.storage.sync.get("InNotes_Background").then((v) => {
-            setSettings(v["InNotes_Background"] || {});
-        });
-    }, []);
-
-    useEffect(() => {
-        if (settings.username && settings.password) {
-            setUsername(settings.username);
-            setPassword(settings.password);
-            chrome.storage.sync.set({"InNotes_Background": settings});
-        }
-    }, [settings]);
-
-    const saveSettings = useCallback((newSettings) => {
-        setSettings(prevSettings => ({ ...prevSettings, ...newSettings }));
-    }, []);
-
-    const logout = useCallback(() => {
-        setUsername("");
-        setPassword("");
-        chrome.storage.sync.set({"InNotes_Background": {}}).then(() => {
-        });
-        saveSettings({password: undefined, username: undefined, validLogin: false});
-    }, [saveSettings]);
-
-    const submitCredentials = useCallback(async () => {
-        setLoginError(false);
-        let newPassword = password;
-        if (newPassword && !newPassword.startsWith("-IN-")) {
-            newPassword = "-IN-" + MD5(newPassword).toString();
-            setPassword(newPassword);
-        }
-        saveSettings({password: newPassword, username: username});
-        try {
-            await getFullData();
-            saveSettings({validLogin: true});
-            return true;
-        } catch (error) {
-            setPassword("");
-            saveSettings({password: undefined, validLogin: false});
-            setLoginError(true);
-            return false;
-        }
-    }, [username, password, saveSettings]);
-
-    return {
-        settings,
-        username,
-        password,
-        loginError,
-        setUsername,
-        setPassword,
-        saveSettings,
-        logout,
-        submitCredentials,
-    };
-};
+import {getFullData, saveFullData, getRequest, registerNewUser} from "./utils";
+import {useAuth} from "./Auth";
+import LoginRegisterForm from "./LoginRegisterForm";
+import PremiumFeatures from "./PremiumFeatures";
 
 const useData = (validLogin) => {
     const [notes, setNotes] = useState([]);
@@ -155,6 +88,7 @@ export const PopupComponent = () => {
     const [register, setRegister] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const { searchResults, loading: searchLoading, error: searchError } = useSearch(searchTerm, settings);
+    const [stripeLoading, setStripeLoading] = useState(false);
 
     const doDownload = useCallback(() => {
         const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
@@ -185,6 +119,33 @@ export const PopupComponent = () => {
         fileReader.readAsText(e.target.files[0], "UTF-8");
     }, []);
 
+    const handlePasswordKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            submitCredentials();
+        }
+    };
+
+    const handleStripeCheckout = async () => {
+        setStripeLoading(true);
+        try {
+            // Replace '/create-checkout-session' with your actual endpoint
+            const response = await getRequest('/stripe', {priceId: 'price_1Oq9Jb2eZvKYlo2C9w6Q3KRx'}, {method: 'POST'});
+
+            if (response.url) {
+                window.location.href = response.url; // Redirect to Stripe Checkout
+            } else {
+                console.error("No URL received from the server.");
+                alert("Failed to initiate checkout. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error creating checkout session:", error);
+            alert("Failed to initiate checkout. Please try again.");
+        } finally {
+            setStripeLoading(false);
+        }
+    };
+
+
     const handleRegister = useCallback(() => {
         registerNewUser({username, password})
             .then(response => {
@@ -203,150 +164,87 @@ export const PopupComponent = () => {
             });
     }, [username, password, saveSettings]);
 
-    const handlePasswordKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            submitCredentials();
-        }
-    };
-
-    const inputStyle = {
-        marginBottom: '10px',
-        padding: '5px',
-        borderRadius: '4px',
-        border: '1px solid #ccc',
-        width: '100%',
-        boxSizing: 'border-box'
-    };
-
-    const buttonStyle = {
-        margin: '5px'
-    };
-
-    const collapseHeaderStyle = {
-        fontWeight: 'bold',
-        fontSize: '16px',
-        padding: '10px',
-        borderBottom: '1px solid #f0f0f0',
-    };
-
-    const generateSnippet = (item) => {
-        let text = '';
-        let searchTermIndex = -1;
-
-        if (item.data && item.data.length > 0) {
-            for (let i = 0; i < item.data.length; i++) {
-                text = decodeURIComponent(item.data[i].text);
-                searchTermIndex = text.toLowerCase().indexOf(searchTerm.toLowerCase());
-                if (searchTermIndex > -1) {
-                    break;
-                }
-            }
-            if (searchTermIndex === -1) {
-                text = decodeURIComponent(item.note);
-                searchTermIndex = text.toLowerCase().indexOf(searchTerm.toLowerCase());
-            }
-        } else {
-            text = decodeURIComponent(item.note);
-            searchTermIndex = text.toLowerCase().indexOf(searchTerm.toLowerCase());
-        }
-
-        return getSnippet(text, searchTerm, searchTermIndex);
-    }
-
 
     return (
         <div className="popup-container" style={{ minWidth: '500px', padding: '16px' }}>
-            <Image preview={false} style={{margin: "auto", display: "block", width: "150px"}}
+            <img style={{margin: "auto", display: "block", width: "150px"}}
                    src="icons/InNotes.png"
                    alt="logo"/>
             <div className={"title-container"}>Easy Note-Taking for LinkedIn</div>
-            {!settings?.validLogin &&
-              <Card title="Login Data" bordered={false}>
-
-                    <div>
-                        {loginError && (
-                            <div style={{color: 'red', marginBottom: '10px', textAlign: 'center'}}>
-                                Invalid credentials. Please try again.
-                            </div>
-                        )}
-                        <center>
-                            <input id="username" style={inputStyle} placeholder="Username" onChange={(e) => setUsername(e.target.value)} value={username}/><br/>
-                            <input id="password" type="password" style={inputStyle} placeholder="Password" onChange={(e) => setPassword(e.target.value)} onKeyDown={handlePasswordKeyDown} value={password}/><br/>
-                            <Button style={buttonStyle} onClick={submitCredentials}>Login</Button><br/>
-                            <a onClick={() => setRegister(true)}>Register</a>
-                        </center>
-                    </div>
-            </Card>
-            }
+            {!settings?.validLogin && (
+                <LoginRegisterForm
+                    username={username}
+                    password={password}
+                    setUsername={setUsername}
+                    setPassword={setPassword}
+                    loginError={loginError}
+                    submitCredentials={submitCredentials}
+                    register={register}
+                    setRegister={setRegister}
+                    handleRegister={handleRegister}
+                    handlePasswordKeyDown={handlePasswordKeyDown}
+                />
+            )}
 
             {settings?.validLogin && (
                 <>
-                    <Card title="Search Notes" bordered={false}>
-                        <Input
+                    <div style={{ border: '1px solid #ddd', borderRadius: '5px', padding: '10px', marginBottom: '10px' }}>
+                        <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Search Notes</div>
+                        <input
                             placeholder="Search your notes"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            style={inputStyle}
+                            style={{ marginBottom: '10px', padding: '5px', borderRadius: '4px', border: '1px solid #ccc', width: '100%', boxSizing: 'border-box' }}
                         />
-                    </Card>
+                    </div>
 
                     {searchLoading && <p>Searching...</p>}
                     {searchError && <p style={{ color: 'red' }}>Error: {searchError}</p>}
                     {searchResults && searchResults.length > 0 && (
-                      <Card title="Search Results" bordered={false}>
-                          <List
-                            dataSource={searchResults}
-                            renderItem={item => {
-
-                                return (
-                                  <List.Item style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                                      <a href={`https://www.linkedin.com/in/${item.linkedinUser}`} target="_blank"
-                                         rel="noopener noreferrer">
-                                          {item.linkedinUser}
-                                      </a>
-                                      <div style={{fontSize: '0.8em', color: '#666', flexShrink: 1, textAlign: 'right', minWidth: '50%'}}>
-                                          {generateSnippet(item)}
-                                      </div>
-                                  </List.Item>
-                                );
-                            }}
-                          />
-                      </Card>
+                        <div style={{ border: '1px solid #ddd', borderRadius: '5px', padding: '10px', marginBottom: '10px' }}>
+                            <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Search Results</div>
+                            <ul style={{ listStyleType: 'none', padding: 0 }}>
+                                {searchResults.map(item => (
+                                    <li key={item.linkedinUser} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: '1px solid #eee' }}>
+                                        <a href={`https://www.linkedin.com/in/${item.linkedinUser}`} target="_blank" rel="noopener noreferrer">
+                                            {item.linkedinUser}
+                                        </a>
+                                        <div style={{ fontSize: '0.8em', color: '#666', flexShrink: 1, textAlign: 'right', minWidth: '50%' }}>
+                                            {getSnippet(item)}
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     )}
 
 
-                    <Collapse style={{marginBottom: '16px'}}>
-                        <Panel header="Import/Export Data" key="1" style={collapseHeaderStyle}>
-                            <Card title="Download Data" bordered={false}>
-                                <div>You currently have data
-                                    for {notes ? Object.keys(notes).length : "0"} users
-                                </div>
+                    <div style={{ marginBottom: '16px', border: '1px solid #ddd', borderRadius: '5px' }}>
+                        <div style={{ fontWeight: 'bold', fontSize: '16px', padding: '10px', borderBottom: '1px solid #f0f0f0', cursor: 'pointer' }}>
+                            Import/Export Data
+                        </div>
+                        <div>
+                            <div style={{ border: '1px solid #ddd', borderRadius: '5px', padding: '10px', marginBottom: '10px' }}>
+                                <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Download Data</div>
+                                <div>You currently have data for {notes ? Object.keys(notes).length : "0"} users</div>
                                 {isSafari && (
-                                    <div style={{height: "100px", width: "400px", overflow: "overlay"}}>
+                                    <div style={{ height: "100px", width: "400px", overflow: "overlay" }}>
                                         <pre className="card-text"><code id="card-text">{JSON.stringify(notes, undefined, 2)}</code></pre>
                                     </div>
                                 )}
-                                <Button onClick={doDownload} disabled={isSafari}>Download to JSON</Button>
-                            </Card>
-                            <Card title="Upload Data" bordered={false}>
-                                <input type="file" id="file_upload" onChange={doUpload}/>
-                            </Card>
-                        </Panel>
-                    </Collapse>
-                    <Button onClick={logout} style={{ marginTop: '10px', display: 'block', margin: '0 auto', marginBottom: '16px' }}>Logout</Button>
+                                <button onClick={doDownload} disabled={isSafari} style={{ margin: '5px' }}>Download to JSON</button>
+                            </div>
+                            <div style={{ border: '1px solid #ddd', borderRadius: '5px', padding: '10px', marginBottom: '10px' }}>
+                                <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Upload Data</div>
+                                <input type="file" id="file_upload" onChange={doUpload} />
+                            </div>
+                        </div>
+                    </div>
+                    <button onClick={logout} style={{ marginTop: '10px', display: 'block', margin: '0 auto', marginBottom: '16px' }}>Logout</button>
+                    <PremiumFeatures stripeLoading={stripeLoading} handleStripeCheckout={handleStripeCheckout} />
                 </>
             )}
 
-            {register && (
-                <Card title="Register">
-                    <center>
-                        <input id="username" style={inputStyle} placeholder="Username" onChange={(e) => setUsername(e.target.value)} value={username}/><br/>
-                        <input id="password" type="password" style={inputStyle} placeholder="Password" onChange={(e) => setPassword(e.target.value)} onKeyDown={handlePasswordKeyDown} value={password}/><br/>
-                        <Button style={buttonStyle} onClick={handleRegister}>Register</Button><br/>
-                        <a onClick={() => setRegister(false)}>Login</a>
-                    </center>
-                </Card>
-            )}
             <div className={"footer-container"}>
                 Made with <span>❤</span>️ by <a target="_blank" rel="noopener noreferrer" href="http://marcovisin.com">Marco
                 Visin -
