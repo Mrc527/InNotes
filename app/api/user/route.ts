@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
     if (user.status !== 'free' && user.subscriptionId) {
       try {
         const subscription = await stripe.subscriptions.retrieve(
-          user.stripe_subscription_id
+          user.subscriptionId
         );
 
         if (subscription.status !== 'active') {
