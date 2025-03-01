@@ -57,16 +57,40 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const {username, password} = await req.json();
+  const {username, password, email} = await req.json();
 
-  if (!username || !password) {
-    return NextResponse.json({error: "Username and password are required"}, {status: 400});
+  if (!username || !password || !email) {
+    return NextResponse.json({error: "Username, password and email are required"}, {status: 400});
   }
 
   try {
+    // Check if the username already exists
+    const existingUsernames = await executeQuery(
+      'SELECT * FROM users WHERE username = ?',
+      [username]
+    );
+
+    const usernameRows = existingUsernames as any[];
+
+    if (usernameRows && usernameRows.length > 0) {
+      return NextResponse.json({error: "Username already taken"}, {status: 403});
+    }
+
+    // Check if the email already exists
+    const existingEmails = await executeQuery(
+        'SELECT * FROM users WHERE email = ?',
+        [email]
+    );
+
+    const emailRows = existingEmails as any[];
+
+    if (emailRows && emailRows.length > 0) {
+      return NextResponse.json({error: "Email already taken"}, {status: 403});
+    }
+
     const result = await executeQuery(
-      'INSERT INTO users (username, password) VALUES (?, ?)',
-      [username, password]
+      'INSERT INTO users (username, password, email) VALUES (?, ?, ?)',
+      [username, password, email]
     );
 
     return NextResponse.json(result, {status: 200});
