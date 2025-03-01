@@ -116,6 +116,7 @@ export const PopupComponent = () => {
     const { searchResults, loading: searchLoading, error: searchError } = useSearch(searchTerm, settings);
     const [stripeLoading, setStripeLoading] = useState(false);
     const [isImportExportOpen, setIsImportExportOpen] = useState(false);
+    const [email, setEmail] = useState("");
 
     const doDownload = useCallback(() => {
         const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
@@ -176,7 +177,7 @@ export const PopupComponent = () => {
 
 
     const handleRegister = useCallback(() => {
-        registerNewUser({username, password: "-IN-" + MD5(password).toString()})
+        registerNewUser({username, password: "-IN-" + MD5(password).toString(), email})
             .then(response => {
                 if (response.ok) {
                     saveSettings();
@@ -191,7 +192,7 @@ export const PopupComponent = () => {
                 console.error("Registration error", error);
                 window.alert("Registration failed. Please try again later.");
             });
-    }, [username, password, saveSettings]);
+    }, [username, password, saveSettings, email]);
 
 
     return (
@@ -212,6 +213,8 @@ export const PopupComponent = () => {
                     setRegister={setRegister}
                     handleRegister={handleRegister}
                     handlePasswordKeyDown={handlePasswordKeyDown}
+                    email={email}
+                    setEmail={setEmail}
                 />
             )}
 
