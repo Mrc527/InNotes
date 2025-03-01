@@ -250,6 +250,7 @@ export const PopupComponent = () => {
                         </div>
                     )}
 
+                    <PremiumFeatures stripeLoading={stripeLoading} handleStripeCheckout={handleStripeCheckout} />
 
                     <div style={{ marginBottom: '16px', border: '1px solid #ddd', borderRadius: '5px' }}>
                         <div
@@ -277,8 +278,9 @@ export const PopupComponent = () => {
                             </div>
                         )}
                     </div>
-                    <button onClick={logout} style={{ marginTop: '10px', display: 'block', margin: '0 auto', marginBottom: '16px' }}>Logout</button>
-                    <PremiumFeatures stripeLoading={stripeLoading} handleStripeCheckout={handleStripeCheckout} />
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <button onClick={logout} style={{ marginTop: '10px', marginBottom: '16px' }}>Logout</button>
+                    </div>
                 </>
             )}
 
