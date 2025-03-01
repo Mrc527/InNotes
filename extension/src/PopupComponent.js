@@ -143,7 +143,7 @@ export const PopupComponent = () => {
     const handleStripeCheckout = async () => {
         setStripeLoading(true);
         try {
-            const response = await postData('/stripe', {priceId: 'price_1Qxlx3KkAMzrwMPSSBJAg2S2'});
+            const response = await postData('/stripe', {priceId: "price_1QxxdeKkAMzrwMPSQ0A5lrKW"});
             const data = await response.json();
 
             if (data?.url) {

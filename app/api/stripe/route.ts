@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
         message: e.message,
       }),
       {
-        status: 500,
+        status: 400,
         headers: {
           'Content-Type': 'application/json',
         },
