@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (e: any) {
+    console.error(e);
     return new NextResponse(
       JSON.stringify({
         status: 'error',
