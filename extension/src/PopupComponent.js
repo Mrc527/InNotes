@@ -9,20 +9,6 @@ import LoginRegisterForm from "./components/LoginRegisterForm";
 import PremiumFeatures from "./components/PremiumFeatures";
 import MD5 from "crypto-js/md5";
 
-const useData = (validLogin) => {
-    const [notes, setNotes] = useState([]);
-
-    useEffect(() => {
-        if (validLogin) {
-            getFullData().then(setNotes);
-        } else {
-            setNotes([]);
-        }
-    }, [validLogin]);
-
-    return notes;
-};
-
 const useSearch = (searchTerm, settings) => {
     const [searchResults, setSearchResults] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -110,13 +96,14 @@ export const PopupComponent = () => {
         logout,
         submitCredentials,
     } = useAuth();
-    const notes = useData(settings.validLogin);
+    const [notes, setNotes] = useState([]);
     const [register, setRegister] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const { searchResults, loading: searchLoading, error: searchError } = useSearch(searchTerm, settings);
     const [stripeLoading, setStripeLoading] = useState(false);
     const [isImportExportOpen, setIsImportExportOpen] = useState(false);
     const [email, setEmail] = useState("");
+    const [user, setUser] = useState(null);
 
     const doDownload = useCallback(() => {
         const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
@@ -193,6 +180,22 @@ export const PopupComponent = () => {
                 window.alert("Registration failed. Please try again later.");
             });
     }, [username, password, saveSettings, email]);
+
+    useEffect(() => {
+        if (settings?.validLogin) {
+            getRequest("/user")
+                .then(response => {
+                    setUser(response);
+                })
+                .catch(error => {
+                    console.error("Error fetching user data:", error);
+                    setUser(null);
+                });
+            getFullData();
+        } else {
+            setUser(null);
+        }
+    }, [settings?.validLogin]);
 
 
     return (

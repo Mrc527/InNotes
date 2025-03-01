@@ -1,7 +1,7 @@
 /* global chrome */
 import {useState, useCallback, useEffect} from "react";
 import MD5 from "crypto-js/md5";
-import {getFullData, registerNewUser} from "./utils";
+import {getRequest} from "./utils";
 
 export const useAuth = () => {
     const [settings, setSettings] = useState({});
@@ -44,7 +44,7 @@ export const useAuth = () => {
         }
         saveSettings({password: newPassword, username: username});
         try {
-            await getFullData();
+            await getRequest("/user");
             saveSettings({validLogin: true});
             return true;
         } catch (error) {
