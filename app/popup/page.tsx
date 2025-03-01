@@ -1,11 +1,9 @@
 "use client";
 
 import React, {useEffect, useState, useCallback} from "react";
-import {Button, Card, Image, Input, Collapse, List} from 'antd';
-import {debounce} from 'lodash';
 import MD5 from 'crypto-js/md5';
+import {debounce} from 'lodash';
 
-const { Panel } = Collapse;
 type Settings = {
     username: string | undefined;
     password: string | undefined;
@@ -301,7 +299,6 @@ const PopupComponent = () => {
         borderRadius: '4px',
         border: '1px solid #ccc',
         width: '100%',
-        //boxSizing: 'border-box'
     };
 
     const buttonStyle = {
@@ -342,13 +339,11 @@ const PopupComponent = () => {
 
     return (
         <div className="popup-container" style={{ minWidth: '500px', padding: '16px' }}>
-            <Image preview={false} style={{margin: "auto", display: "block", width: "150px"}}
-                   src="/icons/InNotes.png"
-                   alt="logo"/>
-            <div className={"title-container"}>Easy Note-Taking for LinkedIn</div>
+            <img src="/icons/InNotes.png" className="dark:invert" alt="logo" style={{margin: "auto", display: "block", width: "150px"}}/>
+            <div className={"title-container"}  style={{textAlign: 'center'}}>Easy Note-Taking for LinkedIn</div>
             {!settings?.validLogin &&
-              <Card title="Login Data" bordered={false}>
-
+              <div style={{ border: '1px solid #ccc', padding: '10px', margin: '10px 0' }}>
+                    <h2 style={{ fontSize: '1.2em', marginBottom: '10px' }}>Login Data</h2>
                     <div>
                         {loginError && (
                             <div style={{color: 'red', marginBottom: '10px', textAlign: 'center'}}>
@@ -357,83 +352,73 @@ const PopupComponent = () => {
                         )}
                         <center>
                             <input id="username" style={inputStyle} placeholder="Username" onChange={(e) => setUsername(e.target.value)} value={username}/><br/>
-                            <input id="password" type="password" style={inputStyle} placeholder="Password" onChange={(e) => setPassword(e.target.value)} onKeyDown={handlePasswordKeyDown} value={password}/><br/>
-                            <Button style={buttonStyle} onClick={submitCredentials}>Login</Button><br/>
-                            <a onClick={() => setRegister(true)}>Register</a>
+                            <input type="password" id="password" style={inputStyle} placeholder="Password" onChange={(e) => setPassword(e.target.value)} onKeyDown={handlePasswordKeyDown} value={password}/><br/>
+                            <button style={buttonStyle} onClick={submitCredentials}>Login</button><br/>
+                            <a href="#" onClick={() => setRegister(true)}>Register</a>
                         </center>
                     </div>
-            </Card>
+                </div>
             }
 
             {settings?.validLogin && (
                 <>
-                    <Card title="Search Notes" bordered={false}>
-                        <Input
+                    <div style={{ border: '1px solid #ccc', padding: '10px', margin: '10px 0' }}>
+                        <h2 style={{ fontSize: '1.2em', marginBottom: '10px' }}>Search Notes</h2>
+                        <input
                             placeholder="Search your notes"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             style={inputStyle}
                         />
-                    </Card>
+                    </div>
 
                     {searchLoading && <p>Searching...</p>}
                     {searchError && <p style={{ color: 'red' }}>Error: {searchError}</p>}
                     {searchResults && searchResults.length > 0 && (
-                      <Card title="Search Results" bordered={false}>
-                          <List
-                            dataSource={searchResults}
-                            renderItem={(item: Note) => {
-
-                                return (
-                                  <List.Item
-                                    style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                                      <a href={`https://www.linkedin.com/in/${item?.linkedinUser}`} target="_blank"
-                                         rel="noopener noreferrer">
-                                          {item?.linkedinUser}
-                                      </a>
-                                      <div style={{
-                                          fontSize: '0.8em',
-                                          color: '#666',
-                                          flexShrink: 1,
-                                          textAlign: 'right',
-                                          minWidth: '50%'
-                                      }}>
-                                          {generateSnippet(item)}
-                                      </div>
-                                  </List.Item>
-                                );
-                            }}
-                          />
-                      </Card>
+                        <div style={{ border: '1px solid #ccc', padding: '10px', margin: '10px 0' }}>
+                            <h2 style={{ fontSize: '1.2em', marginBottom: '10px' }}>Search Results</h2>
+                            <ul>
+                                {searchResults.map((item: Note, index: number) => (
+                                    <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <a href={`https://www.linkedin.com/in/${item?.linkedinUser}`} target="_blank" rel="noopener noreferrer">
+                                            {item?.linkedinUser}
+                                        </a>
+                                        <div style={{ fontSize: '0.8em', color: '#666', flexShrink: 1, textAlign: 'right', minWidth: '50%' }}>
+                                            {generateSnippet(item)}
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     )}
 
 
-                    <Collapse style={{marginBottom: '16px'}}>
-                        <Panel header="Import/Export Data" key="1" style={collapseHeaderStyle}>
-                            <Card title="Download Data" bordered={false}>
-                                <div>You currently have data
-                                    for {notes ? Object.keys(notes).length : "0"} users
-                                </div>
-                                <Button onClick={doDownload}>Download to JSON</Button>
-                            </Card>
-                            <Card title="Upload Data" bordered={false}>
-                                <input type="file" id="file_upload" onChange={doUpload}/>
-                            </Card>
-                        </Panel>
-                    </Collapse>
-                    <Button onClick={logout} style={{ marginTop: '10px', display: 'block', margin: '0 auto', marginBottom: '16px' }}>Logout</Button>
+                    <details style={{ marginBottom: '16px', border: '1px solid #ccc', padding: '10px' }}>
+                        <summary style={collapseHeaderStyle}>Import/Export Data</summary>
+                        <div style={{ border: '1px solid #ccc', padding: '10px', margin: '10px 0' }}>
+                            <h3 style={{ fontSize: '1.1em', marginBottom: '10px' }}>Download Data</h3>
+                            <div>You currently have data for {notes ? Object.keys(notes).length : "0"} users</div>
+                            <button onClick={doDownload}>Download to JSON</button>
+                        </div>
+                        <div style={{ border: '1px solid #ccc', padding: '10px', margin: '10px 0' }}>
+                            <h3 style={{ fontSize: '1.1em', marginBottom: '10px' }}>Upload Data</h3>
+                            <input type="file" id="file_upload" onChange={doUpload}/>
+                        </div>
+                    </details>
+                    <button onClick={logout} style={{ marginTop: '10px', display: 'block', margin: '0 auto', marginBottom: '16px' }}>Logout</button>
                 </>
             )}
 
             {register && (
-                <Card title="Register">
+                <div style={{ border: '1px solid #ccc', padding: '10px', margin: '10px 0' }}>
+                    <h2 style={{ fontSize: '1.2em', marginBottom: '10px' }}>Register</h2>
                     <center>
                         <input id="username" style={inputStyle} placeholder="Username" onChange={(e) => setUsername(e.target.value)} value={username}/><br/>
-                        <input id="password" type="password" style={inputStyle} placeholder="Password" onChange={(e) => setPassword(e.target.value)} onKeyDown={handlePasswordKeyDown} value={password}/><br/>
-                        <Button style={buttonStyle} onClick={handleRegister}>Register</Button><br/>
-                        <a onClick={() => setRegister(false)}>Login</a>
+                        <input type="password" id="password" style={inputStyle} placeholder="Password" onChange={(e) => setPassword(e.target.value)} onKeyDown={handlePasswordKeyDown} value={password}/><br/>
+                        <button style={buttonStyle} onClick={handleRegister}>Register</button><br/>
+                        <a href="#" onClick={() => setRegister(false)}>Login</a>
                     </center>
-                </Card>
+                </div>
             )}
             <div className={"footer-container"}>
                 Made with <span>❤</span>️ by <a target="_blank" rel="noopener noreferrer" href="http://marcovisin.com">Marco
