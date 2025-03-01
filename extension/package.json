@@ -17,7 +17,7 @@
     "react-device-detect": "^2.2.3",
     "react-dom": "^19.0.0",
     "react-scripts": "5.0.0",
-    "react-shadow": "^18.4.2",
+    "react-shadow": "^20.6.0",
     "rewire": "^5.0.0",
     "styled-components": "^5.2.0"
   },
