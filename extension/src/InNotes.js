@@ -122,6 +122,7 @@ const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, cancelNe
                           value={text}
                           onChange={handleTextChange}
                           onKeyDown={handleKeyDown}
+                          className="artdeco-text-input"
                           style={{
                             width: '100%',
                             boxSizing: 'border-box',
@@ -140,6 +141,7 @@ const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, cancelNe
               <div style={{display: 'flex', alignItems: 'center'}}>
                 <label style={{marginRight: '0.5rem', flexShrink: 0}}>Color:</label>
                 <select value={flagColor} onChange={(e) => setFlagColor(e.target.value)}
+                        className="artdeco-dropdown__item"
                         style={{
                           maxWidth: '15rem',
                           padding: '0.2rem',
@@ -192,6 +194,8 @@ const InNotes = () => {
   const [newNoteIndex, setNewNoteIndex] = useState(null);
   const [loading, setLoading] = useState(true);
   const [registrationError, setRegistrationError] = useState(false);
+  const [tags, setTags] = useState([]);
+  const [status, setStatus] = useState("Initial Contact");
 
   const openRegistrationPopup = () => {
     chrome.runtime.sendMessage({message: "openRegistrationPopup"});
@@ -223,9 +227,13 @@ const InNotes = () => {
               creationDate: note.date || note.creationDate,
             })) : [];
             setNotes({...item, notes: normalizedData});
+            setTags(item.tags || []);
+            setStatus(item.status || "Initial Contact");
             previousNotes.current = {...item, notes: normalizedData}
           } else {
             setNotes({});
+            setTags([]);
+            setStatus("Initial Contact");
             previousNotes.current = {}
           }
         })
@@ -250,7 +258,7 @@ const InNotes = () => {
 
   useEffect(() => {
     getKey().then(key => {
-      const notesToBeSaved = {...notes}
+      const notesToBeSaved = {...notes, tags, status}
       if (!notesToBeSaved.linkedinUser || notesToBeSaved.linkedinUser === "") {
         notesToBeSaved.linkedinUser = username
       }
@@ -263,7 +271,7 @@ const InNotes = () => {
       }
       previousNotes.current = notesToBeSaved;
     })
-  }, [notes, saveDataToBackend, username]);
+  }, [notes, saveDataToBackend, username, tags, status]);
 
   const noteHasToBeSaved = (previous, current) => {
     console.log("Checking for changes", JSON.stringify(previous), JSON.stringify(current))
@@ -382,6 +390,17 @@ const InNotes = () => {
     setNewNoteIndex(null);
   }, []);
 
+  const handleAddTag = (tag) => {
+    setTags(prevTags => [...prevTags, tag]);
+  };
+
+  const handleRemoveTag = (tagToRemove) => {
+    setTags(prevTags => prevTags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleStatusChange = (newStatus) => {
+    setStatus(newStatus);
+  };
 
   const renderNotes = () => {
     if (loading) {
@@ -439,7 +458,7 @@ const InNotes = () => {
 
   return (
     <div className="artdeco-card ember-view relative break-words pb3 mt2">
-      <div className="pvs-header__container">
+      <div className="pvs-header__container" style={{display: "flex",flexDirection: "column"}}>
         <div className="pvs-header__top-container--no-stack">
           <div className="pvs-header__left-container--stack">
             <div className="title-container pvs-header__title-container">
@@ -460,6 +479,63 @@ const InNotes = () => {
           )}
         </div>
       </div>
+
+      {/* Tags Input */}
+      <div className="ph5 pv3">
+        <label htmlFor="tags" className="text-body-small mb1">Tags:</label>
+        <div className="display-flex">
+          <input
+            type="text"
+            id="tags"
+            className="artdeco-text-input flex-grow-1"
+            placeholder="Add a tag"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleAddTag(e.target.value);
+                e.target.value = '';
+              }
+            }}
+          />
+        </div>
+        <ul className="list-style-none display-flex flex-wrap mt2">
+          {tags.map(tag => (
+            <li key={tag} className="mr2 mb1">
+              <div className="align-items-center display-flex border border-color-tertiary rounded-pill overflow-hidden">
+                <span className="t-14 t-black t-bold ph3">{tag}</span>
+                <button
+                  onClick={() => handleRemoveTag(tag)}
+                  className="artdeco-button artdeco-button--circle artdeco-button--tertiary artdeco-button--3 artdeco-button--muted"
+                  aria-label={`Remove tag ${tag}`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" data-supported-dps="16x16" fill="currentColor" width="16" height="16" focusable="false">
+                    <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Status Dropdown */}
+      <div className="ph5 pv3">
+        <label htmlFor="status" className="text-body-small mb1">Status:</label>
+        <div className="select-wrapper">
+          <select
+            id="status"
+            className="artdeco-dropdown__item"
+            value={status}
+            onChange={(e) => handleStatusChange(e.target.value)}
+          >
+            <option value="Initial Contact">Initial Contact</option>
+            <option value="Qualified Lead">Qualified Lead</option>
+            <option value="Proposal Sent">Proposal Sent</option>
+            <option value="Closed Won">Closed Won</option>
+            <option value="Closed Lost">Closed Lost</option>
+          </select>
+        </div>
+      </div>
+
       <div className="display-flex ph5 pv3 notes-container" style={{flexDirection: "column"}}>
         {renderNotes()}
       </div>
