@@ -1,4 +1,3 @@
-import mysql from 'mysql2/promise';
 import { NextRequest, NextResponse } from 'next/server';
 import executeQuery from "@/utils/dbUtils";
 import getUserIdFromRequest from "@/utils/authUtils";
@@ -34,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        let { note, key, linkedinUser, notes } = body;
+        let { note, key, linkedinUser, notes, tags, status } = body;
 
         if (typeof notes === 'object') {
             notes = JSON.stringify(notes);
@@ -44,12 +43,16 @@ export async function POST(req: NextRequest) {
             key = "";
         }
 
+        tags = tags ? JSON.stringify(tags) : null;
+        status = status || null;
+
         await executeQuery(
-            `INSERT INTO data (userId, linkedinKey, linkedinUser, note, lastUpdate, notes)
-             VALUES (?, ?, ?, ?, ?, ?)
+            `INSERT INTO data (userId, linkedinKey, linkedinUser, note, lastUpdate, notes, tags, status)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
              ON DUPLICATE KEY UPDATE
-             note = ?, linkedinUser = ?, lastUpdate = ?, linkedinKey = ?, notes = ?`,
-            [user.id, key, linkedinUser, note, new Date().getTime(), notes, note, linkedinUser, new Date().getTime(), key, notes]
+             note = ?, linkedinUser = ?, lastUpdate = ?, linkedinKey = ?, notes = ?, tags = ?, status = ?`,
+            [user.id, key, linkedinUser, note, new Date().getTime(), notes, tags, status,
+                note, linkedinUser, new Date().getTime(), key, notes, tags, status]
         );
 
         return new NextResponse(null, { status: 200 });
