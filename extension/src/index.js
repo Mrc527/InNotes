@@ -5,7 +5,7 @@ import "./index.css";
 import * as serviceWorker from "./serviceWorker";
 
 import {PopupComponent} from "./PopupComponent";
-import {TOP_CARD_CLASS_NAME} from "./constants";
+import {TOP_CARD_CLASS_NAME, TOP_CARD_ID_MOBILE} from "./constants";
 import InNotes from "./InNotes";
 import InNotesButton from "./InNotesMessagingCollapse";
 
@@ -30,10 +30,15 @@ function loadReact() {
 
 
   const linkedInElement = document.querySelector(TOP_CARD_CLASS_NAME);
+  const linkedInElementMobile = document.getElementById(TOP_CARD_ID_MOBILE);
   const insertionPoint = document.createElement("div");
   insertionPoint.id = "insertion-point";
+  insertionPoint.className = "bg-color-background-container";
   if (linkedInElement) {
     linkedInElement.parentNode.insertBefore(insertionPoint, linkedInElement.nextSibling);
+    //updateData()
+  } else if (linkedInElementMobile) {
+    linkedInElementMobile.parentNode.insertBefore(insertionPoint, linkedInElementMobile.nextSibling);
     //updateData()
   } else {
     injectReactInChat();
