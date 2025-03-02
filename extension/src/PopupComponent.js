@@ -29,7 +29,7 @@ const useSearch = (searchTerm, settings) => {
                     username: settings.username,
                     password: settings.password
                 });
-                const parsed = results.map(r => ({...r, data: JSON.parse(r.data)}));
+                const parsed = results.map(r => ({...r, data: JSON.parse(r.notes)}));
                 setSearchResults(parsed);
             } catch (err) {
                 setError(err.message || "Search failed");
@@ -64,9 +64,9 @@ const generateSnippet = (item, searchTerm) => {
     let text = '';
     let searchTermIndex = -1;
 
-    if (item.data && item.data.length > 0) {
-        for (let i = 0; i < item.data.length; i++) {
-            text = decodeURIComponent(item.data[i].text);
+    if (item.notes && item.notes.length > 0) {
+        for (let i = 0; i < item.notes.length; i++) {
+            text = decodeURIComponent(item.notes[i].text);
             searchTermIndex = text.toLowerCase().indexOf(searchTerm.toLowerCase());
             if (searchTermIndex > -1) {
                 break;

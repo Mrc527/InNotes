@@ -16,10 +16,10 @@ export async function GET(req: NextRequest) {
 
     try {
         const [results] = await executeQuery(
-            `SELECT linkedinUser, note, data
+            `SELECT linkedinUser, note, notes
              FROM data
              WHERE userId = ?
-               AND (data LIKE ? OR note LIKE ?)`,
+               AND (notes LIKE ? OR note LIKE ?)`,
             [user.id, `%${searchTerm}%`, `%${searchTerm}%`]
         );
 

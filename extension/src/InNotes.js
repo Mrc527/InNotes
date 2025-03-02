@@ -207,23 +207,23 @@ const InNotes = () => {
         .then(item => {
           setLoading(false);
           if (item) {
-            if (!item.data && item.note) {
-              item.data = [{
+            if (!item.notes && item.note) {
+              item.notes = [{
                 creationDate: new Date().getTime(),
                 lastUpdate: new Date().getTime(),
                 text: item.note
               }];
               delete item.note;
             }
-            if (item.data && typeof item.data === 'string') {
-              item.data = JSON.parse(item.data);
+            if (item.notes && typeof item.notes === 'string') {
+              item.notes = JSON.parse(item.notes);
             }
-            const normalizedData = item.data ? item.data.map(note => ({
+            const normalizedData = item.notes ? item.notes.map(note => ({
               ...note,
               creationDate: note.date || note.creationDate,
             })) : [];
-            setNotes({...item, data: normalizedData});
-            previousNotes.current = {...item, data: normalizedData}
+            setNotes({...item, notes: normalizedData});
+            previousNotes.current = {...item, notes: normalizedData}
           } else {
             setNotes({});
             previousNotes.current = {}
@@ -274,12 +274,12 @@ const InNotes = () => {
       return false;
     }
 
-    if (!current.note && (!current.data || current.data.length === 0)) {
-      if (previous.note || (previous.data && previous.data.length > 0)) {
+    if (!current.note && (!current.notes || current.notes.length === 0)) {
+      if (previous.note || (previous.notes && previous.notes.length > 0)) {
         return true;
       }
     }
-    if (!previous.data && current.data && current.data.length === 0) {
+    if (!previous.notes && current.notes && current.notes.length === 0) {
       return false;
     }
 
@@ -336,15 +336,15 @@ const InNotes = () => {
       text: "",
     };
     setNotes(prevNotes => {
-      const updatedNotes = {...prevNotes, data: [...(prevNotes.data || []), newNote]};
-      setNewNoteIndex(updatedNotes.data.length - 1);
+      const updatedNotes = {...prevNotes, notes: [...(prevNotes.notes || []), newNote]};
+      setNewNoteIndex(updatedNotes.notes.length - 1);
       return updatedNotes;
     });
   };
 
   const editNote = useCallback((index, text, flagColor) => {
     setNotes(prevNotes => {
-      const updatedData = prevNotes.data.map((note, i) => {
+      const updatedData = prevNotes.notes.map((note, i) => {
         if (i === index) {
           const updatedNote = {
             ...note,
@@ -361,23 +361,23 @@ const InNotes = () => {
           return {...note};
         }
       });
-      return {...prevNotes, data: updatedData};
+      return {...prevNotes, notes: updatedData};
     });
     setNewNoteIndex(null);
   }, []);
 
   const deleteNote = useCallback((index) => {
     setNotes(prevNotes => {
-      const updatedData = prevNotes.data.filter((_, i) => i !== index);
-      return {...prevNotes, data: updatedData};
+      const updatedData = prevNotes.notes.filter((_, i) => i !== index);
+      return {...prevNotes, notes: updatedData};
     });
     setNewNoteIndex(null);
   }, []);
 
   const cancelNewNote = useCallback((index) => {
     setNotes(prevNotes => {
-      const updatedData = prevNotes.data.filter((_, i) => i !== index);
-      return {...prevNotes, data: updatedData};
+      const updatedData = prevNotes.notes.filter((_, i) => i !== index);
+      return {...prevNotes, notes: updatedData};
     });
     setNewNoteIndex(null);
   }, []);
@@ -402,7 +402,7 @@ const InNotes = () => {
       );
     }
 
-    if (notes && (!notes.data || notes.data.length === 0)) {
+    if (notes && (!notes.notes || notes.notes.length === 0)) {
       return (
         <div>
           Click on "Add Note" to create your first note.
@@ -410,10 +410,10 @@ const InNotes = () => {
       );
     }
 
-    if (notes && notes.data) {
+    if (notes && notes.notes) {
       return (
         <>
-          {notes.data.map((note, index) => (
+          {notes.notes.map((note, index) => (
             <NoteItem
               key={index}
               note={note}

@@ -38,10 +38,10 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    let {note, key, linkedinUser, data} = body;
+    let {note, key, linkedinUser, notes} = body;
 
-    if (typeof data === 'object') {
-      data = JSON.stringify(data);
+    if (typeof notes === 'object') {
+      notes = JSON.stringify(notes);
     }
 
     if (!key) {
@@ -55,8 +55,8 @@ export async function POST(req: NextRequest) {
                                linkedinUser = ?,
                                lastUpdate = ?,
                                linkedinKey = ?,
-                               data = ?`,
-      [userId, key, linkedinUser, note, new Date().getTime(), data, note, linkedinUser, new Date().getTime(), key, data]
+                               notes = ?`,
+      [userId, key, linkedinUser, note, new Date().getTime(), notes, note, linkedinUser, new Date().getTime(), key, data]
     );
 
     return new NextResponse(null, {status: 200});

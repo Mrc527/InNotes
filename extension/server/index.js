@@ -33,7 +33,7 @@ pool.query(`
         linkedinUser varchar(50) not null,
         linkedinKey varchar(50) null,
         note text null,
-        data text null,
+        notes text null,
         lastUpdate bigint not null,
         constraint data_users_id_fk foreign key ( userId ) references users ( id ),
         constraint user_pk unique (userId, linkedinUser),
@@ -140,21 +140,21 @@ app.post('/note/', async (req, res) => {
         res.sendStatus(401)
         return
     }
-    let {note,key,linkedinUser,data} = req.body
-    if (typeof data === 'object') {
-        data = JSON.stringify(data)
+    let {note,key,linkedinUser,notes} = req.body
+    if (typeof notes === 'object') {
+        notes = JSON.stringify(notes)
     }
 
-    console.log(note,key,linkedinUser,data)
+    console.log(note,key,linkedinUser,notes)
 
     if(!key){
         key=""
     }
 
-    const result = await pool.query(`INSERT INTO data (userId, linkedinKey,linkedinUser, note, lastUpdate, data)
+    const result = await pool.query(`INSERT INTO data (userId, linkedinKey,linkedinUser, note, lastUpdate, notes)
                                        VALUES (?,?,?,?,?,?) ON DUPLICATE KEY
     UPDATE
-        note =?, linkedinUser=?, lastUpdate=?, linkedinKey = ?, data = ?`,[userid,key,linkedinUser,note,new Date().getTime(),data,note,linkedinUser,new Date().getTime(),key,data])
+        note =?, linkedinUser=?, lastUpdate=?, linkedinKey = ?, notes = ?`,[userid,key,linkedinUser,note,new Date().getTime(),notes,note,linkedinUser,new Date().getTime(),key,notes])
     if(false) {
         console.log("Executing query", result)
     }
@@ -238,10 +238,10 @@ app.get('/search', async (req, res) => {
 
     try {
         const [results] = await pool.query(`
-            SELECT linkedinUser, note, data
+            SELECT linkedinUser, note, notes
             FROM data
             WHERE userId = ?
-              AND (data LIKE ? OR note LIKE ?)
+              AND (notes LIKE ? OR note LIKE ?)
         `, [userid, `%${searchTerm}%`, `%${searchTerm}%`]);
 
         console.log("Search Results [" + userid + ", " + searchTerm + "] -> " + JSON.stringify(results || {}));

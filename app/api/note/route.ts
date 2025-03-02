@@ -34,10 +34,10 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        let { note, key, linkedinUser, data } = body;
+        let { note, key, linkedinUser, notes } = body;
 
-        if (typeof data === 'object') {
-            data = JSON.stringify(data);
+        if (typeof notes === 'object') {
+            notes = JSON.stringify(notes);
         }
 
         if (!key) {
@@ -45,11 +45,11 @@ export async function POST(req: NextRequest) {
         }
 
         await executeQuery(
-            `INSERT INTO data (userId, linkedinKey, linkedinUser, note, lastUpdate, data)
+            `INSERT INTO data (userId, linkedinKey, linkedinUser, note, lastUpdate, notes)
              VALUES (?, ?, ?, ?, ?, ?)
              ON DUPLICATE KEY UPDATE
-             note = ?, linkedinUser = ?, lastUpdate = ?, linkedinKey = ?, data = ?`,
-            [user.id, key, linkedinUser, note, new Date().getTime(), data, note, linkedinUser, new Date().getTime(), key, data]
+             note = ?, linkedinUser = ?, lastUpdate = ?, linkedinKey = ?, notes = ?`,
+            [user.id, key, linkedinUser, note, new Date().getTime(), notes, note, linkedinUser, new Date().getTime(), key, notes]
         );
 
         return new NextResponse(null, { status: 200 });
