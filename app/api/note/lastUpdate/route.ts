@@ -49,14 +49,14 @@ export async function POST(req: NextRequest) {
     }
 
     await executeQuery(
-      `INSERT INTO data (userId, linkedinKey, linkedinUser, note, lastUpdate, data)
+      `INSERT INTO data (userId, linkedinKey, linkedinUser, note, lastUpdate, notes)
        VALUES (?, ?, ?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE note = ?,
                                linkedinUser = ?,
                                lastUpdate = ?,
                                linkedinKey = ?,
                                notes = ?`,
-      [userId, key, linkedinUser, note, new Date().getTime(), notes, note, linkedinUser, new Date().getTime(), key, data]
+      [userId, key, linkedinUser, note, new Date().getTime(), notes, note, linkedinUser, new Date().getTime(), key, notes]
     );
 
     return new NextResponse(null, {status: 200});
