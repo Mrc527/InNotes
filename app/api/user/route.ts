@@ -2,10 +2,24 @@ import {NextRequest, NextResponse} from 'next/server';
 import getUserIdFromRequest from "@/utils/authUtils";
 import executeQuery from "@/utils/dbUtils";
 import Stripe from 'stripe';
+import {sendEmail} from "@/utils/emailUtils";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-02-24.acacia",
 });
+
+// Function to send a welcome email
+async function sendWelcomeEmail(email: string, username: string) {
+  // Replace with your email sending logic (e.g., SendGrid, Mailgun, Nodemailer)
+  console.log(`Sending welcome email to ${email} for user ${username}`);
+  // Example using Nodemailer (install it with `npm install nodemailer`):
+  try{
+    return await sendEmail(email, 'Welcome to InNotes!', `Hi ${username},\n\nWelcome to InNotes! We're excited to have you on board.`)
+  }
+  catch (e: any) {
+    console.log("Error in sending email ", e);
+  }
+}
 
 export async function GET(req: NextRequest) {
   const user = await getUserIdFromRequest(req);
@@ -43,7 +57,7 @@ export async function GET(req: NextRequest) {
         console.error("Error checking Stripe subscription:", stripeError.message);
         // Handle Stripe API errors gracefully. Downgrade user to avoid infinite loops if stripe is down
         await executeQuery('UPDATE users SET status = ? WHERE id = ?', ['free', userid]);
-        user.status = 'free'; // Update the user object as well
+          user.status = 'free'; // Update the user object as well
       }
     }
 
@@ -92,6 +106,15 @@ export async function POST(req: NextRequest) {
       'INSERT INTO users (username, password, email) VALUES (?, ?, ?)',
       [username, password, email]
     );
+
+    // Send welcome email after successful registration
+    try {
+      await sendWelcomeEmail(email, username);
+    } catch (emailError: any) {
+      console.error("Error sending welcome email:", emailError.message);
+      // Consider whether to rollback the user creation or proceed despite email failure
+      // For now, we'll log the error and proceed
+    }
 
     return NextResponse.json(result, {status: 200});
   } catch (error: any) {
