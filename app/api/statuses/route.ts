@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
 
     try {
         const results = await executeQuery('SELECT * FROM statuses WHERE userId = ?', [userId]);
-        const statuses = results as any[];
+        const statuses = results[0] as any[];
         return NextResponse.json(statuses, {status: 200});
     } catch (error) {
         console.error("Error fetching statuses:", error);
