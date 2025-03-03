@@ -234,13 +234,18 @@ const StatusModal = ({isModalOpen, setIsModalOpen, statuses, setStatuses, fetchS
 
   const handleDeleteStatus = async (id) => {
     try {
-      await deleteData(`/statuses/${id}`);
+      const result = await deleteData(`/statuses/${id}`);
       await fetchStatuses();
+      const resultData = await result.json();
+      if(resultData.error) {
+        window.alert(resultData.error);
+      }
     } catch (error) {
       console.error("Error deleting status:", error);
       window.alert("Failed to delete status");
     }
   };
+
 
   if (!isModalOpen) return null;
 
