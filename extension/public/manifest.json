@@ -27,7 +27,15 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["activeTab", "tabs", "storage", "unlimitedStorage"],
+  "oauth2": {
+    "client_id": "863xxik98qva39",
+    "scopes": [
+      "profile",
+      "openid",
+      "email"
+    ]
+  },
+  "permissions": ["activeTab", "tabs", "storage", "unlimitedStorage","identity"],
   "action": {
     "default_action": "icons/Logo_64.png",
     "default_popup": "./popup.html",

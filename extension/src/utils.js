@@ -1,11 +1,11 @@
 /* global chrome */
 
-import {URL} from "./constants";
+import {BASE_URL} from "./constants";
 
 export async function getRequest(url = "", data = {}, headers = {}) {
     const settings = (await chrome.storage.sync.get("InNotes_Background"))["InNotes_Background"]
     // Default options are marked with *
-    const response = await fetch(URL + url, {
+    const response = await fetch(BASE_URL + url, {
         method: "GET", // *GET, POST, PUT, DELETE, etc.
         mode: "cors", // no-cors, *cors, same-origin
         cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -36,7 +36,7 @@ export async function getRequest(url = "", data = {}, headers = {}) {
 export async function postData(url = "", data = {}, headers = {}) {
     const settings = (await chrome.storage.sync.get("InNotes_Background"))["InNotes_Background"] || []
     // Default options are marked with *
-    return fetch(URL + url, {
+    return fetch(BASE_URL + url, {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
         mode: "cors", // no-cors, *cors, same-origin
         cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -58,7 +58,7 @@ export async function postData(url = "", data = {}, headers = {}) {
 export async function deleteData(url = "", data = {}, headers = {}) {
     const settings = (await chrome.storage.sync.get("InNotes_Background"))["InNotes_Background"] || []
     // Default options are marked with *
-    return fetch(URL + url, {
+    return fetch(BASE_URL + url, {
         method: "DELETE", // *GET, POST, PUT, DELETE, etc.
         mode: "cors", // no-cors, *cors, same-origin
         cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached

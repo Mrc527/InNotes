@@ -8,6 +8,7 @@ import {useAuth} from "./Auth";
 import LoginRegisterForm from "./components/LoginRegisterForm";
 import PremiumFeatures from "./components/PremiumFeatures";
 import MD5 from "crypto-js/md5";
+import {BASE_URL} from "./constants";
 
 const useSearch = (searchTerm, settings) => {
     const [searchResults, setSearchResults] = useState([]);
@@ -95,6 +96,7 @@ export const PopupComponent = () => {
         saveSettings,
         logout,
         submitCredentials,
+        setValidLogin
     } = useAuth();
     const [notes, setNotes] = useState([]);
     const [register, setRegister] = useState(false);
@@ -200,6 +202,72 @@ export const PopupComponent = () => {
         }
     }, [settings?.validLogin]);
 
+    const handleLinkedInLogin = () => {
+        const manifest = chrome.runtime.getManifest();
+        if (!manifest.oauth2?.scopes) throw new Error('No OAuth2 scopes defined in the manifest file');
+
+        const url = new URL('https://www.linkedin.com/uas/oauth2/authorization');
+
+        url.searchParams.set('client_id', manifest.oauth2.client_id);
+        url.searchParams.set('response_type', 'code');
+        url.searchParams.set('redirect_uri', `https://${chrome.runtime.id}.chromiumapp.org`);
+        url.searchParams.set('scope', manifest.oauth2.scopes.join(' '));
+        url.searchParams.set('state', Math.random().toString(36).substring(2, 15)); // Add state parameter
+
+        chrome.identity.launchWebAuthFlow(
+            {
+                url: url.href,
+                interactive: true
+            },
+            async (redirectedTo) => {
+                if (chrome.runtime.lastError) {
+                    console.error("LinkedIn login failed:", chrome.runtime.lastError.message);
+                    alert("LinkedIn login failed: " + chrome.runtime.lastError.message);
+                    return;
+                }
+
+                if (redirectedTo) {
+                    const url = new URL(redirectedTo);
+                    const authCode = url.searchParams.get('code');
+
+                    if (authCode) {
+                        try {
+                            const response = await fetch(BASE_URL+'/auth', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ code: authCode, redirect_uri: `https://${chrome.runtime.id}.chromiumapp.org`})
+                            });
+                            console.log("Got response",response);
+                            if (response.ok) {
+                                const data = await response.json();
+                                console.log("LinkedIn profile data:", data);
+                                // Handle successful login (e.g., store user info, update UI)
+                                setValidLogin(true);
+                                saveSettings();
+                                alert("LinkedIn login successful!");
+                            } else {
+                                console.error("Failed to exchange code for token:", response);
+                                alert("LinkedIn login failed.");
+                            }
+                        } catch (error) {
+                            console.error("Error calling backend API:", error);
+                            alert("LinkedIn login failed: Error calling backend.");
+                        }
+
+
+                    } else {
+                        console.error("LinkedIn login failed: No authorization code received.");
+                        alert("LinkedIn login failed: No authorization code received.");
+                    }
+                } else {
+                    console.error("LinkedIn login failed: Redirect URL is null.");
+                    alert("LinkedIn login failed: Redirect URL is null.");
+                }
+            }
+        );
+    };
 
 
     return (
@@ -224,6 +292,7 @@ export const PopupComponent = () => {
                     setEmail={setEmail}
                     termsAccepted={termsAccepted}
                     setTermsAccepted={setTermsAccepted}
+                    handleLinkedInLogin={handleLinkedInLogin} // Pass the handler
                 />
             )}
 

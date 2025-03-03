@@ -39,7 +39,8 @@ const LoginRegisterForm = ({
                                email,
                                setEmail,
                                termsAccepted,
-                               setTermsAccepted
+                               setTermsAccepted,
+                               handleLinkedInLogin // Add this prop
                            }) => {
 
     const [usernameError, setUsernameError] = useState('');
@@ -119,6 +120,7 @@ const LoginRegisterForm = ({
                                    value={password} /><br />
                             <button style={buttonStyle} onClick={submitCredentials}>Login</button><br />
                             <button style={linkButtonStyle} onClick={() => setRegister(true)}>Register</button>
+                            <button style={buttonStyle} onClick={handleLinkedInLogin}>Login with LinkedIn</button> {/* Add LinkedIn Login Button */}
                         </center>
                     </div>
                 </div>
