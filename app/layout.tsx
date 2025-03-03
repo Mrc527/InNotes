@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "InNotes - Coming Soon",
-  description: "Easy Note-Taking for LinkedIn",
+  title: "InNotes - Your LinkedIn CRM",
+  description: "Transform LinkedIn into your personal CRM with private notes, lead statuses, and tags.",
 };
 
 export default function RootLayout({
