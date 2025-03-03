@@ -184,19 +184,22 @@ export const PopupComponent = () => {
 
     useEffect(() => {
         if (settings?.validLogin) {
-            getRequest("/user")
-                .then(response => {
-                    setUser(response);
-                })
-                .catch(error => {
-                    console.error("Error fetching user data:", error);
-                    setUser(null);
-                });
-            getFullData();
+            (async () => {
+                getRequest("/user")
+                  .then(response => {
+                      setUser(response);
+                  })
+                  .catch(error => {
+                      console.error("Error fetching user data:", error);
+                      setUser(null);
+                  });
+                setNotes((await getFullData()));
+            })();
         } else {
             setUser(null);
         }
-    }, [settings?.validLogin]);
+    }, [settings?.validLogin, getFullData]);
+
 
 
     return (
