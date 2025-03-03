@@ -27,12 +27,12 @@ jobs:
       - name: Build extension
         run: npm run build:extension
 
-      - name: Upload & release
-        uses: mnao305/chrome-extension-upload@v5.0.0
+      - name: Upload to Chrome Web Store
+        uses: mobilefirstllc/cws-publish@latest
         with:
-          file-path: ./extension/InNotes.zip
-          extension-id: ${{ secrets.EXTENSION_ID }}
-          client-id: ${{ secrets.CHROME_WEB_STORE_CLIENT_ID }}
-          client-secret: ${{ secrets.CHROME_WEB_STORE_CLIENT_SECRET }}
-          refresh-token: ${{ secrets.CHROME_WEB_STORE_REFRESH_TOKEN }}
-
+          action: 'publish'  # one of: upload, publish, testers
+          client_id: ${{ secrets.CHROME_WEB_STORE_CLIENT_ID }}
+          client_secret: ${{ secrets.CHROME_WEB_STORE_CLIENT_SECRET }}
+          refresh_token: ${{ secrets.CHROME_WEB_STORE_REFRESH_TOKEN }}
+          extension_id: ${{ secrets.EXTENSION_ID }}
+          zip_file: ./extension/InNotes.zip
