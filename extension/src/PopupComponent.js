@@ -104,6 +104,7 @@ export const PopupComponent = () => {
     const [isImportExportOpen, setIsImportExportOpen] = useState(false);
     const [email, setEmail] = useState("");
     const [user, setUser] = useState(null);
+    const [termsAccepted, setTermsAccepted] = useState(false);
 
     const doDownload = useCallback(() => {
         const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
@@ -218,6 +219,8 @@ export const PopupComponent = () => {
                     handlePasswordKeyDown={handlePasswordKeyDown}
                     email={email}
                     setEmail={setEmail}
+                    termsAccepted={termsAccepted}
+                    setTermsAccepted={setTermsAccepted}
                 />
             )}
 

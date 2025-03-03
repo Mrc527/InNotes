@@ -25,12 +25,15 @@ const LoginRegisterForm = ({
                                handleRegister,
                                handlePasswordKeyDown,
                                email,
-                               setEmail
+                               setEmail,
+                               termsAccepted,
+                               setTermsAccepted
                            }) => {
 
     const [usernameError, setUsernameError] = useState('');
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
+    const [privacyAccepted, setPrivacyAccepted] = useState(false);
 
     const validateAndRegister = () => {
         let isValid = true;
@@ -68,6 +71,18 @@ const LoginRegisterForm = ({
             } else {
                 setPasswordError("");
             }
+        }
+
+        if (!termsAccepted) {
+            window.alert("Please accept the Terms & Conditions to register.");
+            isValid = false;
+            return;
+        }
+
+        if (!privacyAccepted) {
+            window.alert("Please accept the Privacy Policy to register.");
+            isValid = false;
+            return;
         }
 
         if (isValid) {
@@ -116,7 +131,26 @@ const LoginRegisterForm = ({
                                value={password} required /><br />
                         {passwordError && <div style={{ color: 'red' }}>{passwordError}</div>}
 
-                        <button style={buttonStyle} onClick={validateAndRegister}>Register</button><br />
+                        <label style={{ display: 'flex', alignItems: 'center', marginBottom: '5px', justifyContent: 'center' }}>
+                            <input
+                                type="checkbox"
+                                checked={termsAccepted}
+                                onChange={(e) => setTermsAccepted(e.target.checked)}
+                                style={{ marginRight: '5px' }}
+                            />
+                            I accept the <a href="https://innotes.me/terms-conditions" target="_blank" rel="noopener noreferrer">Terms & Conditions</a>
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', justifyContent: 'center' }}>
+                            <input
+                                type="checkbox"
+                                checked={privacyAccepted}
+                                onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                                style={{ marginRight: '5px' }}
+                            />
+                            I accept the <a href="https://innotes.me/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+                        </label>
+
+                        <button style={buttonStyle} disabled={!termsAccepted || !privacyAccepted} onClick={validateAndRegister}>Register</button><br />
                         <a href="#" onClick={() => setRegister(false)}>Login</a>
                     </center>
                 </div>
