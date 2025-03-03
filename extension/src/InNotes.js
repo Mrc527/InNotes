@@ -1,7 +1,7 @@
 /* global chrome */
 import React, {useEffect, useState, useCallback, useRef} from "react";
 import "./App.css";
-import {loadData, saveData} from "./utils";
+import {loadData, saveData, getRequest, postData} from "./utils";
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 
@@ -195,16 +195,31 @@ const InNotes = () => {
   const [loading, setLoading] = useState(true);
   const [registrationError, setRegistrationError] = useState(false);
   const [tags, setTags] = useState([]);
-  const [status, setStatus] = useState("Initial Contact");
+  const [statusId, setStatusId] = useState("");
   const [addingTag, setAddingTag] = useState(false);
   const [newTag, setNewTag] = useState('');
   const newTagInputRef = useRef(null);
+  const [statuses, setStatuses] = useState([]);
+  const [managingStatuses, setManagingStatuses] = useState(false);
 
   const openRegistrationPopup = () => {
     chrome.runtime.sendMessage({message: "openRegistrationPopup"});
   };
 
   const previousNotes = useRef(notes);
+
+  const fetchStatuses = useCallback(async () => {
+    try {
+      const data = await getRequest('/statuses');
+      setStatuses(data);
+    } catch (error) {
+      console.error("Error fetching statuses:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchStatuses();
+  }, [fetchStatuses]);
 
   useEffect(() => {
     if (username) {
@@ -231,12 +246,12 @@ const InNotes = () => {
             })) : [];
             setNotes({...item, notes: normalizedData});
             setTags(item.tags || []);
-            setStatus(item.status || "Initial Contact");
+            setStatusId(item.statusId || "");
             previousNotes.current = {...item, notes: normalizedData}
           } else {
             setNotes({});
             setTags([]);
-            setStatus("Initial Contact");
+            setStatusId("");
             previousNotes.current = {}
           }
         })
@@ -252,7 +267,7 @@ const InNotes = () => {
 
   const saveDataToBackend = useCallback(async (notesToSave) => {
     try {
-      await saveData(username, notesToSave);
+      await saveData("", notesToSave);
     } catch (error) {
       window.alert("Cannot save data. Please check your login.");
       console.error("Error saving data", error);
@@ -261,7 +276,7 @@ const InNotes = () => {
 
   useEffect(() => {
     getKey().then(key => {
-      const notesToBeSaved = {...notes, tags, status}
+      const notesToBeSaved = {...notes, tags, statusId}
       if (!notesToBeSaved.linkedinUser || notesToBeSaved.linkedinUser === "") {
         notesToBeSaved.linkedinUser = username
       }
@@ -274,7 +289,7 @@ const InNotes = () => {
       }
       previousNotes.current = notesToBeSaved;
     })
-  }, [notes, saveDataToBackend, username, tags, status]);
+  }, [notes, saveDataToBackend, username, tags, statusId]);
 
   const noteHasToBeSaved = (previous, current) => {
     console.log("Checking for changes", JSON.stringify(previous), JSON.stringify(current))
@@ -401,8 +416,8 @@ const InNotes = () => {
     setTags(prevTags => prevTags.filter(tag => tag !== tagToRemove));
   };
 
-  const handleStatusChange = (newStatus) => {
-    setStatus(newStatus);
+  const handleStatusChange = (e) => {
+    setStatusId(e.target.value);
   };
 
   const handleAddTagClick = () => {
@@ -428,6 +443,10 @@ const InNotes = () => {
   const handleCancelNewTag = () => {
     setNewTag('');
     setAddingTag(false);
+  };
+
+  const handleManageStatusesClick = () => {
+    setManagingStatuses(true);
   };
 
   const renderNotes = () => {
@@ -486,7 +505,7 @@ const InNotes = () => {
 
   return (
     <div className="artdeco-card ember-view relative break-words pb3 mt2">
-      <div className="pvs-header__container" style={{display: "flex",flexDirection: "column"}}>
+      <div className="pvs-header__container" style={{display: "flex", flexDirection: "column"}}>
         <div className="pvs-header__top-container--no-stack">
           <div className="pvs-header__left-container--stack">
             <div className="title-container pvs-header__title-container">
@@ -594,22 +613,24 @@ const InNotes = () => {
       </div>
 
       {/* Status Dropdown */}
-      <div className="ph5 pv3">
-        <label htmlFor="status" className="text-body-small mb1">Status:</label>
-        <div className="select-wrapper">
-          <select
-            id="status"
-            className="artdeco-dropdown__item"
-            value={status}
-            onChange={(e) => handleStatusChange(e.target.value)}
-          >
-            <option value="Initial Contact">Initial Contact</option>
-            <option value="Qualified Lead">Qualified Lead</option>
-            <option value="Proposal Sent">Proposal Sent</option>
-            <option value="Closed Won">Closed Won</option>
-            <option value="Closed Lost">Closed Lost</option>
-          </select>
+      <div className="ph5 pv3" style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+        <div>
+          <label htmlFor="status" className="text-body-small mb1">Status:</label>
+          <div className="select-wrapper">
+            <select
+              id="status"
+              className="artdeco-dropdown__item"
+              value={statusId}
+              onChange={handleStatusChange}
+            >
+              <option value="">Select Status</option>
+              {statuses.map(statusItem => (
+                <option key={statusItem.id} value={statusItem.id}>{statusItem.name}</option>
+              ))}
+            </select>
+          </div>
         </div>
+        <button className={editButtonStyle} onClick={handleManageStatusesClick}>Manage Statuses</button>
       </div>
 
       <div className="display-flex ph5 pv3 notes-container" style={{flexDirection: "column"}}>
