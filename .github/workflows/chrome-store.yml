@@ -2,8 +2,8 @@ name: Deploy Chrome Extension
 
 on:
   push:
-    branches:
-      - main # Or your release branch
+    tags:
+      - 'ChromeExtension v.*'
 
 jobs:
   deploy:
