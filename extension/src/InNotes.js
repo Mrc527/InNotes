@@ -1,7 +1,7 @@
 /* global chrome */
 import React, {useEffect, useState, useCallback, useRef} from "react";
 import "./App.css";
-import {loadData, saveData, getRequest, postData} from "./utils";
+import {loadData, saveData, getRequest, postData, deleteData} from "./utils";
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 
@@ -188,6 +188,124 @@ const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, cancelNe
   );
 };
 
+const StatusModal = ({isModalOpen, setIsModalOpen, statuses, setStatuses, fetchStatuses}) => {
+  const [newStatusName, setNewStatusName] = useState('');
+  const [editingStatusId, setEditingStatusId] = useState(null);
+  const [editedStatusName, setEditedStatusName] = useState('');
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingStatusId(null);
+  };
+
+  const handleAddStatus = async () => {
+    if (newStatusName.trim() !== '') {
+      try {
+        await postData('/statuses', {name: newStatusName});
+        setNewStatusName('');
+        await fetchStatuses();
+      } catch (error) {
+        console.error("Error creating status:", error);
+        window.alert("Failed to create status");
+      }
+    }
+  };
+
+  const handleEditStatus = (status) => {
+    setEditingStatusId(status.id);
+    setEditedStatusName(status.name);
+  };
+
+  const handleUpdateStatus = async () => {
+    if (editedStatusName.trim() !== '') {
+      try {
+        await postData(`/statuses/${editingStatusId}`, {name: editedStatusName}, {
+          method: 'PUT',
+        });
+        setEditingStatusId(null);
+        setEditedStatusName('');
+        await fetchStatuses();
+      } catch (error) {
+        console.error("Error updating status:", error);
+        window.alert("Failed to update status");
+      }
+    }
+  };
+
+  const handleDeleteStatus = async (id) => {
+    try {
+      await deleteData(`/statuses/${id}`);
+      await fetchStatuses();
+    } catch (error) {
+      console.error("Error deleting status:", error);
+      window.alert("Failed to delete status");
+    }
+  };
+
+  if (!isModalOpen) return null;
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      backgroundColor: 'white',
+      padding: '20px',
+      zIndex: 1000,
+      borderRadius: '5px',
+      boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+      width: '50%',
+      maxWidth: '600px',
+    }}>
+      <h2>Manage Statuses</h2>
+      <ul>
+        {statuses.map(status => (
+          <li key={status.id} style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '5px 0',
+            borderBottom: '1px solid #eee'
+          }}>
+            {editingStatusId === status.id ? (
+              <>
+                <input
+                  type="text"
+                  value={editedStatusName}
+                  onChange={(e) => setEditedStatusName(e.target.value)}
+                  style={{padding: '8px', borderRadius: '4px', border: '1px solid #ccc', marginRight: '10px'}}
+                />
+                <button onClick={handleUpdateStatus} className={saveButtonStyle}>Update</button>
+              </>
+            ) : (
+              <>
+                <span>{status.name}</span>
+                <div>
+                  <button onClick={() => handleEditStatus(status)} className={editButtonStyle}
+                          style={{marginRight: '5px'}}>Edit</button>
+                  <button onClick={() => handleDeleteStatus(status.id)} className={deleteButtonStyle}>Delete</button>
+                </div>
+              </>
+            )}
+          </li>
+        ))}
+      </ul>
+      <div>
+        <input
+          type="text"
+          placeholder="New Status Name"
+          value={newStatusName}
+          onChange={(e) => setNewStatusName(e.target.value)}
+          style={{padding: '8px', borderRadius: '4px', border: '1px solid #ccc', marginRight: '10px'}}
+        />
+        <button onClick={handleAddStatus} className={saveButtonStyle}>Add Status</button>
+      </div>
+      <button onClick={handleCloseModal} className={cancelButtonStyle} style={{marginTop: '20px'}}>Close</button>
+    </div>
+  );
+};
+
 const InNotes = () => {
   const [notes, setNotes] = useState(null);
   const [username, setUsername] = useState(window.location.href.split("/in/")[1].split("/")[0]);
@@ -201,6 +319,7 @@ const InNotes = () => {
   const newTagInputRef = useRef(null);
   const [statuses, setStatuses] = useState([]);
   const [managingStatuses, setManagingStatuses] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openRegistrationPopup = () => {
     chrome.runtime.sendMessage({message: "openRegistrationPopup"});
@@ -446,7 +565,7 @@ const InNotes = () => {
   };
 
   const handleManageStatusesClick = () => {
-    setManagingStatuses(true);
+    setIsModalOpen(true);
   };
 
   const renderNotes = () => {
@@ -636,6 +755,13 @@ const InNotes = () => {
       <div className="display-flex ph5 pv3 notes-container" style={{flexDirection: "column"}}>
         {renderNotes()}
       </div>
+      <StatusModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        statuses={statuses}
+        setStatuses={setStatuses}
+        fetchStatuses={fetchStatuses}
+      />
     </div>
   );
 };

@@ -55,6 +55,28 @@ export async function postData(url = "", data = {}, headers = {}) {
 
 }
 
+export async function deleteData(url = "", data = {}, headers = {}) {
+    const settings = (await chrome.storage.sync.get("InNotes_Background"))["InNotes_Background"] || []
+    // Default options are marked with *
+    return fetch(URL + url, {
+        method: "DELETE", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+            "Content-Type": "application/json",
+            "username": settings["username"],
+            "password": settings["password"],
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+            ...headers
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: typeof data === 'string'? data : JSON.stringify(data), // body data type must match "Content-Type" header
+    });
+
+}
+
 
 export async function loadDataFromUniqueKey(key) {
     return await loadData(key,false)
