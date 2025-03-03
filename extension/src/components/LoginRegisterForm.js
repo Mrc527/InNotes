@@ -13,6 +13,18 @@ const buttonStyle = {
     margin: '5px'
 };
 
+const linkButtonStyle = {
+    background: 'none',
+    border: 'none',
+    padding: 0,
+    font: 'inherit',
+    cursor: 'pointer',
+    color: '#007BFF',
+    textDecoration: 'underline',
+    display: 'inline',
+    margin: 0,
+};
+
 const LoginRegisterForm = ({
                                username,
                                password,
@@ -75,13 +87,11 @@ const LoginRegisterForm = ({
 
         if (!termsAccepted) {
             window.alert("Please accept the Terms & Conditions to register.");
-            isValid = false;
             return;
         }
 
         if (!privacyAccepted) {
             window.alert("Please accept the Privacy Policy to register.");
-            isValid = false;
             return;
         }
 
@@ -108,7 +118,7 @@ const LoginRegisterForm = ({
                                    onChange={(e) => setPassword(e.target.value)} onKeyDown={handlePasswordKeyDown}
                                    value={password} /><br />
                             <button style={buttonStyle} onClick={submitCredentials}>Login</button><br />
-                            <a href="#" onClick={() => setRegister(true)}>Register</a>
+                            <button style={linkButtonStyle} onClick={() => setRegister(true)}>Register</button>
                         </center>
                     </div>
                 </div>
@@ -151,7 +161,7 @@ const LoginRegisterForm = ({
                         </label>
 
                         <button style={buttonStyle} disabled={!termsAccepted || !privacyAccepted} onClick={validateAndRegister}>Register</button><br />
-                        <a href="#" onClick={() => setRegister(false)}>Login</a>
+                        <button style={linkButtonStyle} onClick={() => setRegister(false)}>Login</button>
                     </center>
                 </div>
             )}

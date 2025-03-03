@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@vercel/analytics": "^1.5.0",
-    "antd": "^5.24.2",
     "cardinal": "^2.1.1",
     "crypto-js": "^4.2.0",
     "eslint": "8.28.0",

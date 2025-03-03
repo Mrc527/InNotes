@@ -188,7 +188,7 @@ const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, cancelNe
   );
 };
 
-const StatusModal = ({isModalOpen, setIsModalOpen, statuses, setStatuses, fetchStatuses}) => {
+const StatusModal = ({isModalOpen, setIsModalOpen, statuses, fetchStatuses}) => {
   const [newStatusName, setNewStatusName] = useState('');
   const [editingStatusId, setEditingStatusId] = useState(null);
   const [editedStatusName, setEditedStatusName] = useState('');
@@ -323,7 +323,6 @@ const InNotes = () => {
   const [newTag, setNewTag] = useState('');
   const newTagInputRef = useRef(null);
   const [statuses, setStatuses] = useState([]);
-  const [managingStatuses, setManagingStatuses] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openRegistrationPopup = () => {
@@ -396,7 +395,7 @@ const InNotes = () => {
       window.alert("Cannot save data. Please check your login.");
       console.error("Error saving data", error);
     }
-  }, [username]);
+  }, []);
 
   useEffect(() => {
     getKey().then(key => {
@@ -473,7 +472,7 @@ const InNotes = () => {
   };
 
   chrome.runtime.onMessage.addListener(
-    function (request, sender, sendResponse) {
+    function (request) {
       if (request.message === 'url_update') {
         setUsername(request.url.split("/in/")[1].split("/")[0]);
       }
@@ -587,7 +586,15 @@ const InNotes = () => {
     if (registrationError) {
       return (
         <div>
-          Please <a href="#" onClick={openRegistrationPopup}>register</a> to use InNotes.
+          Please <button style={{
+          background: 'none',
+          color: 'blue',
+          border: 'none',
+          padding: 0,
+          font: 'inherit',
+          cursor: 'pointer',
+          textDecoration: 'underline'
+        }} onClick={openRegistrationPopup}>register</button> to use InNotes.
         </div>
       );
     }

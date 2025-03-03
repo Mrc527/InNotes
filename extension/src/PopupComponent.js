@@ -14,6 +14,7 @@ const useSearch = (searchTerm, settings) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const debouncedSearch = useCallback(
         debounce(async (term) => {
             if (!term) {
@@ -29,8 +30,7 @@ const useSearch = (searchTerm, settings) => {
                     username: settings.username,
                     password: settings.password
                 });
-                const parsed = results.map(r => ({...r, data: JSON.parse(r.notes)}));
-                setSearchResults(parsed);
+                setSearchResults(results);
             } catch (err) {
                 setError(err.message || "Search failed");
                 setSearchResults([]);
@@ -198,7 +198,7 @@ export const PopupComponent = () => {
         } else {
             setUser(null);
         }
-    }, [settings?.validLogin, getFullData]);
+    }, [settings?.validLogin]);
 
 
 

@@ -1,34 +1,23 @@
 import React from "react";
 import "./App.css";
-import {Collapse, Image} from "antd";
 import logo from './icons/Logo_48.png';
 
-import InNotesPopup from "./InNotesMessagingSection";
+import InNotesMessagingSection from "./InNotesMessagingSection";
 
-const {Panel} = Collapse;
-
-export default () => {
+const InNotesMessagingCollapse = () => {
     return (
         <div className="artdeco-card ember-view relative break-words">
-
-            <Collapse expandIcon={() => {
-                return <Image preview={false} width="28px" height="28px" src={logo}></Image>
-            }}>
-                <Panel header="InNotes" key="1">
-                    <InNotesPopup></InNotesPopup>
-                </Panel>
-            </Collapse>
+            <details>
+                <summary style={{listStyle: 'none', padding: '0', margin: '0'}}>
+                    <img src={logo} width="28px" height="28px" alt="InNotes Logo" style={{verticalAlign: 'middle'}}/>
+                    InNotes
+                </summary>
+                <div style={{padding: '10px'}}>
+                    <InNotesMessagingSection/>
+                </div>
+            </details>
         </div>
     );
-    /*return (
-        <div className="artdeco-card ember-view relative break-words mt7">
-            <button className="btn btn-success" onClick={() => {
-                setShow(!show)
-            }}><Image preview={false} src={Logo} width="40px" height="40px"></Image></button>
-            <Modal open={show}>
-                <InNotesPopup username={user}></InNotesPopup>
-            </Modal>
-        </div>
-    );*/
 };
 
+export default InNotesMessagingCollapse;
