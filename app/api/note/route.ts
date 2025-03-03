@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({}, { status: 200 });
         }
 
-        const rows = queryResult[0] as any[];
+        const rows = queryResult;
         console.log(`Result Self Data [${user.id}] -> ${JSON.stringify(rows || {})}`);
         return NextResponse.json(rows || {}, { status: 200 });
     } catch (error: any) {
