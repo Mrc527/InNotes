@@ -81,7 +81,7 @@ export async function DELETE(req: NextRequest, props: Props) {
 
         return NextResponse.json(result, {status: 200});
     } catch (error: any) {
-        if (error.message.includes('FOREIGN KEY constraint failed')) {
+        if (error?.message?.toString()?.toLowerCase()?.includes('foreign key constraint fails')) {
             return NextResponse.json({error: "Cannot delete status because it is in use."}, {status: 400});
         }
         console.error("Error deleting status:", error);
