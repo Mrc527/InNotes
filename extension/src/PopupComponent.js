@@ -368,7 +368,7 @@ export const PopupComponent = () => {
         Made with <span>❤</span>️ by <a target="_blank" rel="noopener noreferrer" href="http://marco.visin.ch">Marco
         Visin -
         marco.visin.ch</a><br/>
-        <span>Version 1.1.8</span>
+        <span>Version 1.3.1</span>
       </div>
     </div>
   );

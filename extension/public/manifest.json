@@ -1,6 +1,6 @@
 {
   "name": "InNotes",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "manifest_version": 3,
   "description": "Transform LinkedIn into your personal CRM",
   "host_permissions": [
