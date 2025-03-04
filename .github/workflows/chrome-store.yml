@@ -3,7 +3,7 @@ name: Deploy Chrome Extension
 on:
   push:
     tags:
-      - 'ChromeExtension v.*'
+      - 'ChromeExtension_v.*'
 
 jobs:
   deploy:
