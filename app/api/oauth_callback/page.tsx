@@ -1,9 +1,8 @@
 /* global window */
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 const LinkedInAuthPage = () => {
-  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -11,20 +10,15 @@ const LinkedInAuthPage = () => {
       const code = searchParams.get('code');
       const state = searchParams.get('state');
       const redirect = `${state}popup.html?authKey=${code}`;
-      setRedirectUrl(redirect);
-
-      setTimeout(() => {
-        window.location.href = redirect;
-      }, 5000);
+      window.location.href = redirect;
     }
   }, []);
 
 
   return (
     <div>
-      <h1>Processing LinkedIn Authentication</h1>
-      <div>{redirectUrl}</div>
-      <p>You can close this window.</p>
+      <h1>Processing LinkedIn Authentication...</h1>
+      <p>You should be redirected soon.</p>
     </div>
   );
 };

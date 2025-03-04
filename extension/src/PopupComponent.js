@@ -200,6 +200,7 @@ export const PopupComponent = () => {
               password: data.authData.password,
               validLogin: true
             });
+            window.close();
 
           } else {
             console.error("Failed to exchange code for token:", response);
