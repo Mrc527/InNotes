@@ -1,25 +1,11 @@
 import {NextRequest, NextResponse} from 'next/server';
-import getUserIdFromRequest from "@/utils/authUtils";
+import getUserIdFromRequest, {registerUser} from "@/utils/authUtils";
 import executeQuery from "@/utils/dbUtils";
 import Stripe from 'stripe';
-import {sendEmail} from "@/utils/emailUtils";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-02-24.acacia",
 });
-
-// Function to send a welcome email
-async function sendWelcomeEmail(email: string, username: string) {
-  // Replace with your email sending logic (e.g., SendGrid, Mailgun, Nodemailer)
-  console.log(`Sending welcome email to ${email} for user ${username}`);
-  // Example using Nodemailer (install it with `npm install nodemailer`):
-  try{
-    return await sendEmail(email, 'Welcome to InNotes!', `Hi ${username},\n\nWelcome to InNotes! We're excited to have you on board.`)
-  }
-  catch (e: any) {
-    console.log("Error in sending email ", e);
-  }
-}
 
 export async function GET(req: NextRequest) {
   const user = await getUserIdFromRequest(req);
@@ -76,49 +62,5 @@ export async function POST(req: NextRequest) {
   if (!username || !password || !email) {
     return NextResponse.json({error: "Username, password and email are required"}, {status: 400});
   }
-
-  try {
-    // Check if the username already exists
-    const existingUsernames = await executeQuery(
-      'SELECT * FROM users WHERE username = ?',
-      [username]
-    );
-
-    const usernameRows = existingUsernames as any[];
-
-    if (usernameRows && usernameRows.length > 0) {
-      return NextResponse.json({error: "Username already taken"}, {status: 403});
-    }
-
-    // Check if the email already exists
-    const existingEmails = await executeQuery(
-        'SELECT * FROM users WHERE email = ?',
-        [email]
-    );
-
-    const emailRows = existingEmails as any[];
-
-    if (emailRows && emailRows.length > 0) {
-      return NextResponse.json({error: "Email already taken"}, {status: 403});
-    }
-
-    const result = await executeQuery(
-      'INSERT INTO users (username, password, email) VALUES (?, ?, ?)',
-      [username, password, email]
-    );
-
-    // Send welcome email after successful registration
-    try {
-      await sendWelcomeEmail(email, username);
-    } catch (emailError: any) {
-      console.error("Error sending welcome email:", emailError.message);
-      // Consider whether to rollback the user creation or proceed despite email failure
-      // For now, we'll log the error and proceed
-    }
-
-    return NextResponse.json(result, {status: 200});
-  } catch (error: any) {
-    console.error("Error user registration -> ", error.message);
-    return NextResponse.json({error: error.message}, {status: 403});
-  }
+  return await registerUser({name: username, username: username,password:password,email:email})
 }

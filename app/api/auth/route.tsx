@@ -1,4 +1,5 @@
 import {NextRequest, NextResponse} from 'next/server';
+import {authenticateUser, registerUser, userExists} from "@/utils/authUtils";
 
 const LINKEDIN_CLIENT_ID = process.env.LINKEDIN_CLIENT_ID;
 const LINKEDIN_CLIENT_SECRET = process.env.LINKEDIN_CLIENT_SECRET;
@@ -43,6 +44,7 @@ export async function POST(req: NextRequest) {
     }
 
     const tokenData = await tokenResponse.json();
+    console.log(tokenData);
     const {access_token} = tokenData;
 
     if (!access_token) {
@@ -91,22 +93,19 @@ export async function POST(req: NextRequest) {
     const profileData = await profileResponse.json();
 
     console.log("Got profile data", profileData);
-    const profile = {
-      "profile": {
-        "sub": "G7Ozh0laJm",
-        "email_verified": true,
-        "name": "Marco Visin",
-        "locale": {
-          "country": "US",
-          "language": "en"
-        },
-        "given_name": "Marco",
-        "family_name": "Visin",
-        "email": "marco@visin.ch",
-        "picture": "https://media.licdn.com/dms/image/v2/D4E03AQELzQAhZAmiwg/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1695622932610?e=1746662400&v=beta&t=3aBi7xYl0-u3EJ2eIfL2SLYx9C1MqPpNzK5L__AZvpI"
-      }
+    const user = {
+      name:profileData.name,
+      email: profileData.email,
+      picture: profileData.picture,
+      id: profileData.sub,
     }
-    return NextResponse.json({profile: profileData}, {status: 200});
+    if(! (await userExists(user.id))) {
+      const result = await registerUser(user)
+      console.log("Registration", result);
+      return NextResponse.json({profile: profileData, authData: result}, {status: 200});
+    }
+    const authData = await authenticateUser(user)
+    return NextResponse.json({profile: profileData, authData: authData}, {status: 200});
 
   } catch (error) {
     console.error('Server error:', error);

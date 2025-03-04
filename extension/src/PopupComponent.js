@@ -3,11 +3,10 @@ import React, {useEffect, useState, useCallback} from "react";
 import {isSafari} from 'react-device-detect';
 import {debounce} from 'lodash';
 
-import {getFullData, saveFullData, getRequest, registerNewUser, postData} from "./utils";
+import {getFullData, saveFullData, getRequest, postData} from "./utils";
 import {useAuth} from "./Auth";
 import LoginRegisterForm from "./components/LoginRegisterForm";
 import PremiumFeatures from "./components/PremiumFeatures";
-import MD5 from "crypto-js/md5";
 import {BASE_URL} from "./constants";
 
 const useSearch = (searchTerm, settings) => {
@@ -90,23 +89,18 @@ export const PopupComponent = () => {
         settings,
         username,
         password,
-        loginError,
         setUsername,
         setPassword,
         saveSettings,
         logout,
         submitCredentials,
-        setValidLogin
     } = useAuth();
     const [notes, setNotes] = useState([]);
-    const [register, setRegister] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const { searchResults, loading: searchLoading, error: searchError } = useSearch(searchTerm, settings);
     const [stripeLoading, setStripeLoading] = useState(false);
     const [isImportExportOpen, setIsImportExportOpen] = useState(false);
-    const [email, setEmail] = useState("");
     const [user, setUser] = useState(null);
-    const [termsAccepted, setTermsAccepted] = useState(false);
 
     const doDownload = useCallback(() => {
         const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
@@ -137,11 +131,6 @@ export const PopupComponent = () => {
         fileReader.readAsText(e.target.files[0], "UTF-8");
     }, []);
 
-    const handlePasswordKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            submitCredentials();
-        }
-    };
 
     const handleStripeCheckout = async () => {
         setStripeLoading(true);
@@ -164,25 +153,6 @@ export const PopupComponent = () => {
             setStripeLoading(false);
         }
     };
-
-
-    const handleRegister = useCallback(() => {
-        registerNewUser({username, password: "-IN-" + MD5(password).toString(), email})
-            .then(response => {
-                if (response.ok) {
-                    saveSettings();
-                    window.alert("User registration successful.");
-                } else {
-                    return response.text().then(text => {
-                        window.alert("User registration failed: " + text);
-                    });
-                }
-            })
-            .catch(error => {
-                console.error("Registration error", error);
-                window.alert("Registration failed. Please try again later.");
-            });
-    }, [username, password, saveSettings, email]);
 
     useEffect(() => {
         if (settings?.validLogin) {
@@ -239,14 +209,12 @@ export const PopupComponent = () => {
                                 },
                                 body: JSON.stringify({ code: authCode, redirect_uri: `https://${chrome.runtime.id}.chromiumapp.org`})
                             });
-                            console.log("Got response",response);
                             if (response.ok) {
                                 const data = await response.json();
-                                console.log("LinkedIn profile data:", data);
-                                // Handle successful login (e.g., store user info, update UI)
-                                setValidLogin(true);
-                                saveSettings();
-                                alert("LinkedIn login successful!");
+                                setPassword(data.authData.password);
+                                setUsername(data.authData.username);
+                                saveSettings({username: data.authData.username, password: data.authData.password, validLogin:true});
+
                             } else {
                                 console.error("Failed to exchange code for token:", response);
                                 alert("LinkedIn login failed.");
@@ -270,6 +238,7 @@ export const PopupComponent = () => {
     };
 
 
+
     return (
         <div className="popup-container" style={{ minWidth: '500px', padding: '16px' }}>
             <img style={{margin: "auto", display: "block", width: "150px"}}
@@ -278,20 +247,6 @@ export const PopupComponent = () => {
             <div className={"title-container"}>Easy Note-Taking for LinkedIn</div>
             {!settings?.validLogin && (
                 <LoginRegisterForm
-                    username={username}
-                    password={password}
-                    setUsername={setUsername}
-                    setPassword={setPassword}
-                    loginError={loginError}
-                    submitCredentials={submitCredentials}
-                    register={register}
-                    setRegister={setRegister}
-                    handleRegister={handleRegister}
-                    handlePasswordKeyDown={handlePasswordKeyDown}
-                    email={email}
-                    setEmail={setEmail}
-                    termsAccepted={termsAccepted}
-                    setTermsAccepted={setTermsAccepted}
                     handleLinkedInLogin={handleLinkedInLogin} // Pass the handler
                 />
             )}

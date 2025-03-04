@@ -1,6 +1,5 @@
 /* global chrome */
 import {useState, useCallback, useEffect} from "react";
-import MD5 from "crypto-js/md5";
 import {getRequest} from "./utils";
 
 export const useAuth = () => {
@@ -37,12 +36,7 @@ export const useAuth = () => {
 
     const submitCredentials = useCallback(async () => {
         setLoginError(false);
-        let newPassword = password;
-        if (newPassword && !newPassword.startsWith("-IN-")) {
-            newPassword = "-IN-" + MD5(newPassword).toString();
-            setPassword(newPassword);
-        }
-        saveSettings({password: newPassword, username: username});
+        saveSettings({password: password, username: username});
         try {
             await getRequest("/user");
             saveSettings({validLogin: true});
