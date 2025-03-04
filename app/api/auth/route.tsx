@@ -50,7 +50,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({error: 'Access token not found in response'}, {status: 500});
     }
     console.log("Got access token", access_token);
+    const introspectionEndpoint = 'https://www.linkedin.com/oauth/v2/introspectToken';
 
+    const introspectionResponse = await fetch(introspectionEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        client_id: LINKEDIN_CLIENT_ID,
+        client_secret: LINKEDIN_CLIENT_SECRET,
+        token: access_token,
+      }),
+    });
+
+    if (!introspectionResponse.ok) {
+      const errorData = await introspectionResponse.json();
+      console.error('LinkedIn token introspection error:', errorData);
+      return NextResponse.json({
+        error: 'Failed to introspect token',
+        details: errorData,
+      }, {status: 400});
+    }
+
+    const introspectionData = await introspectionResponse.json();
+    console.log(introspectionData);
     // Use the access token to fetch user profile information from LinkedIn
     const profileResponse = await fetch('https://api.linkedin.com/v2/userinfo', {
       headers: {
@@ -67,7 +91,21 @@ export async function POST(req: NextRequest) {
     const profileData = await profileResponse.json();
 
     console.log("Got profile data", profileData);
-
+    const profile = {
+      "profile": {
+        "sub": "G7Ozh0laJm",
+        "email_verified": true,
+        "name": "Marco Visin",
+        "locale": {
+          "country": "US",
+          "language": "en"
+        },
+        "given_name": "Marco",
+        "family_name": "Visin",
+        "email": "marco@visin.ch",
+        "picture": "https://media.licdn.com/dms/image/v2/D4E03AQELzQAhZAmiwg/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1695622932610?e=1746662400&v=beta&t=3aBi7xYl0-u3EJ2eIfL2SLYx9C1MqPpNzK5L__AZvpI"
+      }
+    }
     return NextResponse.json({profile: profileData}, {status: 200});
 
   } catch (error) {
