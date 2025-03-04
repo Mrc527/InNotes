@@ -2,7 +2,7 @@
   "name": "InNotes",
   "version": "1.3.0",
   "manifest_version": 3,
-  "description": "InNotes is a productivity tool designed to enhance the LinkedIn experience by transforming it into a personalized Customer Relationship Management (CRM) system.\n\nIt provides users with the ability to take private, profile-specific notes, ensuring that important details about contacts are readily accessible and not visible to others.\nThe application also allows for the assignment of lead statuses to connections, enabling users to track their relationships and manage their networking efforts more effectively.\nFurthermore, InNotes incorporates a tagging system, facilitating categorization and filtering of contacts for streamlined organization and efficient searching.",
+  "description": "Transform LinkedIn into your personal CRM",
   "host_permissions": [
     "https://innotes.me/",
     "http://localhost:3000/",
