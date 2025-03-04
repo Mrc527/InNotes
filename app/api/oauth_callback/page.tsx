@@ -1,18 +1,23 @@
+/* global window */
 "use client";
-
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const LinkedInAuthPage = () => {
-  const searchParams = new URLSearchParams(window.location.search);
-  const code = searchParams.get('code');
-  const state = searchParams.get('state');
-  const redirectUrl = `${state}popup.html?authKey=${code}`;
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    setTimeout(() => {
-      window.location.href = redirectUrl;
-    }, 5000);
-  }, [code, redirectUrl]);
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const code = searchParams.get('code');
+      const state = searchParams.get('state');
+      const redirect = `${state}popup.html?authKey=${code}`;
+      setRedirectUrl(redirect);
+
+      setTimeout(() => {
+        window.location.href = redirect;
+      }, 5000);
+    }
+  }, []);
 
 
   return (
