@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
             `SELECT linkedinUser, note, notes
              FROM data
              WHERE userId = ?
-               AND (notes LIKE ? OR note LIKE ?)`,
+               AND (LOWER(notes) LIKE LOWER(?) OR LOWER(note) LIKE LOWER(?))`,
             [user.id, `%${searchTerm}%`, `%${searchTerm}%`]
         );
 
