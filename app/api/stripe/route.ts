@@ -13,7 +13,7 @@ const HOST_NAME =
 
 export async function POST(req: NextRequest) {
   const user = await getUserIdFromRequest(req);
-  if (!user) {
+  if (!user?.id) {
     return new NextResponse(null, { status: 401 });
   }
   try {
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       mode: 'subscription',
       success_url: `${HOST_NAME}/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${HOST_NAME}/stripe/cancel`,
-    });
+    },{});
 
 
     return NextResponse.json({ url: session.url });

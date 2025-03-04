@@ -62,5 +62,6 @@ export async function POST(req: NextRequest) {
   if (!username || !password || !email) {
     return NextResponse.json({error: "Username, password and email are required"}, {status: 400});
   }
-  return await registerUser({name: username, username: username,password:password,email:email})
+  const result =  await registerUser({name: username, username: username,password:password,email:email})
+  return NextResponse.json(result, {status: 201});
 }

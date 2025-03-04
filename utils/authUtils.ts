@@ -85,7 +85,7 @@ export async function authenticateUser(user: User) {
 export async function registerUser(user: User) {
 
   if (!user.id && (!user.username || !user.password || !user.email)) {
-    return NextResponse.json({error: "Username, password and email are required"}, {status: 400});
+    throw new Error("Username, password and email are required");
   }
 
   if (user.username) {
