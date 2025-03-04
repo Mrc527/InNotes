@@ -1,5 +1,4 @@
 /* global chrome */
-/* global browser */
 import React, {useEffect, useState, useCallback} from "react";
 import {isSafari} from 'react-device-detect';
 import {debounce} from 'lodash';
@@ -88,13 +87,10 @@ const generateSnippet = (item, searchTerm) => {
 export const PopupComponent = () => {
   const {
     settings,
-    username,
-    password,
     setUsername,
     setPassword,
     saveSettings,
     logout,
-    submitCredentials,
   } = useAuth();
   const [notes, setNotes] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
