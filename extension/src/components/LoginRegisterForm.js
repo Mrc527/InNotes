@@ -113,6 +113,13 @@ const LoginRegisterForm = ({
                             </div>
                         )}
                         <center>
+                            <div>
+                                <a href="#" onClick={handleLinkedInLogin}><img
+                                  src="https://content.linkedin.com/content/dam/developer/global/en_US/site/img/signin-button.png"
+                                  alt="Sign in with LinkedIn"
+                                  style={{maxWidth: '180px'}}/></a>
+                                <p style={{fontSize: '0.8em', color: '#666', marginTop: '5px'}}>Or login with your InNotes credentials:</p>
+                            </div>
                             <input id="username" style={inputStyle} placeholder="Username"
                                    onChange={(e) => setUsername(e.target.value)} value={username} /><br />
                             <input id="password" type="password" style={inputStyle} placeholder="Password"
@@ -120,7 +127,6 @@ const LoginRegisterForm = ({
                                    value={password} /><br />
                             <button style={buttonStyle} onClick={submitCredentials}>Login</button><br />
                             <button style={linkButtonStyle} onClick={() => setRegister(true)}>Register</button>
-                            <button style={buttonStyle} onClick={handleLinkedInLogin}>Login with LinkedIn</button> {/* Add LinkedIn Login Button */}
                         </center>
                     </div>
                 </div>
