@@ -102,7 +102,6 @@ export const PopupComponent = () => {
   const [stripeLoading, setStripeLoading] = useState(false);
   const [isImportExportOpen, setIsImportExportOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const [authKey, setAuthKey] = useState(null);
 
   const doDownload = useCallback(() => {
     const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
@@ -174,50 +173,6 @@ export const PopupComponent = () => {
     }
   }, [settings?.validLogin]);
 
-  useEffect(() => {
-    // Function to extract authKey from URL
-    const getAuthKeyFromURL = async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const authCode = urlParams.get('authKey');
-      if (authCode) {
-        try {
-          const response = await fetch(BASE_URL + '/auth', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              code: authCode,
-              redirect_uri: `${BASE_URL}/oauth_callback`
-            })
-          });
-          if (response.ok) {
-            const data = await response.json();
-            setPassword(data.authData.password);
-            setUsername(data.authData.username);
-            saveSettings({
-              username: data.authData.username,
-              password: data.authData.password,
-              validLogin: true
-            });
-            window.close();
-
-          } else {
-            console.error("Failed to exchange code for token:", response);
-            alert("LinkedIn login failed.");
-          }
-        } catch (error) {
-          console.error("Error calling backend API:", error);
-          alert("LinkedIn login failed: Error calling backend.");
-        }
-
-
-      }
-    };
-
-    getAuthKeyFromURL();
-
-  }, []);
 
   const handleLinkedInLogin = () => {
     const manifest = chrome.runtime.getManifest();

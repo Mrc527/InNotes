@@ -4,10 +4,10 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import * as serviceWorker from "./serviceWorker";
 
-import {PopupComponent} from "./PopupComponent";
 import {TOP_CARD_CLASS_NAME, TOP_CARD_ID_MOBILE} from "./constants";
 import InNotes from "./InNotes";
 import InNotesButton from "./InNotesMessagingCollapse";
+import PopupLoader from "./PopupLoader";
 
 window.addEventListener('load', loadReact);
 
@@ -23,7 +23,7 @@ function loadReact() {
     const root = ReactDOM.createRoot(popupRoot);
     root.render(
       <React.Fragment>
-        <PopupComponent/>
+        <PopupLoader/>
       </React.Fragment>
     );
   }
