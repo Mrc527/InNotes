@@ -91,7 +91,7 @@ export default function Home() {
           href="http://marco.visin.ch"
           className="underline"
         >
-          Marco Visin - www.visin.ch
+          Marco Visin - marco.visin.ch
         </a>
       </div>
     </div>

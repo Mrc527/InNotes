@@ -69,7 +69,7 @@ const PrivacyPage = () => {
                     rel="noopener noreferrer"
                     href="http://marco.visin.ch"
                 >
-                    Marco Visin - www.visin.ch
+                    Marco Visin - marco.visin.ch
                 </a>
             </div>
         </div>

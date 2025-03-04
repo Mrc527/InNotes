@@ -1,10 +1,12 @@
 import React, {useEffect, useState} from "react";
 import {BASE_URL} from "./constants";
 import {useAuth} from "./Auth";
+import "./AuthKeyHandler.css"; // Import CSS for styling
 
 const AuthKeyHandler = () => {
   const [success, setSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [loading, setLoading] = useState(true); // Add loading state
   const {setUsername, setPassword, saveSettings} = useAuth();
 
   useEffect(() => {
@@ -42,32 +44,56 @@ const AuthKeyHandler = () => {
         } catch (error) {
           console.error("Error calling backend API:", error);
           setErrorMessage("LinkedIn login failed: Error calling backend.");
+        } finally {
+          setLoading(false); // Set loading to false after API call
         }
       };
 
       exchangeAuthCode();
+    } else {
+      setLoading(false); // Set loading to false if no authCode
     }
   }, [setUsername, setPassword, saveSettings]);
 
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        window.close();
+      }, 5000);
+
+      return () => clearTimeout(timer); // Cleanup the timer
+    }
+  }, [success]);
+
   return (
-    <div>
-      <img style={{margin: "auto", display: "block", width: "150px"}}
+    <div className="auth-key-handler-container">
+      <img className="logo"
            src="icons/InNotes.png"
            alt="logo"/>
-      <div className={"title-container"}>Easy Note-Taking for LinkedIn</div>
-      {success ? (
-        <div style={{textAlign: 'center', marginTop: '16px', color: 'green'}}>
-          Success!
+      <div className="title-container">Easy Note-Taking for LinkedIn</div>
+      {loading ? (
+        <div className="loading-container">
+          <div className="spinner"></div>
+          <div className="loading-text">Logging in...</div>
         </div>
+      ) : success ? (
+        <>
+          <div className="success-message">
+            Success!
+          </div>
+          You can now safely close this page.
+        </>
       ) : errorMessage ? (
-        <div style={{textAlign: 'center', marginTop: '16px', color: 'red'}}>
+        <div className="error-message">
           {errorMessage}
         </div>
-      ) : "Logging in..."}
-      <div className={"footer-container"}>
+      ) : (
+        <div></div>
+      )}
+      <div className="footer-container">
         Made with <span>❤</span>️ by <a target="_blank" rel="noopener noreferrer" href="http://marco.visin.ch">Marco
         Visin -
-        www.visin.ch</a><br/>
+        marco.visin.ch</a><br/>
         <span>Version 1.1.8</span>
       </div>
     </div>
