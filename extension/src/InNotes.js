@@ -8,7 +8,6 @@ import StatusManagement from "./components/StatusManagement";
 import StatusModal from "./components/StatusModal";
 
 const noteHasToBeSaved = (previous, current) => {
-    console.log("Checking for changes", JSON.stringify(previous), JSON.stringify(current))
     if (JSON.stringify(previous) === JSON.stringify(current)) {
         return false;
     }
@@ -49,8 +48,6 @@ const noteHasToBeSaved = (previous, current) => {
         return false;
     }
 
-
-    console.log("JSON has changed", differences);
 
     if (Object.keys(previous).length === 0) {
         if (current?.id > 0) {

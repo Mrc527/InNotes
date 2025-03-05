@@ -1,15 +1,32 @@
-import React, {useRef, useEffect, useState} from 'react';
+import React, {useRef, useEffect, useState, useCallback} from 'react';
+import {getRequest} from "../utils";
 
 const TagManagement = ({tags, handleAddTag, handleRemoveTag}) => {
   const [addingTag, setAddingTag] = useState(false);
   const [newTag, setNewTag] = useState('');
   const newTagInputRef = useRef(null);
+  const [allTags, setAllTags] = useState([]);
+  const [suggestedTags, setSuggestedTags] = useState([]);
 
   useEffect(() => {
     if (addingTag && newTagInputRef.current) {
       newTagInputRef.current.focus();
     }
   }, [addingTag]);
+
+  useEffect(() => {
+    const fetchAllTags = async () => {
+      try {
+        const tags = await getRequest(`/tags`);
+        setAllTags(tags);
+      } catch (error) {
+        console.error("Error fetching all tags:", error);
+        setAllTags([]);
+      }
+    };
+
+    fetchAllTags();
+  }, []);
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
@@ -21,13 +38,24 @@ const TagManagement = ({tags, handleAddTag, handleRemoveTag}) => {
   const handleAddTagClick = () => {
     setAddingTag(true);
     setNewTag('');
+    setSuggestedTags([]);
     setTimeout(() => {
       newTagInputRef.current && newTagInputRef.current.focus();
     }, 0);
   };
 
   const handleNewTagChange = (e) => {
-    setNewTag(e.target.value);
+    const term = e.target.value;
+    setNewTag(term);
+
+    if (term.length > 0) {
+      const filteredTags = allTags.filter(tag =>
+        tag.toLowerCase().includes(term.toLowerCase())
+      );
+      setSuggestedTags(filteredTags);
+    } else {
+      setSuggestedTags([]);
+    }
   };
 
   const handleSaveNewTag = () => {
@@ -35,12 +63,19 @@ const TagManagement = ({tags, handleAddTag, handleRemoveTag}) => {
       handleAddTag(newTag);
       setNewTag('');
       setAddingTag(false);
+      setSuggestedTags([]);
     }
   };
 
   const handleCancelNewTag = () => {
     setNewTag('');
     setAddingTag(false);
+    setSuggestedTags([]);
+  };
+
+  const handleSelectSuggestedTag = (tag) => {
+    setNewTag(tag);
+    setSuggestedTags([]);
   };
 
   return (
@@ -53,26 +88,50 @@ const TagManagement = ({tags, handleAddTag, handleRemoveTag}) => {
         </button>
       </div>
       {addingTag && (
-        <div className="mt2" style={{display: 'flex', alignItems: 'center'}}>
-          <label htmlFor="newTagInput" className="text-body-small mb1" style={{marginRight: '0.5rem', flexShrink: 0}}>New
-            Tag:</label>
-          <input
-            type="text"
-            id="newTagInput"
-            className="artdeco-text-input"
-            value={newTag}
-            onChange={handleNewTagChange}
-            ref={newTagInputRef}
-            style={{marginRight: '0.5rem'}}
-            onKeyDown={handleKeyDown}
-          />
-          <button className="notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--primary"
-                  style={{marginRight: '0.5rem', flexShrink: 0}} onClick={handleSaveNewTag}>Add
-          </button>
-          <button
-            className="notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--secondary artdeco-button--muted"
-            style={{flexShrink: 0}} onClick={handleCancelNewTag}>Cancel
-          </button>
+        <div className="mt2" style={{position: 'relative'}}>
+          <div style={{display: 'flex', alignItems: 'center'}}>
+            <label htmlFor="newTagInput" className="text-body-small mb1"
+                   style={{marginRight: '0.5rem', flexShrink: 0}}>New Tag:</label>
+            <input
+              type="text"
+              id="newTagInput"
+              className="artdeco-text-input"
+              value={newTag}
+              onChange={handleNewTagChange}
+              ref={newTagInputRef}
+              style={{marginRight: '0.5rem'}}
+              onKeyDown={handleKeyDown}
+            />
+            <button className="notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--primary"
+                    style={{marginRight: '0.5rem', flexShrink: 0}} onClick={handleSaveNewTag}>Add
+            </button>
+            <button
+              className="notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--secondary artdeco-button--muted"
+              style={{flexShrink: 0}} onClick={handleCancelNewTag}>Cancel
+            </button>
+          </div>
+          {suggestedTags.length > 0 && (
+            <ul style={{
+              position: 'absolute',
+              top: '100%',
+              left: '0',
+              right: '0',
+              backgroundColor: 'white',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              padding: '0',
+              margin: '0',
+              zIndex: '10',
+              listStyleType: 'none'
+            }}>
+              {suggestedTags.map(tag => (
+                <li key={tag} style={{padding: '8px', cursor: 'pointer'}}
+                    onClick={() => handleSelectSuggestedTag(tag)}>
+                  {tag}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
       <ul className="list-style-none display-flex flex-wrap mt2">
