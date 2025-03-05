@@ -328,6 +328,13 @@ const InNotes = () => {
                 </div>
             ) : (
                 <>
+                    <StatusManagement
+                      statuses={statuses}
+                      statusId={statusId}
+                      handleStatusChange={handleStatusChange}
+                      handleManageStatusesClick={handleManageStatusesClick}
+                    />
+
                     <TagManagement
                         tags={tags}
                         handleAddTag={handleAddTag}
@@ -338,13 +345,6 @@ const InNotes = () => {
                         handleNewTagChange={handleNewTagChange}
                         handleSaveNewTag={handleSaveNewTag}
                         handleCancelNewTag={handleCancelNewTag}
-                    />
-
-                    <StatusManagement
-                        statuses={statuses}
-                        statusId={statusId}
-                        handleStatusChange={handleStatusChange}
-                        handleManageStatusesClick={handleManageStatusesClick}
                     />
 
                     <NoteList

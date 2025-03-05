@@ -2,9 +2,9 @@ import React from 'react';
 
 const StatusManagement = ({ statuses, statusId, handleStatusChange, handleManageStatusesClick }) => {
     return (
-        <div className="ph5" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <label htmlFor="status" className="t-16 t-black--light mb1" style={{fontWeight: '600'}}>Status:</label>
+        <div className="ph5 pv3">
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <label htmlFor="status" className="t-16 t-black--light mb1" style={{ fontWeight: '600', marginRight: '0.5rem' }}>Status:</label>
                 <div className="select-wrapper">
                     <select
                         id="status"
@@ -18,8 +18,20 @@ const StatusManagement = ({ statuses, statusId, handleStatusChange, handleManage
                         ))}
                     </select>
                 </div>
+                <button
+                    onClick={handleManageStatusesClick}
+                    className="t-normal t-black--light"
+                    style={{
+                        padding: 0,
+                        marginLeft: '0.5rem',
+                        marginBottom: '0.8rem',
+                        alignSelf: 'flex-end',
+                        fontSize: '1.4rem'
+                    }}
+                >
+                    Manage Statuses
+                </button>
             </div>
-            <button className="notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--primary" onClick={handleManageStatusesClick}>Manage Statuses</button>
         </div>
     );
 };
