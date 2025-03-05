@@ -1,120 +1,126 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { postData, deleteData } from '../utils';
+import {cancelButtonStyle, deleteButtonStyle, editButtonStyle, saveButtonStyle} from "./style";
 
-const StatusModal = ({ isModalOpen, setIsModalOpen, statuses, setStatuses, fetchStatuses }) => {
-    const [newStatus, setNewStatus] = useState('');
+const StatusModal = ({ isModalOpen, setIsModalOpen, statuses, fetchStatuses }) => {
+    const [newStatusName, setNewStatusName] = useState('');
     const [editingStatusId, setEditingStatusId] = useState(null);
     const [editedStatusName, setEditedStatusName] = useState('');
-
-    useEffect(() => {
-        if (editingStatusId) {
-            const statusToEdit = statuses.find(status => status.id === editingStatusId);
-            if (statusToEdit) {
-                setEditedStatusName(statusToEdit.name);
-            }
-        } else {
-            setEditedStatusName('');
-        }
-    }, [editingStatusId, statuses]);
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setEditingStatusId(null);
-        setEditedStatusName('');
     };
 
     const handleAddStatus = async () => {
-        if (newStatus.trim() !== '') {
+        if (newStatusName.trim() !== '') {
             try {
-                await postData('/statuses', { name: newStatus });
-                setNewStatus('');
+                await postData('/statuses', { name: newStatusName });
+                setNewStatusName('');
                 await fetchStatuses();
             } catch (error) {
-                console.error("Error adding status:", error);
+                console.error("Error creating status:", error);
+                window.alert("Failed to create status");
+            }
+        }
+    };
+
+    const handleEditStatus = (status) => {
+        setEditingStatusId(status.id);
+        setEditedStatusName(status.name);
+    };
+
+    const handleUpdateStatus = async () => {
+        if (editedStatusName.trim() !== '') {
+            try {
+                await postData(`/statuses/${editingStatusId}`, { name: editedStatusName }, {
+                    method: 'PUT',
+                });
+                setEditingStatusId(null);
+                setEditedStatusName('');
+                await fetchStatuses();
+            } catch (error) {
+                console.error("Error updating status:", error);
+                window.alert("Failed to update status");
             }
         }
     };
 
     const handleDeleteStatus = async (id) => {
         try {
-            await deleteData(`/statuses/${id}`);
+            const result = await deleteData(`/statuses/${id}`);
             await fetchStatuses();
+            const resultData = await result.json();
+            if (resultData.error) {
+                window.alert(resultData.error);
+            }
         } catch (error) {
             console.error("Error deleting status:", error);
+            window.alert("Failed to delete status");
         }
     };
 
-    const handleEditStatus = (id) => {
-        setEditingStatusId(id);
-    };
-
-    const handleCancelEdit = () => {
-        setEditingStatusId(null);
-        setEditedStatusName('');
-    };
-
-    const handleSaveEdit = async (id) => {
-        if (editedStatusName.trim() !== '') {
-            try {
-                await postData(`/statuses/${id}`, { name: editedStatusName });
-                setEditingStatusId(null);
-                setEditedStatusName('');
-                await fetchStatuses();
-            } catch (error) {
-                console.error("Error updating status:", error);
-            }
-        }
-    };
+    if (!isModalOpen) return null;
 
     return (
-        <>
-            {isModalOpen && (
-                <div className="modal-overlay">
-                    <div className="modal">
-                        <div className="modal-header">
-                            <h2>Manage Statuses</h2>
-                            <button className="close-button" onClick={handleCloseModal}>
-                                &times;
-                            </button>
-                        </div>
-                        <div className="modal-body">
-                            <ul>
-                                {statuses.map(status => (
-                                    <li key={status.id}>
-                                        {editingStatusId === status.id ? (
-                                            <>
-                                                <input
-                                                    type="text"
-                                                    value={editedStatusName}
-                                                    onChange={(e) => setEditedStatusName(e.target.value)}
-                                                />
-                                                <button onClick={() => handleSaveEdit(status.id)}>Save</button>
-                                                <button onClick={handleCancelEdit}>Cancel</button>
-                                            </>
-                                        ) : (
-                                            <>
-                                                {status.name}
-                                                <button onClick={() => handleEditStatus(status.id)}>Edit</button>
-                                                <button onClick={() => handleDeleteStatus(status.id)}>Delete</button>
-                                            </>
-                                        )}
-                                    </li>
-                                ))}
-                            </ul>
-                            <div>
-                                <input
-                                    type="text"
-                                    placeholder="New Status Name"
-                                    value={newStatus}
-                                    onChange={(e) => setNewStatus(e.target.value)}
-                                />
-                                <button onClick={handleAddStatus}>Add Status</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </>
+      <div style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          backgroundColor: 'white',
+          padding: '20px',
+          zIndex: 1000,
+          borderRadius: '5px',
+          boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+          width: '50%',
+          maxWidth: '600px',
+      }}>
+          <h2>Manage Statuses</h2>
+          <ul>
+              {statuses.map(status => (
+                <li key={status.id} style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '5px 0',
+                    borderBottom: '1px solid #eee'
+                }}>
+                    {editingStatusId === status.id ? (
+                      <>
+                          <input
+                            type="text"
+                            value={editedStatusName}
+                            onChange={(e) => setEditedStatusName(e.target.value)}
+                            style={{padding: '8px', borderRadius: '4px', border: '1px solid #ccc', marginRight: '10px'}}
+                          />
+                          <button onClick={handleUpdateStatus} className={saveButtonStyle}>Update</button>
+                      </>
+                    ) : (
+                      <>
+                          <span>{status.name}</span>
+                          <div>
+                              <button onClick={() => handleEditStatus(status)} className={editButtonStyle}
+                                      style={{marginRight: '5px'}}>Edit</button>
+                              <button onClick={() => handleDeleteStatus(status.id)} className={deleteButtonStyle}>Delete</button>
+                          </div>
+                      </>
+                    )}
+                </li>
+              ))}
+          </ul>
+          <div>
+              <input
+                type="text"
+                placeholder="New Status Name"
+                value={newStatusName}
+                onChange={(e) => setNewStatusName(e.target.value)}
+                style={{padding: '8px', borderRadius: '4px', border: '1px solid #ccc', marginRight: '10px'}}
+              />
+              <button onClick={handleAddStatus} className={saveButtonStyle}>Add Status</button>
+          </div>
+          <button onClick={handleCloseModal} className={cancelButtonStyle} style={{marginTop: '20px'}}>Close</button>
+      </div>
     );
 };
 

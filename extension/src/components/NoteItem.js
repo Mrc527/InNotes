@@ -1,16 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
+import {cancelButtonStyle, deleteButtonStyle, editButtonStyle, saveButtonStyle} from "./style";
 
 TimeAgo.addDefaultLocale(en)
 TimeAgo.addLocale(en)
 
 const timeAgo = new TimeAgo('en-US')
-
-const editButtonStyle = "notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--primary";
-const saveButtonStyle = "notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--primary";
-const cancelButtonStyle = "notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--secondary artdeco-button--muted";
-const deleteButtonStyle = "notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--secondary artdeco-button--destructive";
 
 const colorPalette = [
     {name: 'White', code: '#FFFFFF'},       // White
