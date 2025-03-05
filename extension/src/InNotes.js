@@ -7,8 +7,6 @@ import TagManagement from "./components/TagManagement";
 import StatusManagement from "./components/StatusManagement";
 import StatusModal from "./components/StatusModal";
 
-const editButtonStyle = "notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--primary";
-
 const noteHasToBeSaved = (previous, current) => {
     console.log("Checking for changes", JSON.stringify(previous), JSON.stringify(current))
     if (JSON.stringify(previous) === JSON.stringify(current)) {
@@ -312,13 +310,10 @@ const InNotes = () => {
                             </h2>
                         </div>
                     </div>
-                    {!registrationError && <div style={{float: 'right', marginTop: '10px'}}>
-                        <button onClick={addNote} className={editButtonStyle}>Add Note</button>
-                    </div>}
                 </div>
             </div>
             {registrationError ? (
-                <div className="ph5 pv3 notes-container">
+                <div className="ph5 pv3">
                     Please <button style={{
                     background: 'none',
                     color: 'blue',
@@ -352,16 +347,15 @@ const InNotes = () => {
                         handleManageStatusesClick={handleManageStatusesClick}
                     />
 
-                    <div className="display-flex ph5 pv3 notes-container" style={{flexDirection: "column"}}>
-                        <NoteList
-                            notes={notes}
-                            editNote={editNote}
-                            deleteNote={deleteNote}
-                            newNoteIndex={newNoteIndex}
-                            cancelNewNote={cancelNewNote}
-                            loading={loading}
-                        />
-                    </div>
+                    <NoteList
+                        notes={notes}
+                        editNote={editNote}
+                        deleteNote={deleteNote}
+                        newNoteIndex={newNoteIndex}
+                        cancelNewNote={cancelNewNote}
+                        loading={loading}
+                        addNote={addNote}
+                    />
                     <StatusModal
                         isModalOpen={isModalOpen}
                         setIsModalOpen={setIsModalOpen}

@@ -1,7 +1,7 @@
 import React from 'react';
 import {NoteItem} from "./NoteItem";
 
-const NoteList = ({ notes, editNote, deleteNote, newNoteIndex, cancelNewNote, loading, registrationError, openRegistrationPopup }) => {
+const NoteList = ({ notes, editNote, deleteNote, newNoteIndex, cancelNewNote, loading, addNote }) => {
 
     const renderNotes = () => {
         if (loading) {
@@ -10,22 +10,6 @@ const NoteList = ({ notes, editNote, deleteNote, newNoteIndex, cancelNewNote, lo
                     <div className="skeleton-flag"/>
                     <div className="skeleton-text"/>
                     <div className="skeleton-date"/>
-                </div>
-            );
-        }
-
-        if (registrationError) {
-            return (
-                <div>
-                    Please <button style={{
-                    background: 'none',
-                    color: 'blue',
-                    border: 'none',
-                    padding: 0,
-                    font: 'inherit',
-                    cursor: 'pointer',
-                    textDecoration: 'underline'
-                }} onClick={openRegistrationPopup}>register</button> to use InNotes.
                 </div>
             );
         }
@@ -65,9 +49,13 @@ const NoteList = ({ notes, editNote, deleteNote, newNoteIndex, cancelNewNote, lo
     };
 
     return (
-        <>
+        <div className="ph5">
+            <div className="pv3" style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                <label htmlFor="status" className="t-16 t-black--light mb1" style={{fontWeight: '600', marginRight: '0.5rem'}}>Notes:</label>
+                <button onClick={addNote} className="notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--primary">Add Note</button>
+            </div>
             {renderNotes()}
-        </>
+        </div>
     );
 };
 

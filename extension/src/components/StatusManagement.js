@@ -2,13 +2,12 @@ import React from 'react';
 
 const StatusManagement = ({ statuses, statusId, handleStatusChange, handleManageStatusesClick }) => {
     return (
-        <div className="ph5 pv3" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="ph5" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-                <label htmlFor="status" className="text-body-small mb1">Status:</label>
+              <label htmlFor="status" className="t-16 t-black--light mb1" style={{fontWeight: '600'}}>Status:</label>
                 <div className="select-wrapper">
                     <select
                         id="status"
-                        className="artdeco-dropdown__item"
                         value={statusId}
                         onChange={handleStatusChange}
                         style={{ paddingRight: '3em' }}
