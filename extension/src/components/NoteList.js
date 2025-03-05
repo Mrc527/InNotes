@@ -50,7 +50,7 @@ const NoteList = ({ notes, editNote, deleteNote, newNoteIndex, cancelNewNote, lo
 
     return (
         <div className="ph5">
-            <div className="pv3" style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+            <div className="mb3" style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
                 <label htmlFor="status" className="t-16 t-black--light mb1" style={{fontWeight: '600', marginRight: '0.5rem'}}>Notes:</label>
                 <button onClick={addNote} className="notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--primary">Add Note</button>
             </div>

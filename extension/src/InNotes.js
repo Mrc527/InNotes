@@ -1,7 +1,7 @@
 /* global chrome */
 import React, {useEffect, useState, useCallback, useRef} from "react";
 import "./App.css";
-import {loadData, saveData, getRequest, postData, deleteData} from "./utils";
+import {loadData, saveData, getRequest} from "./utils";
 import NoteList from "./components/NoteList";
 import TagManagement from "./components/TagManagement";
 import StatusManagement from "./components/StatusManagement";
@@ -79,7 +79,7 @@ const getKeyInner = () => {
     try {
         const href = decodeURIComponent(document.querySelector('a[href*="linkedin.com/in/"][href*="miniProfileUrn="]')?.href);
         const miniProfileUrn = href.substring(href.indexOf("miniProfileUrn=") + "miniProfileUrn=".length);
-        value = miniProfileUrn.substring(miniProfileUrn.indexOf(":") + 3);
+        value = value.substring(miniProfileUrn.indexOf(":") + 3);
         value = value.substring(value.lastIndexOf("fs_miniProfile:") + 15);
     } catch (e) {
     }
@@ -99,6 +99,20 @@ const InNotes = () => {
     const newTagInputRef = useRef(null);
     const [statuses, setStatuses] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showStatusManagement, setShowStatusManagement] = useState(false);
+    const [showTagManagement, setShowTagManagement] = useState(false);
+
+    useEffect(() => {
+        if (statusId) {
+            setShowStatusManagement(true);
+        }
+    }, [statusId]);
+
+    useEffect(() => {
+        if (tags && tags.length > 0) {
+            setShowTagManagement(true);
+        }
+    }, [tags]);
 
     const openRegistrationPopup = () => {
         chrome.runtime.sendMessage({message: "openRegistrationPopup"});
@@ -189,9 +203,6 @@ const InNotes = () => {
         })
     }, [notes, saveDataToBackend, username, tags, statusId]);
 
-    const handleChange = (e) => {
-        setNotes(prevNotes => ({...prevNotes, note: e.target.value}));
-    };
 
     chrome.runtime.onMessage.addListener(
         function (request) {
@@ -238,11 +249,13 @@ const InNotes = () => {
     }, []);
 
     const deleteNote = useCallback((index) => {
-        setNotes(prevNotes => {
-            const updatedData = prevNotes.notes.filter((_, i) => i !== index);
-            return {...prevNotes, notes: updatedData};
-        });
-        setNewNoteIndex(null);
+        if (window.confirm("Are you sure you want to delete this note?")) {
+            setNotes(prevNotes => {
+                const updatedData = prevNotes.notes.filter((_, i) => i !== index);
+                return {...prevNotes, notes: updatedData};
+            });
+            setNewNoteIndex(null);
+        }
     }, []);
 
     const cancelNewNote = useCallback((index) => {
@@ -294,19 +307,56 @@ const InNotes = () => {
         setIsModalOpen(true);
     };
 
+    const showStatusManagementHandler = () => {
+        setShowStatusManagement(true);
+    };
+    const showTagManagementHandler = () => {
+        setShowTagManagement(true);
+    };
+
     return (
         <div className="artdeco-card ember-view relative break-words pb3 mt2">
             <div className="pvs-header__container" style={{display: "flex", flexDirection: "column"}}>
                 <div className="pvs-header__top-container--no-stack">
                     <div className="pvs-header__left-container--stack">
                         <div className="title-container pvs-header__title-container">
-                            <h2 className="pvs-header__title text-heading-large">
-                                                <span aria-hidden="true" style={{float: "left", display: "flex", alignItems: "center"}}>
-                                                    <img src="https://marco.visin.ch/img/projects/InNotes.png"
-                                                         style={{marginRight: "5px"}} width="60" alt={"logo"}/>
-                                                    InNotes
-                                                </span>
-                                <div id="innotes-username" style={{display: "none"}}>{username}</div>
+                            <h2 className="pvs-header__title text-heading-large" style={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
+                                <div>
+                                    <span aria-hidden="true" style={{float: "left", display: "flex", alignItems: "center"}}>
+                                        <img src="https://marco.visin.ch/img/projects/InNotes.png"
+                                             style={{marginRight: "5px"}} width="60" alt={"logo"}/>
+                                        InNotes
+                                    </span>
+                                    <div id="innotes-username" style={{display: "none"}}>{username}</div>
+                                </div>
+                                <div>
+                                    {!showStatusManagement && !statusId && (
+                                        <button
+                                            onClick={showStatusManagementHandler}
+                                            className="artdeco-button artdeco-button--secondary artdeco-button--link"
+                                            style={{
+                                                padding: 0,
+                                                marginLeft: '0.5rem',
+                                                alignSelf: 'flex-end',
+                                            }}
+                                        >
+                                            Show Status
+                                        </button>
+                                    )}
+                                    {!showTagManagement && (!tags || tags.length === 0) && (
+                                        <button
+                                            onClick={showTagManagementHandler}
+                                            className="artdeco-button artdeco-button--secondary artdeco-button--link"
+                                            style={{
+                                                padding: 0,
+                                                marginLeft: '0.5rem',
+                                                alignSelf: 'flex-end',
+                                            }}
+                                        >
+                                            Show Tags
+                                        </button>
+                                    )}
+                                </div>
                             </h2>
                         </div>
                     </div>
@@ -328,24 +378,28 @@ const InNotes = () => {
                 </div>
             ) : (
                 <>
-                    <StatusManagement
-                      statuses={statuses}
-                      statusId={statusId}
-                      handleStatusChange={handleStatusChange}
-                      handleManageStatusesClick={handleManageStatusesClick}
-                    />
+                    {(showStatusManagement || statusId) && (
+                        <StatusManagement
+                            statuses={statuses}
+                            statusId={statusId}
+                            handleStatusChange={handleStatusChange}
+                            handleManageStatusesClick={handleManageStatusesClick}
+                        />
+                    )}
 
-                    <TagManagement
-                        tags={tags}
-                        handleAddTag={handleAddTag}
-                        handleRemoveTag={handleRemoveTag}
-                        addingTag={addingTag}
-                        newTag={newTag}
-                        handleAddTagClick={handleAddTagClick}
-                        handleNewTagChange={handleNewTagChange}
-                        handleSaveNewTag={handleSaveNewTag}
-                        handleCancelNewTag={handleCancelNewTag}
-                    />
+                    {(showTagManagement || (tags && tags.length > 0)) && (
+                        <TagManagement
+                            tags={tags}
+                            handleAddTag={handleAddTag}
+                            handleRemoveTag={handleRemoveTag}
+                            addingTag={addingTag}
+                            newTag={newTag}
+                            handleAddTagClick={handleAddTagClick}
+                            handleNewTagChange={handleNewTagChange}
+                            handleSaveNewTag={handleSaveNewTag}
+                            handleCancelNewTag={handleCancelNewTag}
+                        />
+                    )}
 
                     <NoteList
                         notes={notes}
