@@ -98,6 +98,12 @@ export const PopupComponent = () => {
   const [stripeLoading, setStripeLoading] = useState(false);
   const [isImportExportOpen, setIsImportExportOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [version, setVersion] = useState('');
+
+  useEffect(() => {
+    const manifest = chrome.runtime.getManifest();
+    setVersion(manifest.version);
+  }, []);
 
   const doDownload = useCallback(() => {
     const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
@@ -364,7 +370,7 @@ export const PopupComponent = () => {
         Made with <span>❤</span>️ by <a target="_blank" rel="noopener noreferrer" href="http://marco.visin.ch">Marco
         Visin -
         marco.visin.ch</a><br/>
-        <span>Version 1.3.1</span>
+        <span>Version {version}</span>
       </div>
     </div>
   );

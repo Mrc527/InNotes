@@ -1,3 +1,4 @@
+/* global chrome */
 import React, {useEffect, useState} from "react";
 import {BASE_URL} from "./constants";
 import {useAuth} from "./Auth";
@@ -7,8 +8,12 @@ const AuthKeyHandler = () => {
   const [success, setSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(true); // Add loading state
+  const [version, setVersion] = useState('');
   const {setUsername, setPassword, saveSettings} = useAuth();
-
+  useEffect(() => {
+    const manifest = chrome.runtime.getManifest();
+    setVersion(manifest.version);
+  }, []);
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const authCode = urlParams.get('authKey');
@@ -94,7 +99,7 @@ const AuthKeyHandler = () => {
         Made with <span>❤</span>️ by <a target="_blank" rel="noopener noreferrer" href="http://marco.visin.ch">Marco
         Visin -
         marco.visin.ch</a><br/>
-        <span>Version 1.3.1</span>
+        <span>Version {version}</span>
       </div>
     </div>
   );
