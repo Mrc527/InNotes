@@ -6,7 +6,7 @@
   right: 0;
   background-color: var(--color-background);
   border: 1px solid #ccc;
-  borderRadius: 4px;
+  border-radius: 4px;
   padding: 0;
   margin: 0;
   z-index: 10;
@@ -19,9 +19,85 @@
 }
 
 .suggested-tag-item:hover {
-  background-color: #f0f0f0; /* Highlight color on hover */
+  background-color: #e0e0e0; /* Highlight color on hover - Light mode */
 }
 
 .selected-tag {
-  background-color: #f0f0f0; /* Highlight color */
+  background-color: #f0f0f0; /* Highlight color - Light mode */
+}
+
+/* Dark mode styles using LinkedIn's classes/variables */
+.theme--dark .suggested-tag-item:hover {
+  background-color: rgba(255, 255, 255, 0.2); /* Dark mode hover highlight */
+}
+
+.theme--dark .selected-tag {
+  background-color: rgba(255, 255, 255, 0.3); /* Dark mode selected highlight */
+}
+
+/* Styles for the tag itself */
+.tag-item {
+  align-items: center;
+  display: flex;
+  border: 1px solid #d0d0d0;
+  padding: 0.1rem 0.4rem;
+  border-radius: 9999px;
+  background-color: #e9e5df;
+  color: #000000;
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 20px;
+}
+
+/* Dark mode styles for the tag itself */
+.theme--dark .tag-item {
+  background-color: #2d2d2e; /* Dark background color */
+  color: #ffffff; /* Light text color */
+  border-color: #666666; /* Darker border color */
+}
+
+.tag-management-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tag-label {
+  margin-right: 0.5rem;
+  font-weight: 600;
+}
+
+.tag-input-container {
+  position: relative;
+}
+
+.tag-input-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.tag-input-label {
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.tag-input {
+  margin-right: 0.5rem;
+}
+
+.tag-add-button {
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.tag-cancel-button {
+  flex-shrink: 0;
+}
+
+.tag-text {
+  padding: 0px;
 }
