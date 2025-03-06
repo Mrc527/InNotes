@@ -116,7 +116,7 @@ const TagManagement = ({tags, handleAddTag, handleRemoveTag}) => {
               top: '100%',
               left: '0',
               right: '0',
-              backgroundColor: 'white',
+              backgroundColor: 'var(--color-background)',
               border: '1px solid #ccc',
               borderRadius: '4px',
               padding: '0',

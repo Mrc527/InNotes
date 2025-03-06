@@ -63,16 +63,13 @@ const StatusModal = ({ isModalOpen, setIsModalOpen, statuses, fetchStatuses }) =
     if (!isModalOpen) return null;
 
     return (
-      <div style={{
+      <div className="artdeco-card" style={{
           position: 'fixed',
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          backgroundColor: 'white',
           padding: '20px',
           zIndex: 1000,
-          borderRadius: '5px',
-          boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
           width: '50%',
           maxWidth: '600px',
       }}>
