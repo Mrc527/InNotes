@@ -84,7 +84,7 @@ const TagManagement = ({tags, handleAddTag, handleRemoveTag}) => {
   };
 
   const handleSaveNewTag = () => {
-    if (newTag.trim() !== '') {
+    if (newTag.trim() !== '' && suggestedTags.length === 0) {
       handleAddTag(newTag);
       setNewTag('');
       setAddingTag(false);
@@ -103,7 +103,9 @@ const TagManagement = ({tags, handleAddTag, handleRemoveTag}) => {
   };
 
   const handleSelectSuggestedTag = (tag) => {
-    setNewTag(tag);
+    handleAddTag(tag);
+    setNewTag('');
+    setAddingTag(false);
     setSuggestedTags([]);
     setSelectedTagIndex(-1);
     setIsMouseOver(false);
