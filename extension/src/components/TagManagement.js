@@ -1,5 +1,6 @@
 import React, {useRef, useEffect, useState, useCallback} from 'react';
 import {getRequest} from "../utils";
+import './TagManagement.css';
 
 const TagManagement = ({tags, handleAddTag, handleRemoveTag}) => {
   const [addingTag, setAddingTag] = useState(false);
@@ -7,6 +8,8 @@ const TagManagement = ({tags, handleAddTag, handleRemoveTag}) => {
   const newTagInputRef = useRef(null);
   const [allTags, setAllTags] = useState([]);
   const [suggestedTags, setSuggestedTags] = useState([]);
+  const [selectedTagIndex, setSelectedTagIndex] = useState(-1);
+  const [isMouseOver, setIsMouseOver] = useState(false);
 
   useEffect(() => {
     if (addingTag && newTagInputRef.current) {
@@ -31,7 +34,25 @@ const TagManagement = ({tags, handleAddTag, handleRemoveTag}) => {
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
       event.preventDefault(); // Prevent form submission
-      handleSaveNewTag();
+      if (selectedTagIndex !== -1) {
+        handleSelectSuggestedTag(suggestedTags[selectedTagIndex]);
+      } else {
+        handleSaveNewTag();
+      }
+    } else if (event.key === 'ArrowDown') {
+      event.preventDefault(); // Prevent scrolling
+      if (suggestedTags.length > 0) {
+        setSelectedTagIndex((prevIndex) => (prevIndex + 1) % suggestedTags.length);
+        setIsMouseOver(false); // Arrow key navigation takes precedence
+      }
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault(); // Prevent scrolling
+      if (suggestedTags.length > 0) {
+        setSelectedTagIndex((prevIndex) =>
+          prevIndex === 0 ? suggestedTags.length - 1 : prevIndex - 1
+        );
+        setIsMouseOver(false); // Arrow key navigation takes precedence
+      }
     }
   };
 
@@ -39,6 +60,8 @@ const TagManagement = ({tags, handleAddTag, handleRemoveTag}) => {
     setAddingTag(true);
     setNewTag('');
     setSuggestedTags([]);
+    setSelectedTagIndex(-1);
+    setIsMouseOver(false);
     setTimeout(() => {
       newTagInputRef.current && newTagInputRef.current.focus();
     }, 0);
@@ -47,6 +70,8 @@ const TagManagement = ({tags, handleAddTag, handleRemoveTag}) => {
   const handleNewTagChange = (e) => {
     const term = e.target.value;
     setNewTag(term);
+    setSelectedTagIndex(-1);
+    setIsMouseOver(false);
 
     if (term.length > 0) {
       const filteredTags = allTags.filter(tag =>
@@ -64,6 +89,8 @@ const TagManagement = ({tags, handleAddTag, handleRemoveTag}) => {
       setNewTag('');
       setAddingTag(false);
       setSuggestedTags([]);
+      setSelectedTagIndex(-1);
+      setIsMouseOver(false);
     }
   };
 
@@ -71,11 +98,24 @@ const TagManagement = ({tags, handleAddTag, handleRemoveTag}) => {
     setNewTag('');
     setAddingTag(false);
     setSuggestedTags([]);
+    setSelectedTagIndex(-1);
+    setIsMouseOver(false);
   };
 
   const handleSelectSuggestedTag = (tag) => {
     setNewTag(tag);
     setSuggestedTags([]);
+    setSelectedTagIndex(-1);
+    setIsMouseOver(false);
+  };
+
+  const handleMouseEnter = (index) => {
+    setSelectedTagIndex(index);
+    setIsMouseOver(true); // Mouse hover takes precedence
+  };
+
+  const handleMouseLeave = () => {
+    setIsMouseOver(false);
   };
 
   return (
@@ -111,22 +151,17 @@ const TagManagement = ({tags, handleAddTag, handleRemoveTag}) => {
             </button>
           </div>
           {suggestedTags.length > 0 && (
-            <ul style={{
-              position: 'absolute',
-              top: '100%',
-              left: '0',
-              right: '0',
-              backgroundColor: 'var(--color-background)',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              padding: '0',
-              margin: '0',
-              zIndex: '10',
-              listStyleType: 'none'
-            }}>
-              {suggestedTags.map(tag => (
-                <li key={tag} style={{padding: '8px', cursor: 'pointer'}}
-                    onClick={() => handleSelectSuggestedTag(tag)}>
+            <ul className="suggested-tags-list">
+              {suggestedTags.map((tag, index) => (
+                <li
+                  key={tag}
+                  className={`suggested-tag-item ${
+                    (isMouseOver && index === selectedTagIndex) ? 'selected-tag' : ( !isMouseOver && index === selectedTagIndex) ? 'selected-tag' : ''
+                  }`}
+                  onClick={() => handleSelectSuggestedTag(tag)}
+                  onMouseEnter={() => handleMouseEnter(index)}
+                  onMouseLeave={handleMouseLeave}
+                >
                   {tag}
                 </li>
               ))}
