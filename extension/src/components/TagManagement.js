@@ -135,11 +135,10 @@ const TagManagement = ({tags, handleAddTag, handleRemoveTag}) => {
             <input
               type="text"
               id="newTagInput"
-              className="artdeco-text-input"
+              className="artdeco-text-input tag-input"
               value={newTag}
               onChange={handleNewTagChange}
               ref={newTagInputRef}
-              className="tag-input"
               onKeyDown={handleKeyDown}
             />
             <button className="notes-edit-button ml2 artdeco-button artdeco-button--2 artdeco-button--primary tag-add-button"
