@@ -1,6 +1,6 @@
 /* global chrome */
 import React, {useEffect, useState, useCallback} from "react";
-import {isSafari} from 'react-device-detect';
+import {isSafari, isMobile} from 'react-device-detect';
 import {debounce} from 'lodash';
 
 import {getFullData, saveFullData, getRequest, postData} from "./utils";
@@ -252,7 +252,7 @@ export const PopupComponent = () => {
 
 
   return (
-    <div className="popup-container" style={{minWidth: '500px', padding: '16px'}}>
+    <div className="popup-container" style={{minWidth: isMobile ? '100%' : '500px', padding: '16px'}}>
       <img style={{margin: "auto", display: "block", width: "150px"}}
            src="icons/InNotes.png"
            alt="logo"/>
