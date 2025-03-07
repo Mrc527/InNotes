@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
 import {cancelButtonStyle, deleteButtonStyle, editButtonStyle, saveButtonStyle} from "./style";
+import SharingModal from "./SharingModal"; // Import the SharingModal component
 
 TimeAgo.addDefaultLocale(en)
 TimeAgo.addLocale(en)
@@ -32,6 +33,8 @@ export const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, c
     const [isEditing, setIsEditing] = useState(isNew || false);
     const [text, setText] = useState(decodeURIComponent(note.text));
     const [flagColor, setFlagColor] = useState(note.flagColor || '');
+    const [visibility, setVisibility] = useState(note.visibility || 'private');
+    const [isSharingModalOpen, setIsSharingModalOpen] = useState(false); // State for modal visibility
     const textAreaRef = React.useRef(null);
 
     useEffect(() => {
@@ -47,7 +50,7 @@ export const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, c
             }
             return;
         }
-        editNote(index, text, flagColor === 'none' ? null : flagColor);
+        editNote(index, text, flagColor === 'none' ? null : flagColor, visibility);
         setIsEditing(false);
     };
 
@@ -82,6 +85,18 @@ export const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, c
     const lastUpdateDate = new Date(note.lastUpdate);
     const timeAgoString = timeAgo.format(lastUpdateDate);
     const fullDateString = lastUpdateDate.toLocaleString();
+
+    const handleVisibilityChange = (e) => {
+        setVisibility(e.target.value);
+    };
+
+    const handleOpenSharingModal = () => {
+        setIsSharingModalOpen(true);
+    };
+
+    const handleCloseSharingModal = () => {
+        setIsSharingModalOpen(false);
+    };
 
     return (
         <div className="note-item" style={{marginBottom: "2rem", display: 'flex'}}>
@@ -119,7 +134,7 @@ export const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, c
                                 <select value={flagColor} onChange={(e) => setFlagColor(e.target.value)}
                                         className="artdeco-dropdown__item"
                                         style={{
-                                            maxWidth: '15rem',
+                                            maxWidth: '13rem',
                                             padding: '0.2rem',
                                             borderRadius: '4px',
                                             border: '1px solid #ccc',
@@ -131,6 +146,27 @@ export const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, c
                                         <option key={index} value={color.code}>{color.name}</option>
                                     ))}
                                 </select>
+                                <div style={{display: 'flex', alignItems: 'center'}}>
+                                    <label style={{marginRight: '0.5rem', flexShrink: 0}}>Visibility:</label>
+                                    <select value={visibility} onChange={handleVisibilityChange}
+                                            className="artdeco-dropdown__item"
+                                            style={{
+                                                maxWidth: '15rem',
+                                                padding: '0.2rem',
+                                                borderRadius: '4px',
+                                                border: '1px solid #ccc',
+                                                marginRight: '0.5rem',
+                                                flexShrink: 0
+                                            }}>
+                                        <option value="private">Private</option>
+                                        <option value="shared_read_only">Shared Read-Only</option>
+                                        <option value="shared_editable">Shared Editable</option>
+                                        <option value="public">Public</option>
+                                    </select>
+                                    {visibility !== 'private' && (
+                                        <button onClick={handleOpenSharingModal} style={{flexShrink: 0}} className={editButtonStyle}>Manage Sharing</button>
+                                    )}
+                                </div>
                             </div>
                             <div>
                                 <button onClick={handleEdit} className={saveButtonStyle}
@@ -169,6 +205,13 @@ export const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, c
                     </div>
                 )}
             </div>
+            {/* Render the SharingModal */}
+            {isSharingModalOpen && (
+                <SharingModal
+                    noteId={note.id}
+                    onClose={handleCloseSharingModal}
+                />
+            )}
         </div>
     );
 };

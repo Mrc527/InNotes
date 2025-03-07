@@ -244,14 +244,15 @@ const InNotes = () => {
     });
   };
 
-  const editNote = useCallback(async (index, text, flagColor) => {
+ const editNote = useCallback(async (index, text, flagColor, visibility) => {
     try {
       const updatedData = notes.notes.map((note, i) => {
         if (i === index) {
           const updatedNote = {
             ...note,
             text: encodeURIComponent(text),
-            lastUpdate: new Date().toISOString()
+            lastUpdate: new Date().toISOString(),
+            visibility: visibility
           };
           if (flagColor) {
             updatedNote.flagColor = flagColor;
