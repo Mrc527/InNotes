@@ -43,6 +43,7 @@ const noteHasToBeSaved = (previous, current) => {
   }
 
   const differences = findDifferences(previous, current);
+  console.log("Has to be saved", differences)
 
   if (Object.keys(differences).length === 1 && differences.linkedinUser) {
     return false;
@@ -99,6 +100,7 @@ const InNotes = () => {
   const [showStatusManagement, setShowStatusManagement] = useState(false);
   const [showTagManagement, setShowTagManagement] = useState(false);
   const [linkedinData, setLinkedinData] = useState(null);
+  const [saveLinkedInData, setSaveLinkedInData] = useState(false);
 
   useEffect(() => {
     if (statusId) {
@@ -133,88 +135,78 @@ const InNotes = () => {
 
 // InNotes.js
 
-useEffect(() => {
+  useEffect(() => {
     if (username) {
       setLoading(true);
       setRegistrationError(false);
       getKey().then(key =>
-          loadData(key, username)
-              .then(linkedinData => {
-                setLinkedinData(linkedinData);
-                Promise.all([
-                  loadNotes(linkedinData.id)
-                ])
-                    .then(([notesData]) => {
-                      setLoading(false);
-                      if (linkedinData) {
-                        setTags(linkedinData.tags || []);
-                        setStatusId(linkedinData.statusId || "");
-                      } else {
-                        setTags([]);
-                        setStatusId("");
-                      }
-
-                      if (notesData) {
-                        const normalizedData = notesData.map(note => ({
-                          ...note,
-                          creationDate: note.creationDate,
-                        }));
-                        setNotes({notes: normalizedData});
-                        previousNotes.current = {notes: normalizedData};
-                      } else {
-                        setNotes({});
-                        previousNotes.current = {};
-                      }
-                    })
-                    .catch(error => {
-                      setLoading(false);
-                      setRegistrationError(true);
-                      setNotes(null);
-                      console.error("Error loading notes", error);
-                    })
+        loadData(key, username)
+          .then(linkedinData => {
+            setLinkedinData(linkedinData);
+            loadNotes(linkedinData.id)
+              .then(([notesData]) => {
+                setLoading(false);
+                if (linkedinData) {
+                  setTags(linkedinData.tags || []);
+                  setStatusId(linkedinData.statusId || "");
+                } else {
+                  setTags([]);
+                  setStatusId("");
+                }
+                if (notesData) {
+                  setNotes({notes: notesData});
+                  previousNotes.current = {notes: notesData};
+                } else {
+                  setNotes({});
+                  previousNotes.current = {};
+                }
               })
               .catch(error => {
                 setLoading(false);
                 setRegistrationError(true);
                 setNotes(null);
-                console.error("Error loading data", error);
+                console.error("Error loading notes", error);
               })
+          })
+          .catch(error => {
+            setLoading(false);
+            setRegistrationError(true);
+            setNotes(null);
+            console.error("Error loading data", error);
+          })
       );
     }
   }, [username]);
 
-  const saveDataToBackend = useCallback(async (notesToSave) => {
+  const saveDataToBackend = useCallback(async () => {
     try {
-      // Save tags and status to /linkedin
-      const linkedinData = {
-        linkedinKey: notesToSave.linkedinKey,
-        linkedinUser: notesToSave.linkedinUser,
-        tags: notesToSave.tags,
-        statusId: notesToSave.statusId
-      };
-      await saveData("", linkedinData);
-
-      // Save notes to /note
-      if (notesToSave.notes && notesToSave.notes.length > 0) {
-        for (const note of notesToSave.notes) {
-          if (note.id) {
-            // Update existing note
-            await updateNote(note.id, note);
-          } else {
-            // Create new note
-            await postData("/note", note);
-          }
-        }
+      if (saveLinkedInData) {
+        // Save tags and status to /linkedin
+        const linkedinDataToSave = {
+          linkedinKey: linkedinData.linkedinKey,
+          linkedinUser: linkedinData.linkedinUser,
+          tags: tags,
+          statusId: statusId
+        };
+        await saveData("", linkedinDataToSave);
+        setSaveLinkedInData(false);
       }
     } catch (error) {
       window.alert("Cannot save data. Please check your login.");
       console.error("Error saving data", error);
     }
-  }, []);
+  }, [linkedinData, tags, statusId, saveLinkedInData]);
+
+  useEffect(() => {
+    saveDataToBackend();
+  }, [saveDataToBackend]);
 
   useEffect(() => {
     getKey().then(key => {
-      const notesToBeSaved = {...notes, tags, statusId}
+      if (linkedinData) {
+        linkedinData.linkedinKey = key;
+      }
+      const notesToBeSaved = {linkedinKey: key, linkedinUser: username, tags, statusId};
       if (!notesToBeSaved.linkedinUser || notesToBeSaved.linkedinUser === "") {
         notesToBeSaved.linkedinUser = username
       }
@@ -223,11 +215,11 @@ useEffect(() => {
       }
       if (notesToBeSaved && noteHasToBeSaved(previousNotes.current, notesToBeSaved)) {
         notesToBeSaved.timestamp = new Date().toISOString()
-        saveDataToBackend(notesToBeSaved);
+        setLinkedinData(notesToBeSaved);
       }
       previousNotes.current = notesToBeSaved;
     })
-  }, [notes, saveDataToBackend, username, tags, statusId]);
+  }, [username]);
 
 
   chrome.runtime.onMessage.addListener(
@@ -239,7 +231,6 @@ useEffect(() => {
 
 
   const addNote = () => {
-    const now = new Date();
     const newNote = {
       linkedinDataId: linkedinData?.id,
       creationDate: new Date().toISOString(),
@@ -253,9 +244,9 @@ useEffect(() => {
     });
   };
 
-  const editNote = useCallback((index, text, flagColor) => {
-    setNotes(prevNotes => {
-      const updatedData = prevNotes.notes.map((note, i) => {
+  const editNote = useCallback(async (index, text, flagColor) => {
+    try {
+      const updatedData = notes.notes.map((note, i) => {
         if (i === index) {
           const updatedNote = {
             ...note,
@@ -272,10 +263,30 @@ useEffect(() => {
           return {...note};
         }
       });
-      return {...prevNotes, notes: updatedData};
-    });
-    setNewNoteIndex(null);
-  }, []);
+      setNotes(prevNotes => ({...prevNotes, notes: updatedData}));
+      setNewNoteIndex(null);
+
+      // Update the note on the backend immediately after editing
+      const noteToUpdate = updatedData[index];
+      if (noteToUpdate.id) {
+        await updateNote(noteToUpdate.id, noteToUpdate);
+      } else {
+        if (noteToUpdate.text !== "") {
+          await postData("/note", noteToUpdate);
+          loadNotes(linkedinData.id)
+            .then((notesData) => {
+              if (notesData) {
+                setNotes({notes: notesData});
+                previousNotes.current = {notes: notesData};
+              }
+            })
+        }
+      }
+    } catch (error) {
+      console.error("Error updating note:", error);
+      window.alert("Failed to update note. Please try again.");
+    }
+  }, [notes, updateNote]);
 
   const deleteNote = useCallback(async (index) => {
     if (window.confirm("Are you sure you want to delete this note?")) {
@@ -306,14 +317,17 @@ useEffect(() => {
 
   const handleAddTag = (tag) => {
     setTags(prevTags => [...prevTags, tag]);
+    setSaveLinkedInData(true);
   };
 
   const handleRemoveTag = (tagToRemove) => {
     setTags(prevTags => prevTags.filter(tag => tag !== tagToRemove));
+    setSaveLinkedInData(true);
   };
 
   const handleStatusChange = (e) => {
     setStatusId(e.target.value);
+    setSaveLinkedInData(true);
   };
 
   const handleAddTagClick = () => {
