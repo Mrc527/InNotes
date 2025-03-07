@@ -1,42 +1,81 @@
-import {NextRequest, NextResponse} from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import getUserIdFromRequest from "@/utils/authUtils";
+import { getNote, getNoteForEdit } from "@/utils/noteUtils";
 import executeQuery from "@/utils/dbUtils";
 
-export async function GET(
-  req: NextRequest,
-  {params}: { params: Promise<{ id: string }> }
-) {
-  const user = await getUserIdFromRequest(req);
-  if (!user) {
-    return new NextResponse(null, {status: 401});
-  }
-
-  const id = (await params).id;
-  const requestedUsername = req.nextUrl.searchParams.get('username');
-
-  try {
-    let queryResult = await executeQuery(
-      'SELECT * FROM data WHERE userId = ? AND linkedinKey = ?',
-      [user.id, id]
-    );
-
-    let rows = queryResult[0] as any[];
-
-    if ((!rows || rows.length === 0) && requestedUsername) {
-      console.log("Searching by user");
-      queryResult = await executeQuery(
-        'SELECT * FROM data WHERE userId = ? AND linkedinUser = ?',
-        [user.id, requestedUsername]
-      );
-      rows = queryResult[0] as any[];
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+    const user = await getUserIdFromRequest(req);
+    if (!user || !user.id) {
+        return new NextResponse(null, { status: 401 });
     }
 
-    const result = rows && rows.length > 0 ? rows[0] : null;
+    const { id } = params;
 
-    console.log(`Result Query [${user.id}, ${id}, ${requestedUsername}] -> ${JSON.stringify(result || {})}`);
-    return NextResponse.json(result || {}, {status: 200});
-  } catch (error: any) {
-    console.error("Error fetching note by ID:", error);
-    return NextResponse.json({error: "Failed to fetch note"}, {status: 500});
-  }
+    const note = await getNote(id, user.id);
+
+    if (!note) {
+        return new NextResponse(null, { status: 404 });
+    }
+
+    return NextResponse.json(note, { status: 200 });
+}
+
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+    const user = await getUserIdFromRequest(req);
+    if (!user || !user.id) {
+        return new NextResponse(null, { status: 401 });
+    }
+
+    const { id } = await(params);
+
+    const note = await getNoteForEdit(id, user.id);
+
+    if (!note) {
+        return new NextResponse(null, { status: 404 });
+    }
+
+    try {
+        const body = await req.json();
+        const { text, flagColor, lastUpdate, visibility } = body;
+
+        // Format the lastUpdate value to a MySQL-compatible datetime string
+        const formattedLastUpdate = new Date(lastUpdate).toISOString().slice(0, 19).replace('T', ' ');
+
+        await executeQuery(
+            `UPDATE notes SET text = ?, flagColor = ?, lastUpdate = ?, visibility = ? WHERE id = ?`,
+            [text, flagColor, formattedLastUpdate, visibility, id]
+        );
+
+        return new NextResponse(null, { status: 200 });
+    } catch (error: any) {
+        console.error("Error updating note:", error);
+        return NextResponse.json({ error: "Failed to update note" }, { status: 500 });
+    }
+}
+
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+    const user = await getUserIdFromRequest(req);
+    if (!user || !user.id) {
+        return new NextResponse(null, { status: 401 });
+    }
+
+    const { id } = params;
+
+     const note = await getNoteForEdit(id, user.id);
+
+    if (!note) {
+        return new NextResponse(null, { status: 404 });
+    }
+
+    try {
+        await executeQuery(
+            `DELETE FROM notes WHERE id = ?`,
+            [id]
+        );
+
+        return new NextResponse(null, { status: 200 });
+    } catch (error: any) {
+        console.error("Error deleting note:", error);
+        return NextResponse.json({ error: "Failed to delete note" }, { status: 500 });
+    }
 }

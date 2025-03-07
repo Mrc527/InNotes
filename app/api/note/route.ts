@@ -4,58 +4,66 @@ import getUserIdFromRequest from "@/utils/authUtils";
 
 export async function GET(req: NextRequest) {
     const user = await getUserIdFromRequest(req);
-    if (!user) {
+    if (!user || !user.id) {
         return new NextResponse(null, { status: 401 });
     }
 
     try {
-        const [queryResult] = await executeQuery('SELECT * FROM data WHERE userId = ?', [user.id]);
+        const { searchParams } = new URL(req.url);
+        const linkedinDataId = searchParams.get('linkedinDataId');
+
+        const [queryResult] = await executeQuery(
+            'SELECT * FROM notes WHERE userId = ? AND linkedinDataId = ?',
+            [user.id, linkedinDataId]
+        );
 
         if (!Array.isArray(queryResult) || queryResult.length === 0) {
-            console.log(`No data found for userId: ${user.id}`);
-            return NextResponse.json({}, { status: 200 });
+            console.log(`No notes found for userId: ${user.id} and linkedinDataId: ${linkedinDataId}`);
+            return NextResponse.json([], { status: 200 });
         }
 
-        const rows = queryResult;
-        console.log(`Result Self Data [${user.id}] -> ${JSON.stringify(rows || {})}`);
-        return NextResponse.json(rows || {}, { status: 200 });
+        return NextResponse.json(queryResult, { status: 200 });
     } catch (error: any) {
         console.error("Error fetching notes:", error);
         return NextResponse.json({ error: "Failed to fetch notes" }, { status: 500 });
     }
 }
 
+
 export async function POST(req: NextRequest) {
     const user = await getUserIdFromRequest(req);
-    if (!user) {
+    if (!user || !user.id) {
         return new NextResponse(null, { status: 401 });
     }
 
     try {
         const body = await req.json();
-        let { note, key, linkedinUser, notes, tags, statusId } = body;
+        let { text, flagColor, lastUpdate, creationDate, visibility, linkedinDataId } = body;
 
-        if (typeof notes === 'object') {
-            notes = JSON.stringify(notes);
+        if (!linkedinDataId) {
+            return NextResponse.json({ error: "linkedinDataId is required" }, { status: 400 });
         }
 
-        if (!key) {
-            key = "";
+        // Format dates to be MySQL compatible
+        lastUpdate = new Date(lastUpdate).toISOString().slice(0, 19).replace('T', ' ');
+        creationDate = new Date(creationDate).toISOString().slice(0, 19).replace('T', ' ');
+
+        let query = `INSERT INTO notes (userId, text, flagColor, lastUpdate, creationDate, linkedinDataId`;
+        let values = [user.id, text, flagColor, lastUpdate, creationDate, linkedinDataId];
+
+        if (visibility !== undefined) {
+            query += `, visibility) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+            values.push(visibility);
+        } else {
+            query += `) VALUES (?, ?, ?, ?, ?, ?)`;
         }
 
-        tags = tags ? JSON.stringify(tags) : null;
-        statusId = statusId || null;
+        const [insertResult] = await executeQuery(
+          query,
+          values
+        ) as any;
 
-        await executeQuery(
-            `INSERT INTO data (userId, linkedinKey, linkedinUser, note, lastUpdate, notes, tags, statusId)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-             ON DUPLICATE KEY UPDATE
-             note = ?, linkedinUser = ?, lastUpdate = ?, linkedinKey = ?, notes = ?, tags = ?, statusId = ?`,
-            [user.id, key, linkedinUser, note, new Date().getTime(), notes, tags, statusId,
-                note, linkedinUser, new Date().getTime(), key, notes, tags, statusId]
-        );
-
-        return new NextResponse(null, { status: 200 });
+        return NextResponse.json({ id: insertResult.insertId }, { status: 201 });
     } catch (error: any) {
         console.error("Error creating/updating note:", error);
         return NextResponse.json({ error: "Failed to create/update note" }, { status: 500 });
