@@ -21,6 +21,13 @@ const colorPalette = [
     {name: 'SlateGray', code: '#708090'}    // SlateGray
 ];
 
+const visibilityIcons = {
+    'private': '🔒',    // Private (Lock)
+    'shared_read_only': '👁️',  // Shared Read-Only (Eye)
+    'shared_editable': '✍️', // Shared Editable (Writing Hand)
+    'public': '🌐',     // Public (Globe)
+};
+
 export const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, cancelNewNote}) => {
     const [isEditing, setIsEditing] = useState(isNew || false);
     const [text, setText] = useState(decodeURIComponent(note.text));
@@ -142,7 +149,16 @@ export const NoteItem = ({note, index, editNote, deleteNote, autoFocus, isNew, c
                                 overflowWrap: 'break-word',
                                 wordBreak: 'break-word',
                             }}>{decodeURIComponent(note.text)}</div>
-                            <div title={fullDateString} style={{fontSize: '0.8em', color: '#888'}}>
+                            <div title={fullDateString} style={{fontSize: '0.8em', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center'}}>
+                                <span
+                                    style={{
+                                        marginRight: '0.3rem',
+                                        opacity: 0.7,
+                                        fontSize: '1rem'
+                                    }}
+                                >
+                                    {visibilityIcons[note.visibility] || visibilityIcons['private']}
+                                </span>
                                 Last modified: {timeAgoString}
                             </div>
                         </div>
