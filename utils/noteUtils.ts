@@ -1,4 +1,22 @@
+// utils/noteUtils.ts
 import executeQuery from "@/utils/dbUtils";
+
+const TIMEZONE_OFFSET = 1; // UTC+1
+
+function convertToUTC(dateString: string | null): string | null {
+    if (!dateString) {
+        return null;
+    }
+    const date = new Date(dateString);
+    date.setHours(date.getHours() - TIMEZONE_OFFSET); // Subtract 1 hour to convert from UTC+1 to UTC
+    return date.toISOString();
+}
+
+function convertFromUTC(dateString: string): string {
+    const date = new Date(dateString);
+    date.setHours(date.getHours() + TIMEZONE_OFFSET); // Add 1 hour to convert from UTC to UTC+1
+    return date.toISOString().slice(0, 19).replace('T', ' ');
+}
 
 async function getNote(noteId: string, userId: string) {
     try {
@@ -20,7 +38,12 @@ async function getNote(noteId: string, userId: string) {
                     [noteId]
                 );
                 if (Array.isArray(noteResult) && noteResult.length > 0) {
-                    return noteResult[0];
+                    const note = noteResult[0];
+                    return {
+                        ...note,
+                        creationDate: convertToUTC(note.creationDate),
+                        lastUpdate: convertToUTC(note.lastUpdate),
+                    };
                 }
             }
 
@@ -36,7 +59,12 @@ async function getNote(noteId: string, userId: string) {
                     [noteId]
                 );
                 if (Array.isArray(noteResult) && noteResult.length > 0) {
-                    return noteResult[0];
+                    const note = noteResult[0];
+                    return {
+                        ...note,
+                        creationDate: convertToUTC(note.creationDate),
+                        lastUpdate: convertToUTC(note.lastUpdate),
+                    };
                 }
             }
 
@@ -54,7 +82,12 @@ async function getNote(noteId: string, userId: string) {
                     [noteId]
                 );
                 if (Array.isArray(noteResult) && noteResult.length > 0) {
-                    return noteResult[0];
+                    const note = noteResult[0];
+                    return {
+                        ...note,
+                        creationDate: convertToUTC(note.creationDate),
+                        lastUpdate: convertToUTC(note.lastUpdate),
+                    };
                 }
             }
 
@@ -72,7 +105,12 @@ async function getNote(noteId: string, userId: string) {
                     [noteId]
                 );
                 if (Array.isArray(noteResult) && noteResult.length > 0) {
-                    return noteResult[0];
+                    const note = noteResult[0];
+                    return {
+                        ...note,
+                        creationDate: convertToUTC(note.creationDate),
+                        lastUpdate: convertToUTC(note.lastUpdate),
+                    };
                 }
             }
 
@@ -83,13 +121,23 @@ async function getNote(noteId: string, userId: string) {
             );
 
             if (Array.isArray(publicResult) && publicResult.length > 0) {
-                return publicResult[0];
+                const note = publicResult[0];
+                return {
+                    ...note,
+                    creationDate: convertToUTC(note.creationDate),
+                    lastUpdate: convertToUTC(note.lastUpdate),
+                };
             }
 
             return null;
         }
 
-        return queryResult[0];
+        const note = queryResult[0];
+        return {
+            ...note,
+            creationDate: convertToUTC(note.creationDate),
+            lastUpdate: convertToUTC(note.lastUpdate),
+        };
     } catch (error) {
         console.error("Error fetching note:", error);
         return null;
@@ -104,7 +152,12 @@ async function getNoteForEdit(noteId: string, userId: string) {
         );
 
         if (Array.isArray(queryResult) && queryResult.length > 0) {
-            return queryResult[0];
+            const note = queryResult[0];
+            return {
+                ...note,
+                creationDate: convertToUTC(note.creationDate),
+                lastUpdate: convertToUTC(note.lastUpdate),
+            };
         }
 
         // Check if the note is shared editable with the user
@@ -119,7 +172,12 @@ async function getNoteForEdit(noteId: string, userId: string) {
                 [noteId]
             );
             if (Array.isArray(noteResult) && noteResult.length > 0) {
-                return noteResult[0];
+                const note = noteResult[0];
+                return {
+                    ...note,
+                    creationDate: convertToUTC(note.creationDate),
+                    lastUpdate: convertToUTC(note.lastUpdate),
+                };
             }
         }
 
@@ -137,7 +195,12 @@ async function getNoteForEdit(noteId: string, userId: string) {
                 [noteId]
             );
             if (Array.isArray(noteResult) && noteResult.length > 0) {
-                return noteResult[0];
+                const note = noteResult[0];
+                return {
+                    ...note,
+                    creationDate: convertToUTC(note.creationDate),
+                    lastUpdate: convertToUTC(note.lastUpdate),
+                };
             }
         }
 

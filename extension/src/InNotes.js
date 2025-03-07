@@ -277,15 +277,24 @@ useEffect(() => {
     setNewNoteIndex(null);
   }, []);
 
-  const deleteNote = useCallback((index) => {
+  const deleteNote = useCallback(async (index) => {
     if (window.confirm("Are you sure you want to delete this note?")) {
-      setNotes(prevNotes => {
-        const updatedData = prevNotes.notes.filter((_, i) => i !== index);
-        return {...prevNotes, notes: updatedData};
-      });
-      setNewNoteIndex(null);
+      try {
+        const noteToDelete = notes.notes[index];
+        if (noteToDelete.id) {
+          await deleteData(`/note/${noteToDelete.id}`);
+        }
+        setNotes(prevNotes => {
+          const updatedData = prevNotes.notes.filter((_, i) => i !== index);
+          return {...prevNotes, notes: updatedData};
+        });
+        setNewNoteIndex(null);
+      } catch (error) {
+        console.error("Error deleting note:", error);
+        window.alert("Failed to delete note. Please try again.");
+      }
     }
-  }, []);
+  }, [deleteData, notes]);
 
   const cancelNewNote = useCallback((index) => {
     setNotes(prevNotes => {

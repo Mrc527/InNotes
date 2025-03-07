@@ -1,7 +1,16 @@
+// app/api/note/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import getUserIdFromRequest from "@/utils/authUtils";
 import { getNote, getNoteForEdit } from "@/utils/noteUtils";
 import executeQuery from "@/utils/dbUtils";
+
+const TIMEZONE_OFFSET = 1; // UTC+1
+
+function convertFromUTC(dateString: string): string {
+    const date = new Date(dateString);
+    date.setHours(date.getHours() + TIMEZONE_OFFSET); // Add 1 hour to convert from UTC to UTC+1
+    return date.toISOString().slice(0, 19).replace('T', ' ');
+}
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     const user = await getUserIdFromRequest(req);
@@ -39,7 +48,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         const { text, flagColor, lastUpdate, visibility } = body;
 
         // Format the lastUpdate value to a MySQL-compatible datetime string
-        const formattedLastUpdate = new Date(lastUpdate).toISOString().slice(0, 19).replace('T', ' ');
+        const formattedLastUpdate = convertFromUTC(lastUpdate);
 
         await executeQuery(
             `UPDATE notes SET text = ?, flagColor = ?, lastUpdate = ?, visibility = ? WHERE id = ?`,

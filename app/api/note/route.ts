@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import executeQuery from "@/utils/dbUtils";
 import getUserIdFromRequest from "@/utils/authUtils";
 
+const TIMEZONE_OFFSET = 1; // UTC+1
+
+function convertFromUTC(dateString: string): string {
+    const date = new Date(dateString);
+    date.setHours(date.getHours() + TIMEZONE_OFFSET); // Add 1 hour to convert from UTC to UTC+1
+    return date.toISOString().slice(0, 19).replace('T', ' ');
+}
+
 export async function GET(req: NextRequest) {
     const user = await getUserIdFromRequest(req);
     if (!user || !user.id) {
@@ -45,8 +53,8 @@ export async function POST(req: NextRequest) {
         }
 
         // Format dates to be MySQL compatible
-        lastUpdate = new Date(lastUpdate).toISOString().slice(0, 19).replace('T', ' ');
-        creationDate = new Date(creationDate).toISOString().slice(0, 19).replace('T', ' ');
+        lastUpdate = convertFromUTC(lastUpdate);
+        creationDate = convertFromUTC(creationDate);
 
         let query = `INSERT INTO notes (userId, text, flagColor, lastUpdate, creationDate, linkedinDataId`;
         let values = [user.id, text, flagColor, lastUpdate, creationDate, linkedinDataId];
