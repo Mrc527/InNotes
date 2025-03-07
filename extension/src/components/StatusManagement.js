@@ -13,7 +13,7 @@ const StatusManagement = ({ statuses, statusId, handleStatusChange, handleManage
                         style={{ paddingRight: '3em' }}
                     >
                         <option value="">Select Status</option>
-                        {statuses.map(statusItem => (
+                        {statuses?.map(statusItem => (
                             <option key={statusItem.id} value={statusItem.id}>{statusItem.name}</option>
                         ))}
                     </select>

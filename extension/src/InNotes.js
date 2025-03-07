@@ -143,8 +143,8 @@ const InNotes = () => {
         loadData(key, username)
           .then(linkedinData => {
             setLinkedinData(linkedinData);
-            loadNotes(linkedinData.id)
-              .then(([notesData]) => {
+              loadNotes(linkedinData.id)
+              .then((notesData) => {
                 setLoading(false);
                 if (linkedinData) {
                   setTags(linkedinData.tags || []);
@@ -210,8 +210,8 @@ const InNotes = () => {
       if (!notesToBeSaved.linkedinUser || notesToBeSaved.linkedinUser === "") {
         notesToBeSaved.linkedinUser = username
       }
-      if ((!notesToBeSaved.linkedinKey || notesToBeSaved.linkedinKey === "") && (key !== "" || previousNotes.current.linkedinKey !== "")) {
-        notesToBeSaved.linkedinKey = key !== "" ? key : previousNotes.current.linkedinKey;
+      if ((!notesToBeSaved.linkedinKey || notesToBeSaved.linkedinKey === "") && (key !== "" || previousNotes.current?.linkedinKey !== "")) {
+        notesToBeSaved.linkedinKey = key !== "" ? key : previousNotes.current?.linkedinKey;
       }
       if (notesToBeSaved && noteHasToBeSaved(previousNotes.current, notesToBeSaved)) {
         notesToBeSaved.timestamp = new Date().toISOString()
@@ -274,12 +274,12 @@ const InNotes = () => {
         if (noteToUpdate.text !== "") {
           await postData("/note", noteToUpdate);
           loadNotes(linkedinData.id)
-            .then((notesData) => {
-              if (notesData) {
-                setNotes({notes: notesData});
-                previousNotes.current = {notes: notesData};
-              }
-            })
+          .then((notesData) => {
+            if (notesData) {
+              setNotes({notes: notesData});
+              previousNotes.current = {notes: notesData};
+            }
+          })
         }
       }
     } catch (error) {
