@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const [results] = await executeQuery(
+        const results = await executeQuery(
             `SELECT linkedinUser, note, notes
              FROM data
              WHERE userId = ?

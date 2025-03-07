@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
             [userId]
         );
 
-        const allTags = results[0].reduce((acc: any, row: any) => {
+        const allTags = results.reduce((acc: any, row: any) => {
             if (row.tags && Array.isArray(row.tags)) {
                 acc.push(...row.tags);
             }

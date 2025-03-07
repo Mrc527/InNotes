@@ -12,7 +12,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     const { id } = params;
 
     try {
-        const [queryResult] = await executeQuery('SELECT * FROM user_groups WHERE id = ? AND ownerId = ?', [id, user.id]);
+        const queryResult = await executeQuery('SELECT * FROM user_groups WHERE id = ? AND ownerId = ?', [id, user.id]);
 
         if (!Array.isArray(queryResult) || queryResult.length === 0) {
             return new NextResponse(null, { status: 404 });
@@ -41,7 +41,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
             return NextResponse.json({ error: "Missing name field" }, { status: 400 });
         }
 
-        const [updateResult] = await executeQuery(
+        const updateResult = await executeQuery(
             `UPDATE user_groups SET name = ? WHERE id = ? AND ownerId = ?`,
             [name, id, user.id]
         );
@@ -62,7 +62,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     const { id } = params;
 
     try {
-        const [deleteResult] = await executeQuery(
+        const deleteResult = await executeQuery(
             `DELETE FROM user_groups WHERE id = ? AND ownerId = ?`,
             [id, user.id]
         );

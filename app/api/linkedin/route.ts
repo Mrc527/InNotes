@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const [queryResult] = await executeQuery('SELECT * FROM data WHERE userId = ?', [user.id]);
+        const queryResult = await executeQuery('SELECT * FROM data WHERE userId = ?', [user.id]);
 
         if (!Array.isArray(queryResult) || queryResult.length === 0) {
             console.log(`No data found for userId: ${user.id}`);

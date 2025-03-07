@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import executeQuery from "@/utils/dbUtils";
+import executeQuery, {executeQueryWithFullResult} from "@/utils/dbUtils";
 import getUserIdFromRequest from "@/utils/authUtils";
 
 const TIMEZONE_OFFSET = 1; // UTC+1
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
         const { searchParams } = new URL(req.url);
         const linkedinDataId = searchParams.get('linkedinDataId');
 
-        const [queryResult] = await executeQuery(
+        const queryResult = await executeQuery(
             'SELECT * FROM notes WHERE userId = ? AND linkedinDataId = ?',
             [user.id, linkedinDataId]
         );
@@ -41,15 +41,15 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
     const user = await getUserIdFromRequest(req);
     if (!user || !user.id) {
-        return new NextResponse(null, { status: 401 });
+        return new NextResponse(null, {status: 401});
     }
 
     try {
         const body = await req.json();
-        let { text, flagColor, lastUpdate, creationDate, visibility, linkedinDataId } = body;
+        let {text, flagColor, lastUpdate, creationDate, visibility, linkedinDataId} = body;
 
         if (!linkedinDataId) {
-            return NextResponse.json({ error: "linkedinDataId is required" }, { status: 400 });
+            return NextResponse.json({error: "linkedinDataId is required"}, {status: 400});
         }
 
         // Format dates to be MySQL compatible
@@ -66,14 +66,14 @@ export async function POST(req: NextRequest) {
             query += `) VALUES (?, ?, ?, ?, ?, ?)`;
         }
 
-        const [insertResult] = await executeQuery(
+        const result = await executeQueryWithFullResult(
           query,
           values
-        ) as any;
+        );
 
-        return NextResponse.json({ id: insertResult.insertId }, { status: 201 });
+        return NextResponse.json({id: result.insertId}, {status: 201});
     } catch (error: any) {
         console.error("Error creating/updating note:", error);
-        return NextResponse.json({ error: "Failed to create/update note" }, { status: 500 });
+        return NextResponse.json({error: "Failed to create/update note"}, {status: 500});
     }
 }

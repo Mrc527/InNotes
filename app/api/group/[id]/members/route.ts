@@ -12,7 +12,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     const { id } = params;
 
     try {
-        const [queryResult] = await executeQuery(
+        const queryResult = await executeQuery(
             `SELECT u.* FROM users u JOIN user_group_members ugm ON u.id = ugm.userId WHERE ugm.groupId = ?`,
             [id]
         );
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
             return NextResponse.json({ error: "Missing userId field" }, { status: 400 });
         }
 
-        const [insertResult] = await executeQuery(
+        const insertResult = await executeQuery(
             `INSERT INTO user_group_members (groupId, userId) VALUES (?, ?)`,
             [id, userId]
         ) as any;
@@ -72,7 +72,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
             return NextResponse.json({ error: "Missing userId field" }, { status: 400 });
         }
 
-        const [deleteResult] = await executeQuery(
+        const deleteResult = await executeQuery(
             `DELETE FROM user_group_members WHERE groupId = ? AND userId = ?`,
             [id, userId]
         );

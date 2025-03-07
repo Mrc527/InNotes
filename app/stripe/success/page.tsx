@@ -51,31 +51,30 @@ async function getSessionData(sessionId: string): Promise<SessionData | null> {
 async function updateUserInfo(userId: string, email: string, customer: any, subscriptionId: string | null): Promise<any> {
   try {
     // Fetch user from DB
-    const [user] = await executeQuery("SELECT id, email, name, status, subscriptionId FROM users WHERE id = ?", [userId]);
-    const userResult = user[0];
+    const user = await executeQuery("SELECT id, email, name, status, subscriptionId FROM users WHERE id = ?", [userId]);
 
-    if (!userResult) {
+    if (!user) {
       throw new Error(`User with ID ${userId} not found in database.`);
     }
 
     await executeQuery("UPDATE users SET status = 'premium' WHERE id = ?", [userId]);
 
     // Update email if different
-    if (email && userResult.email !== email) {
+    if (email && user.email !== email) {
       await executeQuery("UPDATE users SET email = ? WHERE id = ?", [email, userId]);
     }
 
     //Update name if different
-    if (customer?.name && userResult.name !== customer.name) {
+    if (customer?.name && user.name !== customer.name) {
       await executeQuery("UPDATE users SET name = ? WHERE id = ?", [customer.name, userId]);
     }
 
     // Update subscriptionId
-    if (subscriptionId !== userResult.subscriptionId) {
+    if (subscriptionId !== user.subscriptionId) {
       await executeQuery("UPDATE users SET subscriptionId = ? WHERE id = ?", [subscriptionId, userId]);
     }
 
-    return userResult; // Return the user object
+    return user; // Return the user object
   } catch (error: any) {
     console.error("Error updating user info:", error);
     throw error;

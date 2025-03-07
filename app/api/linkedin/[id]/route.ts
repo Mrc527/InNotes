@@ -15,20 +15,18 @@ export async function GET(
   const requestedUsername = req.nextUrl.searchParams.get('username');
 
   try {
-    let queryResult = await executeQuery(
+    let rows = await executeQuery(
       'SELECT * FROM data WHERE userId = ? AND linkedinKey = ?',
       [user.id, id]
     );
 
-    let rows = queryResult[0] as any[];
 
     if ((!rows || rows.length === 0) && requestedUsername) {
       console.log("Searching by user");
-      queryResult = await executeQuery(
+      rows = await executeQuery(
         'SELECT * FROM data WHERE userId = ? AND linkedinUser = ?',
         [user.id, requestedUsername]
       );
-      rows = queryResult[0] as any[];
     }
 
     const result = rows && rows.length > 0 ? rows[0] : null;

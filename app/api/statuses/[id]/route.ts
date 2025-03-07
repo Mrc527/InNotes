@@ -20,11 +20,10 @@ export async function GET(req: NextRequest, props: Props) {
     const { id } = params;
 
     try {
-        const [result] = await executeQuery(
+        const status = await executeQuery(
             'SELECT * FROM statuses WHERE id = ? AND userId = ?',
             [id, userId]
         );
-        const status = result as any;
 
         if (!status) {
             return new NextResponse(null, { status: 404 });

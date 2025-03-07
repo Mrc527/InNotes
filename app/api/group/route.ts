@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const [queryResult] = await executeQuery('SELECT * FROM user_groups WHERE ownerId = ?', [user.id]);
+        const queryResult = await executeQuery('SELECT * FROM user_groups WHERE ownerId = ?', [user.id]);
 
         if (!Array.isArray(queryResult)) {
             console.log(`No groups found for userId: ${user.id}`);
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Missing name field" }, { status: 400 });
         }
 
-        const [insertResult] = await executeQuery(
+        const insertResult = await executeQuery(
             `INSERT INTO user_groups (ownerId, name) VALUES (?, ?)`,
             [user.id, name]
         ) as any;

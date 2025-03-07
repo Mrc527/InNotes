@@ -23,12 +23,10 @@ export default async function getUserIdFromRequest(req: NextRequest) {
   }
 
   try {
-    const [result] = await executeQuery(
+    const rows: User[] = await executeQuery(
       'SELECT * FROM users WHERE username = ? AND password = ?',
       [username, password]
     );
-
-    const rows = result as [User];
 
     if (rows && rows.length === 1 && rows[0].id) {
       console.log(`u -> ${username}, id -> ${rows[0].id}`);

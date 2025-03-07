@@ -14,10 +14,7 @@ export async function GET(req: NextRequest) {
   }
   const userid= user.id;
   try {
-    const [result] = await executeQuery('SELECT * FROM users WHERE id = ?', [userid]);
-
-    // Correctly type the result
-    const rows = result as any[];
+    const rows = await executeQuery('SELECT * FROM users WHERE id = ?', [userid]);
 
     if (!rows || rows.length === 0) {
       return new NextResponse(null, {status: 404});

@@ -20,20 +20,20 @@ function convertFromUTC(dateString: string): string {
 
 async function getNote(noteId: string, userId: string) {
     try {
-        const [queryResult] = await executeQuery(
+        const queryResult = await executeQuery(
             `SELECT * FROM notes WHERE id = ? AND userId = ?`,
             [noteId, userId]
         );
 
         if (!Array.isArray(queryResult) || queryResult.length === 0) {
             // Check if the note is shared read-only with the user
-            const [sharedReadResult] = await executeQuery(
+            const sharedReadResult = await executeQuery(
                 `SELECT * FROM note_shared_read WHERE noteId = ? AND userId = ?`,
                 [noteId, userId]
             );
 
             if (Array.isArray(sharedReadResult) && sharedReadResult.length > 0) {
-                const [noteResult] = await executeQuery(
+                const noteResult = await executeQuery(
                     `SELECT * FROM notes WHERE id = ?`,
                     [noteId]
                 );
@@ -48,13 +48,13 @@ async function getNote(noteId: string, userId: string) {
             }
 
             // Check if the note is shared editable with the user
-            const [sharedEditResult] = await executeQuery(
+            const sharedEditResult = await executeQuery(
                 `SELECT * FROM note_shared_edit WHERE noteId = ? AND userId = ?`,
                 [noteId, userId]
             );
 
             if (Array.isArray(sharedEditResult) && sharedEditResult.length > 0) {
-                const [noteResult] = await executeQuery(
+                const noteResult = await executeQuery(
                     `SELECT * FROM notes WHERE id = ?`,
                     [noteId]
                 );
@@ -69,7 +69,7 @@ async function getNote(noteId: string, userId: string) {
             }
 
             // Check if the note is shared read-only with a group the user is in
-            const [groupReadResult] = await executeQuery(
+            const groupReadResult = await executeQuery(
                 `SELECT * FROM note_shared_read nsr
                  JOIN user_group_members ugm ON nsr.groupId = ugm.groupId
                  WHERE nsr.noteId = ? AND ugm.userId = ?`,
@@ -77,7 +77,7 @@ async function getNote(noteId: string, userId: string) {
             );
 
             if (Array.isArray(groupReadResult) && groupReadResult.length > 0) {
-                const [noteResult] = await executeQuery(
+                const noteResult = await executeQuery(
                     `SELECT * FROM notes WHERE id = ?`,
                     [noteId]
                 );
@@ -92,7 +92,7 @@ async function getNote(noteId: string, userId: string) {
             }
 
             // Check if the note is shared editable with a group the user is in
-            const [groupEditResult] = await executeQuery(
+            const groupEditResult = await executeQuery(
                 `SELECT * FROM note_shared_edit nse
                  JOIN user_group_members ugm ON nse.groupId = ugm.groupId
                  WHERE nse.noteId = ? AND ugm.userId = ?`,
@@ -100,7 +100,7 @@ async function getNote(noteId: string, userId: string) {
             );
 
             if (Array.isArray(groupEditResult) && groupEditResult.length > 0) {
-                const [noteResult] = await executeQuery(
+                const noteResult = await executeQuery(
                     `SELECT * FROM notes WHERE id = ?`,
                     [noteId]
                 );
@@ -115,7 +115,7 @@ async function getNote(noteId: string, userId: string) {
             }
 
             // Check if the note is public
-            const [publicResult] = await executeQuery(
+            const publicResult = await executeQuery(
                 `SELECT * FROM notes WHERE id = ? AND visibility = 'public'`,
                 [noteId]
             );
@@ -146,7 +146,7 @@ async function getNote(noteId: string, userId: string) {
 
 async function getNoteForEdit(noteId: string, userId: string) {
     try {
-        const [queryResult] = await executeQuery(
+        const queryResult = await executeQuery(
             `SELECT * FROM notes WHERE id = ? AND userId = ?`,
             [noteId, userId]
         );
@@ -161,13 +161,13 @@ async function getNoteForEdit(noteId: string, userId: string) {
         }
 
         // Check if the note is shared editable with the user
-        const [sharedEditResult] = await executeQuery(
+        const sharedEditResult = await executeQuery(
             `SELECT * FROM note_shared_edit WHERE noteId = ? AND userId = ?`,
             [noteId, userId]
         );
 
         if (Array.isArray(sharedEditResult) && sharedEditResult.length > 0) {
-            const [noteResult] = await executeQuery(
+            const noteResult = await executeQuery(
                 `SELECT * FROM notes WHERE id = ?`,
                 [noteId]
             );
@@ -182,7 +182,7 @@ async function getNoteForEdit(noteId: string, userId: string) {
         }
 
         // Check if the note is shared editable with a group the user is in
-        const [groupEditResult] = await executeQuery(
+        const groupEditResult = await executeQuery(
             `SELECT * FROM note_shared_edit nse
              JOIN user_group_members ugm ON nse.groupId = ugm.groupId
              WHERE nse.noteId = ? AND ugm.userId = ?`,
@@ -190,7 +190,7 @@ async function getNoteForEdit(noteId: string, userId: string) {
         );
 
         if (Array.isArray(groupEditResult) && groupEditResult.length > 0) {
-            const [noteResult] = await executeQuery(
+            const noteResult = await executeQuery(
                 `SELECT * FROM notes WHERE id = ?`,
                 [noteId]
             );

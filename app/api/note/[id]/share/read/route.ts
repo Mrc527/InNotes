@@ -19,7 +19,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
             return NextResponse.json({ error: "Missing userId or groupId field" }, { status: 400 });
         }
 
-        const [insertResult] = await executeQuery(
+        const insertResult = await executeQuery(
             `INSERT INTO note_shared_read (noteId, userId, groupId) VALUES (?, ?, ?)`,
             [id, userId, groupId]
         ) as any;
@@ -47,7 +47,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
             return NextResponse.json({ error: "Missing userId or groupId field" }, { status: 400 });
         }
 
-        const [deleteResult] = await executeQuery(
+        const deleteResult = await executeQuery(
             `DELETE FROM note_shared_read WHERE noteId = ? AND (userId = ? OR groupId = ?)`,
             [id, userId, groupId]
         );
