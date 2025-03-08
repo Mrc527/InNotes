@@ -8,8 +8,17 @@ async function getProfile(id: string) {
     const users = await executeQuery('SELECT * FROM users where id=?', [id]);
     return users[0];
 }
-async function getLinkedInData(userId: string) {
-    return await executeQuery('SELECT * FROM contacts WHERE userId = ?', [userId]);
+async function getLinkedInData(userId: string, searchTerm: string = "") {
+    let query = `SELECT * FROM contacts WHERE userId = ?`;
+    const params: any[] = [userId];
+
+    if (searchTerm) {
+        query += ` AND (linkedinUser LIKE ? OR name LIKE ?)`;
+        params.push(`%${searchTerm}%`, `%${searchTerm}%`);
+    }
+
+    const data = await executeQuery(query, params);
+    return data;
 }
 
 async function getStatuses(userId: string) {

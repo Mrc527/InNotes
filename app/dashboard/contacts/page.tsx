@@ -1,4 +1,3 @@
-// app/dashboard/contacts/page.tsx
 import executeQuery from '@/utils/dbUtils';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -34,8 +33,8 @@ async function getContacts(userId: string, page: number, searchTerm: string = ""
     const params: any[] = [userId];
 
     if (searchTerm) {
-        query += ` AND d.linkedinUser LIKE ?`;
-        params.push(`%${searchTerm}%`);
+        query += ` AND (d.linkedinUser LIKE ? OR d.name LIKE ?)`;
+        params.push(`%${searchTerm}%`, `%${searchTerm}%`);
     }
 
     query += ` ORDER BY d.linkedinUser ASC LIMIT ? OFFSET ?`;
@@ -54,9 +53,9 @@ async function getTotalContactsCount(userId: string, searchTerm: string = ""): P
     let query = `SELECT COUNT(*) as total FROM contacts WHERE userId = ?`;
     const params: any[] = [userId];
 
-    if (searchTerm) {
-        query += ` AND linkedinUser LIKE ?`;
-        params.push(`%${searchTerm}%`);
+     if (searchTerm) {
+        query += ` AND (linkedinUser LIKE ? OR name LIKE ?)`;
+        params.push(`%${searchTerm}%`, `%${searchTerm}%`);
     }
 
     const result = await executeQuery(query, params);
