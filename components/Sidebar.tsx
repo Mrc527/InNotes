@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, {useState} from 'react';
 import { Session } from 'next-auth';
 import * as NavigationMenu from '@radix-ui/react-navigation-menu';
 import * as Avatar from '@radix-ui/react-avatar';
@@ -8,6 +8,7 @@ import { HomeIcon, PersonIcon, MagnifyingGlassIcon, NotionLogoIcon } from '@radi
 import { useTheme } from 'next-themes';
 import { MoonIcon, SunIcon } from '@radix-ui/react-icons';
 import Link from 'next/link';
+import {useRouter} from "next/navigation";
 
 interface SidebarProps {
     session: Session | null;
@@ -16,6 +17,22 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ session }) => {
     const userInitials = session?.user?.email ? session.user.email[0].toUpperCase() : 'N/A';
     const { theme, setTheme } = useTheme();
+    const [search, setSearch] = useState("");
+    const router = useRouter();
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearch(e.target.value);
+    };
+
+    const handleSearchClick = () => {
+        router.push(`/dashboard/contacts?search=${search}`);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            handleSearchClick();
+        }
+    };
 
     return (
         <div className="fixed w-64 flex flex-col h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800">
@@ -32,6 +49,9 @@ const Sidebar: React.FC<SidebarProps> = ({ session }) => {
                         type="text"
                         placeholder="Search..."
                         className="w-full pl-10 pr-3 py-2 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+                        onChange={handleSearchChange}
+                        onKeyDown={handleKeyDown}
+                        value={search}
                     />
                 </div>
             </div>
