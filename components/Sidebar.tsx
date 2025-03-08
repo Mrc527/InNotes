@@ -49,7 +49,7 @@ const Sidebar: React.FC<SidebarProps> = ({ session }) => {
                     </NavigationMenu.Item>
                     <NavigationMenu.Item>
                         <NavigationMenu.Link asChild>
-                            <a href="#" className="flex items-center p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors duration-200">
+                            <a href="/dashboard/people" className="flex items-center p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors duration-200">
                                 <PersonIcon className="h-5 w-5 mr-2" />
                                 People
                             </a>
@@ -57,7 +57,7 @@ const Sidebar: React.FC<SidebarProps> = ({ session }) => {
                     </NavigationMenu.Item>
                     <NavigationMenu.Item>
                         <NavigationMenu.Link asChild>
-                            <a href="#" className="flex items-center p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors duration-200">
+                            <a href="/dashboard/notes" className="flex items-center p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors duration-200">
                                 <NotionLogoIcon className="h-5 w-5 mr-2" />
                                 Notes
                             </a>

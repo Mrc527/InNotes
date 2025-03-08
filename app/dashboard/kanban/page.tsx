@@ -2,18 +2,17 @@ import executeQuery from '@/utils/dbUtils';
 import {getServerSession} from "next-auth";
 import {authOptions} from "@/app/api/auth/[...nextauth]/route";
 import {redirect} from "next/navigation";
+
 async function getProfile(id: string) {
     const users = await executeQuery('SELECT * FROM users where id=?', [id]);
     return users[0];
 }
 async function getLinkedInData(userId: string) {
-    const data = await executeQuery('SELECT * FROM data WHERE userId = ?', [userId]);
-    return data;
+    return await executeQuery('SELECT * FROM data WHERE userId = ?', [userId]);
 }
 
 async function getStatuses(userId: string) {
-    const statuses = await executeQuery('SELECT * FROM statuses WHERE userId = ?', [userId]);
-    return statuses;
+    return await executeQuery('SELECT * FROM statuses WHERE userId = ?', [userId]);
 }
 
 interface LinkedInData {
