@@ -1,11 +1,35 @@
 /* global chrome */
-import React, {useEffect, useState, useCallback, useRef} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import "./App.css";
-import {getRequest, postData, deleteData, saveData, loadData, updateNote, loadNotes} from "./utils";
+import {deleteData, getRequest, loadData, loadNotes, postData, saveData, updateNote} from "./utils";
 import NoteList from "./components/NoteList";
 import TagManagement from "./components/TagManagement";
 import StatusManagement from "./components/StatusManagement";
 import StatusModal from "./components/StatusModal";
+
+const getLinkedInProfileImage = () => {
+  const img = document.querySelector('img[src^="https://media.licdn.com/dms/image/"]');
+  return img ? img.src : null;
+};
+const getLinkedInProfileNameFromHTML = () => {
+  const title = document.title;
+  const parts = title.split("|");
+  if (parts.length > 1) {
+    return parts[0].replace(/\(\d+\)\s*/, "").trim();
+  }
+  return null;
+};
+
+function findLinkedInProfileLink(username) {
+  const links = document.querySelectorAll('a[href^="https://www.linkedin.com/in/' + username + '"]');
+  for (let i = 0; i < links.length; i++) {
+    const href = links[i].href;
+    if (href.includes('profileId=')) {
+      return href.match(/profileId=(.*)/)?.[1];
+    }
+  }
+  return null;
+}
 
 const noteHasToBeSaved = (previous, current) => {
   if (JSON.stringify(previous) === JSON.stringify(current)) {
@@ -58,31 +82,6 @@ const noteHasToBeSaved = (previous, current) => {
   }
   return true;
 }
-
-const getKey = () => {
-  return new Promise((resolve) => {
-    if (document.readyState === 'complete' || document.readyState === 'interactive') {
-      // Document is already loaded
-      resolve(getKeyInner());
-    } else {
-      // Wait for the document to load
-      document.addEventListener('DOMContentLoaded', () => {
-        resolve(getKeyInner());
-      });
-    }
-  });
-};
-const getKeyInner = () => {
-  let value = "";
-  try {
-    const href = decodeURIComponent(document.querySelector('a[href*="linkedin.com/in/"][href*="miniProfileUrn="]')?.href);
-    const miniProfileUrn = href.substring(href.indexOf("miniProfileUrn=") + "miniProfileUrn=".length);
-    value = value.substring(miniProfileUrn.indexOf(":") + 3);
-    value = value.substring(value.lastIndexOf("fs_miniProfile:") + 15);
-  } catch (e) {
-  }
-  return value;
-};
 
 const InNotes = () => {
   const [notes, setNotes] = useState(null);
@@ -139,52 +138,53 @@ const InNotes = () => {
     if (username) {
       setLoading(true);
       setRegistrationError(false);
-      getKey().then(key =>
-        loadData(key, username)
-          .then(linkedinData => {
-            setLinkedinData(linkedinData);
-              loadNotes(linkedinData.id)
-              .then((notesData) => {
-                setLoading(false);
-                if (linkedinData) {
-                  setTags(linkedinData.tags || []);
-                  setStatusId(linkedinData.statusId || "");
-                } else {
-                  setTags([]);
-                  setStatusId("");
-                }
-                if (notesData) {
-                  setNotes({notes: notesData});
-                  previousNotes.current = {notes: notesData};
-                } else {
-                  setNotes({});
-                  previousNotes.current = {};
-                }
-              })
-              .catch(error => {
-                setLoading(false);
-                setRegistrationError(true);
-                setNotes(null);
-                console.error("Error loading notes", error);
-              })
-          })
-          .catch(error => {
-            setLoading(false);
-            setRegistrationError(true);
-            setNotes(null);
-            console.error("Error loading data", error);
-          })
-      );
+      loadData(findLinkedInProfileLink(username), username)
+        .then(linkedinData => {
+          setLinkedinData(linkedinData);
+          loadNotes(linkedinData.id)
+            .then((notesData) => {
+              setLoading(false);
+              if (linkedinData) {
+                setTags(linkedinData.tags || []);
+                setStatusId(linkedinData.statusId || "");
+              } else {
+                setTags([]);
+                setStatusId("");
+              }
+              if (notesData) {
+                setNotes({notes: notesData});
+                previousNotes.current = {notes: notesData};
+              } else {
+                setNotes({});
+                previousNotes.current = {};
+              }
+            })
+            .catch(error => {
+              setLoading(false);
+              setRegistrationError(true);
+              setNotes(null);
+              console.error("Error loading notes", error);
+            })
+        })
+        .catch(error => {
+          setLoading(false);
+          setRegistrationError(true);
+          setNotes(null);
+          console.error("Error loading data", error);
+        })
     }
   }, [username]);
 
   const saveDataToBackend = useCallback(async () => {
     try {
       if (saveLinkedInData) {
-        // Save tags and status to /linkedin
+        const key = findLinkedInProfileLink(linkedinData.linkedinUser);
+        console.log("KEY", key)
         const linkedinDataToSave = {
-          linkedinKey: linkedinData.linkedinKey,
+          linkedinKey: linkedinData.linkedinKey && linkedinData.linkedinKey !== "" ? linkedinData.linkedinKey : key,
           linkedinUser: linkedinData.linkedinUser,
+          pictureUrl: getLinkedInProfileImage(),
+          name: getLinkedInProfileNameFromHTML(),
           tags: tags,
           statusId: statusId
         };
@@ -202,11 +202,14 @@ const InNotes = () => {
   }, [saveDataToBackend]);
 
   useEffect(() => {
-    getKey().then(key => {
+      const imageUrl = getLinkedInProfileImage();
+      const name = getLinkedInProfileNameFromHTML();
+      const key = findLinkedInProfileLink(username);
+      console.log("Loading data for key",key)
       if (linkedinData) {
         linkedinData.linkedinKey = key;
       }
-      const notesToBeSaved = {linkedinKey: key, linkedinUser: username, tags, statusId};
+      const notesToBeSaved = {linkedinKey: key, linkedinUser: username, tags, statusId, imageUrl, name};
       if (!notesToBeSaved.linkedinUser || notesToBeSaved.linkedinUser === "") {
         notesToBeSaved.linkedinUser = username
       }
@@ -218,7 +221,6 @@ const InNotes = () => {
         setLinkedinData(notesToBeSaved);
       }
       previousNotes.current = notesToBeSaved;
-    })
   }, [username]);
 
 
@@ -244,7 +246,7 @@ const InNotes = () => {
     });
   };
 
- const editNote = useCallback(async (index, text, flagColor, visibility) => {
+  const editNote = useCallback(async (index, text, flagColor, visibility) => {
     try {
       const updatedData = notes.notes.map((note, i) => {
         if (i === index) {
@@ -275,12 +277,12 @@ const InNotes = () => {
         if (noteToUpdate.text !== "") {
           await postData("/note", noteToUpdate);
           loadNotes(linkedinData.id)
-          .then((notesData) => {
-            if (notesData) {
-              setNotes({notes: notesData});
-              previousNotes.current = {notes: notesData};
-            }
-          })
+            .then((notesData) => {
+              if (notesData) {
+                setNotes({notes: notesData});
+                previousNotes.current = {notes: notesData};
+              }
+            })
         }
       }
     } catch (error) {

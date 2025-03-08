@@ -33,11 +33,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    let {key, linkedinUser, tags, statusId, pictureUrl, name} = body;
-
-    if (!key) {
-      key = "";
-    }
+    let {linkedinKey, linkedinUser, tags, statusId, pictureUrl, name} = body;
 
     tags = tags ? JSON.stringify(tags) : null;
     statusId = statusId || null;
@@ -52,8 +48,8 @@ export async function POST(req: NextRequest) {
                                statusId = ?,
                                pictureUrl = ?,
                                name = ?`,
-      [user.id, key, linkedinUser, new Date().getTime(), tags, statusId, pictureUrl, name,
-        linkedinUser, new Date().getTime(), key, tags, statusId, pictureUrl, name]
+      [user.id, linkedinKey, linkedinUser, new Date().getTime(), tags, statusId, pictureUrl, name,
+        linkedinUser, new Date().getTime(), linkedinKey, tags, statusId, pictureUrl, name]
     );
 
     return new NextResponse(null, {status: 200});
