@@ -18,14 +18,16 @@ async function getNotes() {
     const notes = await executeQuery('SELECT * FROM notes LIMIT 5', []);
     return notes;
 }
-
+interface UserSession {
+  id: string;
+}
 export default async function Dashboard() {
     const session = await getServerSession(authOptions);
 
     if (!session) {
         redirect('/api/auth/signin');
     }
-    const profile = await getProfile(session.user.id);
+    const profile = await getProfile((session.user as UserSession).id);
     const linkedInData = await getLinkedInData();
     const notes = await getNotes();
 
@@ -49,7 +51,6 @@ export default async function Dashboard() {
             </section>
 
             <p className="text-gray-600 dark:text-gray-400 mt-4">Signed in as {session?.user?.email}</p>
-            <p className="text-gray-600 dark:text-gray-400">LinkedIn ID: {session?.user?.id}</p>
         </>
     );
 }

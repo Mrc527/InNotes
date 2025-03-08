@@ -2,7 +2,10 @@ import executeQuery from '@/utils/dbUtils';
 import {getServerSession} from "next-auth";
 import {authOptions} from "@/app/api/auth/[...nextauth]/route";
 import {redirect} from "next/navigation";
-
+async function getProfile(id: string) {
+    const users = await executeQuery('SELECT * FROM users where id=?', [id]);
+    return users[0];
+}
 async function getLinkedInData(userId: string) {
     const data = await executeQuery('SELECT * FROM data WHERE userId = ?', [userId]);
     return data;
@@ -24,15 +27,19 @@ interface Status {
     id: number;
     name: string;
 }
+interface UserSession {
+    id: string;
+}
 
 export default async function KanbanPage() {
     const session = await getServerSession(authOptions);
 
-    if (!session || !session?.user?.id) {
+    if (!session || !session.user) {
         redirect('/api/auth/signin');
     }
 
-    const userId = session.user.id;
+    const userId = (session.user as UserSession).id;
+    const profile = await getProfile(userId);
     const linkedInData: LinkedInData[] = await getLinkedInData(userId);
     const statuses: Status[] = await getStatuses(userId);
 
@@ -44,7 +51,7 @@ export default async function KanbanPage() {
 
     // Group data by status
     const kanbanData = linkedInData.reduce((acc: { [key: string]: LinkedInData[] }, item) => {
-        const statusId = item.statusId;
+        const statusId = item.statusId || -1;
         const statusName = statusMap[statusId] || 'No Status'; // Default status
         if (!acc[statusName]) {
             acc[statusName] = [];
