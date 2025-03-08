@@ -1,7 +1,8 @@
 import executeQuery from '@/utils/dbUtils';
 import {getServerSession} from "next-auth";
 import {authOptions} from "@/app/api/auth/[...nextauth]/route";
-import {redirect} from "next/navigation";
+import {redirect, useRouter} from "next/navigation";
+import Kanban from "@/components/Kanban";
 
 async function getProfile(id: string) {
     const users = await executeQuery('SELECT * FROM users where id=?', [id]);
@@ -77,19 +78,15 @@ export default async function KanbanPage() {
     return (
         <div className="p-4">
             <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Kanban Board</h1>
-
-            <div className="flex overflow-x-auto">
-                {statusNames.map((statusName) => (
-                    <div key={statusName} className="w-80 p-2 mr-4 rounded-md bg-gray-100 dark:bg-gray-800 shadow">
-                        <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">{statusName}</h2>
-                        {kanbanData[statusName].map((item) => (
-                            <div key={item.id} className="p-3 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 mb-2 shadow-sm">
-                                {item.linkedinUser}
-                            </div>
-                        ))}
-                    </div>
-                ))}
-            </div>
+            <Kanban
+                linkedInData={linkedInData}
+                statuses={statuses}
+                kanbanData={kanbanData}
+                statusNames={statusNames}
+                statusMap={statusMap}
+                username={profile.username}
+                password={profile.password}
+            />
         </div>
     );
 }
