@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
 
     try {
         const results = await executeQuery(
-            `SELECT tags FROM data WHERE userId = ?`,
+            `SELECT tags FROM contacts WHERE userId = ?`,
             [userId]
         );
 

@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const queryResult = await executeQuery('SELECT * FROM data WHERE userId = ?', [user.id]);
+        const queryResult = await executeQuery('SELECT * FROM contacts WHERE userId = ?', [user.id]);
 
         if (!Array.isArray(queryResult) || queryResult.length === 0) {
             console.log(`No data found for userId: ${user.id}`);
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
         statusId = statusId || null;
 
         await executeQuery(
-            `INSERT INTO data (userId, linkedinKey, linkedinUser, note, lastUpdate, notes, tags, statusId)
+            `INSERT INTO contacts (userId, linkedinKey, linkedinUser, note, lastUpdate, notes, tags, statusId)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)
              ON DUPLICATE KEY UPDATE
              note = ?, linkedinUser = ?, lastUpdate = ?, linkedinKey = ?, notes = ?, tags = ?, statusId = ?`,

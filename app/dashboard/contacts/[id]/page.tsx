@@ -21,7 +21,7 @@ async function getContact(userId: string, id: string): Promise<Contact | null> {
         SELECT
             d.*,
             (SELECT COUNT(*) FROM notes n WHERE n.linkedinDataId = d.id AND n.userId = d.userId) as notesCount
-        FROM data d
+        FROM contacts d
         WHERE d.userId = ? AND d.id = ?
     `;
     const params: any[] = [userId, id];

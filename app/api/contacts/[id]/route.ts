@@ -16,7 +16,7 @@ export async function GET(
 
   try {
     let rows = await executeQuery(
-      'SELECT * FROM data WHERE userId = ? AND linkedinKey = ?',
+      'SELECT * FROM contacts WHERE userId = ? AND linkedinKey = ?',
       [user.id, id]
     );
 
@@ -24,7 +24,7 @@ export async function GET(
     if ((!rows || rows.length === 0) && requestedUsername) {
       console.log("Searching by user");
       rows = await executeQuery(
-        'SELECT * FROM data WHERE userId = ? AND linkedinUser = ?',
+        'SELECT * FROM contacts WHERE userId = ? AND linkedinUser = ?',
         [user.id, requestedUsername]
       );
     }
@@ -79,7 +79,7 @@ export async function PUT(
     }
 
     values.push(id, user.id);
-    const query = `UPDATE data SET ${updates.join(', ')} WHERE id = ? AND userId = ?`;
+    const query = `UPDATE contacts SET ${updates.join(', ')} WHERE id = ? AND userId = ?`;
 
     await executeQuery(query, values);
     return NextResponse.json({ message: 'Data updated successfully' }, { status: 200 });

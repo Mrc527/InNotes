@@ -107,7 +107,7 @@ async function loadDataFromUniqueKey(key) {
 
 
 async function loadData(key,username) {
-    let url = "/linkedin/";
+    let url = "/contacts/";
     if (key !== undefined && key !== "") {
         url += key;
     } else {
@@ -127,7 +127,7 @@ async function loadNotes(linkedinDataId) {
 }
 
 async function saveData(key, value) {
-    return await postData("/linkedin", value)
+    return await postData("/contacts", value)
 }
 
 async function updateNote(noteId, data) {
@@ -145,7 +145,7 @@ async function saveFullData(value) {
 }
 
 async function getFullData() {
-    return await getRequest("/linkedin", null)
+    return await getRequest("/contacts", null)
 }
 
 // Group Management

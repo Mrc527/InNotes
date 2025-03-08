@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     try {
         const results = await executeQuery(
             `SELECT linkedinUser, note, notes
-             FROM data
+             FROM contacts
              WHERE userId = ?
                AND (LOWER(notes) LIKE LOWER(?) OR LOWER(note) LIKE LOWER(?))`,
             [user.id, `%${searchTerm}%`, `%${searchTerm}%`]

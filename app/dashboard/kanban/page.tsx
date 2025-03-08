@@ -9,7 +9,7 @@ async function getProfile(id: string) {
     return users[0];
 }
 async function getLinkedInData(userId: string) {
-    return await executeQuery('SELECT * FROM data WHERE userId = ?', [userId]);
+    return await executeQuery('SELECT * FROM contacts WHERE userId = ?', [userId]);
 }
 
 async function getStatuses(userId: string) {

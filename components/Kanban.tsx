@@ -8,7 +8,6 @@ interface LinkedInData {
     id: string;
     linkedinUser: string;
     statusId: number | null;
-    // ... other fields
 }
 
 interface Status {
@@ -38,7 +37,7 @@ export default function Kanban({
     const router = useRouter();
 
     const updateLinkedInDataStatus = async (id: string, statusId: number | null, username: string, password: string) => {
-        const response = await fetch(`/api/linkedin/${id}`, {
+        const response = await fetch(`/api/contacts/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

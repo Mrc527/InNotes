@@ -26,7 +26,7 @@ async function getContacts(userId: string, page: number, searchTerm: string = ""
         SELECT
             d.*,
             (SELECT COUNT(*) FROM notes n WHERE n.linkedinDataId = d.id AND n.userId = d.userId) as notesCount
-        FROM data d
+        FROM contacts d
         WHERE d.userId = ?
     `;
     const params: any[] = [userId];
@@ -49,7 +49,7 @@ async function getStatuses(userId: string): Promise<Status[]> {
 }
 
 async function getTotalContactsCount(userId: string, searchTerm: string = ""): Promise<number> {
-    let query = `SELECT COUNT(*) as total FROM data WHERE userId = ?`;
+    let query = `SELECT COUNT(*) as total FROM contacts WHERE userId = ?`;
     const params: any[] = [userId];
 
     if (searchTerm) {
@@ -73,8 +73,8 @@ export default async function PeoplePage({ searchParams }: { searchParams: { pag
     }
 
     const userId = (session.user as UserSession).id;
-    const page = parseInt(searchParams?.page || '1', 10);
-    const searchTerm = searchParams?.search || "";
+    const page = parseInt((await searchParams)?.page || '1', 10);
+    const searchTerm = (await searchParams)?.search || "";
     const contacts = await getContacts(userId, page, searchTerm);
     const statuses = await getStatuses(userId);
     const totalContactsCount = await getTotalContactsCount(userId, searchTerm);

@@ -10,7 +10,7 @@ async function getProfile(id: string) {
 }
 
 async function getLinkedInData() {
-    const data = await executeQuery('SELECT * FROM data LIMIT 5', []);
+    const data = await executeQuery('SELECT * FROM contacts LIMIT 5', []);
     return data;
 }
 
