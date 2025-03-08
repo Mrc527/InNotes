@@ -20,15 +20,53 @@ const getLinkedInProfileNameFromHTML = () => {
   return null;
 };
 
-function findLinkedInProfileLink(username) {
-  const links = document.querySelectorAll('a[href^="https://www.linkedin.com/in/' + username + '"]');
-  for (let i = 0; i < links.length; i++) {
-    const href = links[i].href;
-    if (href.includes('profileId=')) {
-      return href.match(/profileId=(.*)/)?.[1];
+async function findLinkedInProfileLink(username, attempt = 1) {
+  const maxAttempts = 5;
+  const delay = 2000;
+
+  return new Promise((resolve) => {
+    if (document.readyState === 'complete') {
+      const links = document.querySelectorAll('a[href^="https://www.linkedin.com/in/' + username + '"]');
+      for (let i = 0; i < links.length; i++) {
+        const href = links[i].href;
+        if (href.includes('profileId=')) {
+          resolve(href.match(/profileId=(.*)/)?.[1]);
+          return;
+        }
+      }
+
+      if (attempt > maxAttempts) {
+        console.warn(`Could not find LinkedIn profile link after ${maxAttempts} attempts.`);
+        resolve(null);
+      } else {
+        console.log(`Attempt ${attempt} failed, retrying in ${delay}ms...`);
+        setTimeout(() => {
+          findLinkedInProfileLink(username, attempt + 1).then(resolve);
+        }, delay);
+      }
+
+    } else {
+      window.addEventListener('load', () => {
+        const links = document.querySelectorAll('a[href^="https://www.linkedin.com/in/' + username + '"]');
+        for (let i = 0; i < links.length; i++) {
+          const href = links[i].href;
+          if (href.includes('profileId=')) {
+            resolve(href.match(/profileId=(.*)/)?.[1]);
+            return;
+          }
+        }
+        if (attempt > maxAttempts) {
+          console.warn(`Could not find LinkedIn profile link after ${maxAttempts} attempts.`);
+          resolve(null);
+        } else {
+          console.log(`Attempt ${attempt} failed, retrying in ${delay}ms...`);
+          setTimeout(() => {
+            findLinkedInProfileLink(username, attempt + 1).then(resolve);
+          }, delay);
+        }
+      });
     }
-  }
-  return null;
+  });
 }
 
 const noteHasToBeSaved = (previous, current) => {
@@ -138,47 +176,49 @@ const InNotes = () => {
     if (username) {
       setLoading(true);
       setRegistrationError(false);
-      loadData(findLinkedInProfileLink(username), username)
-        .then(linkedinData => {
-          setLinkedinData(linkedinData);
-          loadNotes(linkedinData.id)
-            .then((notesData) => {
-              setLoading(false);
-              if (linkedinData) {
-                setTags(linkedinData.tags || []);
-                setStatusId(linkedinData.statusId || "");
-              } else {
-                setTags([]);
-                setStatusId("");
-              }
-              if (notesData) {
-                setNotes({notes: notesData});
-                previousNotes.current = {notes: notesData};
-              } else {
-                setNotes({});
-                previousNotes.current = {};
-              }
-            })
-            .catch(error => {
-              setLoading(false);
-              setRegistrationError(true);
-              setNotes(null);
-              console.error("Error loading notes", error);
-            })
-        })
-        .catch(error => {
-          setLoading(false);
-          setRegistrationError(true);
-          setNotes(null);
-          console.error("Error loading data", error);
-        })
+      findLinkedInProfileLink(username).then(key =>
+        loadData(key, username)
+          .then(linkedinData => {
+            setLinkedinData(linkedinData);
+            loadNotes(linkedinData.id)
+              .then((notesData) => {
+                setLoading(false);
+                if (linkedinData) {
+                  setTags(linkedinData.tags || []);
+                  setStatusId(linkedinData.statusId || "");
+                } else {
+                  setTags([]);
+                  setStatusId("");
+                }
+                if (notesData) {
+                  setNotes({notes: notesData});
+                  previousNotes.current = {notes: notesData};
+                } else {
+                  setNotes({});
+                  previousNotes.current = {};
+                }
+              })
+              .catch(error => {
+                setLoading(false);
+                setRegistrationError(true);
+                setNotes(null);
+                console.error("Error loading notes", error);
+              })
+          })
+          .catch(error => {
+            setLoading(false);
+            setRegistrationError(true);
+            setNotes(null);
+            console.error("Error loading data", error);
+          })
+      );
     }
   }, [username]);
 
   const saveDataToBackend = useCallback(async () => {
     try {
       if (saveLinkedInData) {
-        const key = findLinkedInProfileLink(linkedinData.linkedinUser);
+        const key = await findLinkedInProfileLink(linkedinData.linkedinUser);
         console.log("KEY", key)
         const linkedinDataToSave = {
           linkedinKey: linkedinData.linkedinKey && linkedinData.linkedinKey !== "" ? linkedinData.linkedinKey : key,
@@ -202,10 +242,10 @@ const InNotes = () => {
   }, [saveDataToBackend]);
 
   useEffect(() => {
-      const imageUrl = getLinkedInProfileImage();
-      const name = getLinkedInProfileNameFromHTML();
-      const key = findLinkedInProfileLink(username);
-      console.log("Loading data for key",key)
+    const imageUrl = getLinkedInProfileImage();
+    const name = getLinkedInProfileNameFromHTML();
+    findLinkedInProfileLink(username).then(key => {
+      console.log("Loading data for key", key)
       if (linkedinData) {
         linkedinData.linkedinKey = key;
       }
@@ -221,6 +261,7 @@ const InNotes = () => {
         setLinkedinData(notesToBeSaved);
       }
       previousNotes.current = notesToBeSaved;
+    });
   }, [username]);
 
 
