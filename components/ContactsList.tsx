@@ -1,8 +1,8 @@
-// components/ContactsList.tsx
 "use client";
 
 import { useState } from 'react';
-import {Contact} from "@/app/dashboard/people/page";
+import {Contact} from "@/app/dashboard/contacts/page";
+import Link from "next/link";
 
 interface Status {
     id: number;
@@ -22,12 +22,12 @@ function ContactCard({ contact, statuses }: { contact: Contact, statuses: Status
     const statusName = status ? status.name : 'No Status';
     const tags = contact.tags ? contact.tags : [];
     return (
-        <div className="rounded-md bg-white dark:bg-gray-800 shadow-md p-4">
+        <Link href={`/dashboard/contacts/${contact.id}`} className="rounded-md bg-white dark:bg-gray-800 shadow-md p-4 block">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">{contact.linkedinUser}</h2>
             <p className="text-gray-600 dark:text-gray-400">Status: {statusName}</p>
             <p className="text-gray-600 dark:text-gray-400">Tags: {tags.join(', ')}</p>
-            <p className="text-gray-600 dark:text-gray-400">Notes: {contact.notesCount}</p> {/* Display notesCount */}
-        </div>
+            <p className="text-gray-600 dark:text-gray-400">Notes: {contact.notesCount}</p>
+        </Link>
     );
 }
 
@@ -39,11 +39,11 @@ export default function ContactsList({ contacts, statuses, totalPages, searchTer
     };
 
     const handleSearchClick = () => {
-        window.location.assign(`/dashboard/people?page=1&search=${search}`);
+        window.location.assign(`/dashboard/contacts?page=1&search=${search}`);
     };
 
     const handlePageClick = (pageNumber: number) => {
-        window.location.assign(`/dashboard/people?page=${pageNumber}&search=${search}`);
+        window.location.assign(`/dashboard/contacts?page=${pageNumber}&search=${search}`);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
