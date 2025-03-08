@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from "react";
 
-interface LinkedInData {
+interface ContactsData {
     id: string;
     linkedinUser: string;
     statusId: number | null;
@@ -17,9 +17,9 @@ interface Status {
 }
 
 interface KanbanProps {
-    linkedInData: LinkedInData[];
+    linkedInData: ContactsData[];
     statuses: Status[];
-    kanbanData: { [key: string]: LinkedInData[] };
+    kanbanData: { [key: string]: ContactsData[] };
     statusNames: string[];
     statusMap: { [key: number]: string };
     username: string | null;
@@ -45,7 +45,7 @@ export default function Kanban({
     }, [linkedInData]);
 
     const updateLinkedInDataStatus = async (id: string, statusId: number | null, username: string, password: string) => {
-        const response = await fetch(`/api/linkedin/${id}`, {
+        const response = await fetch(`/api/contacts/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

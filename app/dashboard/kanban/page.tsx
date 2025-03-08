@@ -10,7 +10,7 @@ async function getProfile(id: string) {
     return users[0];
 }
 
-interface LinkedInData extends RowDataPacket {
+interface ContactsData extends RowDataPacket {
     id: string;
     linkedinUser: string;
     name: string | null;
@@ -21,7 +21,7 @@ interface LinkedInData extends RowDataPacket {
     pictureUrl: string | null;
 }
 
-async function getLinkedInData(userId: string, searchTerm: string = ""): Promise<LinkedInData[]> {
+async function getLinkedInData(userId: string, searchTerm: string = ""): Promise<ContactsData[]> {
     let query = `SELECT * FROM contacts WHERE userId = ?`;
     const params: any[] = [userId];
 
@@ -30,7 +30,7 @@ async function getLinkedInData(userId: string, searchTerm: string = ""): Promise
         params.push(`%${searchTerm}%`, `%${searchTerm}%`);
     }
 
-    const data = await executeQuery<LinkedInData>(query, params);
+    const data = await executeQuery<ContactsData>(query, params);
     return data;
 }
 
@@ -57,8 +57,8 @@ export default async function KanbanPage({ searchParams }: { searchParams: { sea
 
     const userId = (session.user as UserSession).id;
     const profile = await getProfile(userId);
-    const searchTerm = searchParams?.search || "";
-    const linkedInData: LinkedInData[] = await getLinkedInData(userId, searchTerm);
+    const searchTerm = (await searchParams)?.search || "";
+    const linkedInData: ContactsData[] = await getLinkedInData(userId, searchTerm);
     const statuses: Status[] = await getStatuses(userId);
 
     // Create a map of statusId to status name
@@ -68,7 +68,7 @@ export default async function KanbanPage({ searchParams }: { searchParams: { sea
     }, {});
 
     // Group data by status
-    const kanbanData = linkedInData.reduce((acc: { [key: string]: LinkedInData[] }, item) => {
+    const kanbanData = linkedInData.reduce((acc: { [key: string]: ContactsData[] }, item) => {
         const statusId = item.statusId || -1;
         const statusName = statusMap[statusId] || 'No Status'; // Default status
         if (!acc[statusName]) {
