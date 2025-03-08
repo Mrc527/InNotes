@@ -1,6 +1,6 @@
 import executeQuery from '@/utils/dbUtils';
 import {getServerSession } from "next-auth";
-import {authOptions } from "@/app/api/auth/[...nextauth]/route";
+import {authOptions} from "@/app/api/auth/[...nextauth]/config";
 import {redirect, useRouter} from "next/navigation";
 import Kanban from "@/components/Kanban";
 import {RowDataPacket} from "mysql2";
@@ -48,7 +48,7 @@ interface UserSession {
     id: string;
 }
 
-export default async function KanbanPage({ searchParams }: { searchParams: { search?: string } }) {
+export default async function KanbanPage({ searchParams }: { searchParams: Promise<{ search?: string }> }) {
     const session = await getServerSession(authOptions);
 
     if (!session || !session.user) {

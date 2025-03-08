@@ -1,10 +1,10 @@
 // app/dashboard/contacts/page.tsx
 import executeQuery from '@/utils/dbUtils';
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from 'next/navigation';
 import ContactsList from '@/components/ContactsList';
 import {RowDataPacket} from "mysql2";
+import {authOptions} from "@/app/api/auth/[...nextauth]/config";
 
 export interface Contact extends RowDataPacket {
     id: string;
@@ -68,7 +68,7 @@ interface UserSession {
     id: string;
 }
 
-export default async function PeoplePage({ searchParams }: { searchParams: { page?: string, search?: string } }) {
+export default async function PeoplePage({ searchParams }: { searchParams: Promise<{ page?: string, search?: string }> }) {
     const session = await getServerSession(authOptions);
 
     if (!session) {

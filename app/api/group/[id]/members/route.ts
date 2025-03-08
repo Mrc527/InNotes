@@ -3,13 +3,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import executeQuery from "@/utils/dbUtils";
 import getUserIdFromRequest from "@/utils/authUtils";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, {params}: { params: Promise<{ id: string }> }) {
     const user = await getUserIdFromRequest(req);
     if (!user || !user.id) {
         return new NextResponse(null, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     try {
         const queryResult = await executeQuery(
@@ -28,13 +28,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     }
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, {params}: { params: Promise<{ id: string }> }) {
     const user = await getUserIdFromRequest(req);
     if (!user || !user.id) {
         return new NextResponse(null, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     try {
         const body = await req.json();
@@ -56,13 +56,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, {params}: { params: Promise<{ id: string }> }) {
     const user = await getUserIdFromRequest(req);
     if (!user || !user.id) {
         return new NextResponse(null, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     try {
         const body = await req.json();

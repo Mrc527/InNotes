@@ -23,7 +23,7 @@ export default async function getUserIdFromRequest(req: NextRequest) {
   }
 
   try {
-    const rows: User[] = await executeQuery(
+    const rows = await executeQuery(
       'SELECT * FROM users WHERE username = ? AND password = ?',
       [username, password]
     );

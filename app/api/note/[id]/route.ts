@@ -12,13 +12,13 @@ function convertFromUTC(dateString: string): string {
     return date.toISOString().slice(0, 19).replace('T', ' ');
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, {params}: { params: Promise<{ id: string }> }) {
     const user = await getUserIdFromRequest(req);
     if (!user || !user.id) {
         return new NextResponse(null, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     const note = await getNote(id, user.id);
 
@@ -29,13 +29,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json(note, { status: 200 });
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, {params}: { params: Promise<{ id: string }> }) {
     const user = await getUserIdFromRequest(req);
     if (!user || !user.id) {
         return new NextResponse(null, { status: 401 });
     }
 
-    const { id } = await(params);
+    const { id } = await params;
 
     const note = await getNoteForEdit(id, user.id);
 
@@ -62,13 +62,13 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, {params}: { params: Promise<{ id: string }> }) {
     const user = await getUserIdFromRequest(req);
     if (!user || !user.id) {
         return new NextResponse(null, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
      const note = await getNoteForEdit(id, user.id);
 

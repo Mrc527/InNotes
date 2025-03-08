@@ -5,7 +5,7 @@ import "../globals.css";
 import { ThemeProvider } from 'next-themes';
 import Sidebar from '@/components/Sidebar';
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import {authOptions} from "@/app/api/auth/[...nextauth]/config";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",

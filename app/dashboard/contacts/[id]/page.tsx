@@ -1,7 +1,7 @@
 // app/dashboard/contacts/[id]/page.tsx
 import executeQuery from '@/utils/dbUtils';
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import {authOptions} from "@/app/api/auth/[...nextauth]/config";
 import { redirect } from 'next/navigation';
 import {Contact} from "@/app/dashboard/contacts/page";
 
@@ -45,7 +45,7 @@ interface UserSession {
     id: string;
 }
 
-export default async function ContactPage({ params }: { params: { id: string } }) {
+export default async function ContactPage({params}: { params: Promise<{ id: string }> }) {
     const session = await getServerSession(authOptions);
 
     if (!session) {

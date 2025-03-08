@@ -11,6 +11,14 @@ interface SessionData {
   subscription: any;
 }
 
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  status: string;
+  subscriptionId: string | null;
+}
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-02-24.acacia',
 });
@@ -48,10 +56,15 @@ async function getSessionData(sessionId: string): Promise<SessionData | null> {
   }
 }
 
-async function updateUserInfo(userId: string, email: string, customer: any, subscriptionId: string | null): Promise<any> {
+async function updateUserInfo(userId: string, email: string, customer: any, subscriptionId: string | null): Promise<User> {
   try {
+
+
+
     // Fetch user from DB
-    const user = await executeQuery("SELECT id, email, name, status, subscriptionId FROM users WHERE id = ?", [userId]);
+    const results = await executeQuery("SELECT id, email, name, status, subscriptionId FROM users WHERE id = ?", [userId]);
+    const idRows = results[0] as any[];
+    const user = (idRows as User[])[0];
 
     if (!user) {
       throw new Error(`User with ID ${userId} not found in database.`);
