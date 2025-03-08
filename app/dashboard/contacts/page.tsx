@@ -1,4 +1,4 @@
-// app/dashboard/people/page.tsx
+// app/dashboard/contacts/page.tsx
 import executeQuery from '@/utils/dbUtils';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -8,10 +8,12 @@ import ContactsList from '@/components/ContactsList';
 export interface Contact {
     id: string;
     linkedinUser: string;
+    name: string | null;
     statusId: number | null;
     note: string | null;
     tags: [] | null;
     notesCount: number;
+    pictureUrl: string | null;
 }
 
 interface Status {

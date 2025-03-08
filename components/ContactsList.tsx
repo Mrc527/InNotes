@@ -21,12 +21,36 @@ function ContactCard({ contact, statuses }: { contact: Contact, statuses: Status
     const status = statuses.find(s => s.id === contact.statusId);
     const statusName = status ? status.name : 'No Status';
     const tags = contact.tags ? contact.tags : [];
+
+    const displayName = contact.name
+        ? contact.name
+        : contact.linkedinUser;
+
+    const initials = displayName
+        .split(' ')
+        .map(word => word[0])
+        .join('')
+        .toUpperCase();
+
     return (
-        <Link href={`/dashboard/contacts/${contact.id}`} className="rounded-md bg-white dark:bg-gray-800 shadow-md p-4 block">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">{contact.linkedinUser}</h2>
-            <p className="text-gray-600 dark:text-gray-400">Status: {statusName}</p>
-            <p className="text-gray-600 dark:text-gray-400">Tags: {tags.join(', ')}</p>
-            <p className="text-gray-600 dark:text-gray-400">Notes: {contact.notesCount}</p>
+        <Link href={`/dashboard/contacts/${contact.id}`} className="rounded-md bg-white dark:bg-gray-800 shadow-md p-4 block flex items-center">
+            {contact.pictureUrl ? (
+                <img
+                    src={contact.pictureUrl}
+                    alt={`${displayName}'s profile picture`}
+                    className="w-12 h-12 rounded-full mr-4"
+                />
+            ) : (
+                <div className="w-12 h-12 rounded-full mr-4 bg-gray-400 dark:bg-gray-600 text-white flex items-center justify-center font-semibold">
+                    {initials}
+                </div>
+            )}
+            <div>
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">{displayName}</h2>
+                <p className="text-gray-600 dark:text-gray-400">Status: {statusName}</p>
+                <p className="text-gray-600 dark:text-gray-400">Tags: {tags.join(', ')}</p>
+                <p className="text-gray-600 dark:text-gray-400">Notes: {contact.notesCount}</p>
+            </div>
         </Link>
     );
 }

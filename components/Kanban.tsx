@@ -8,6 +8,7 @@ interface LinkedInData {
     id: string;
     linkedinUser: string;
     statusId: number | null;
+    // ... other fields
 }
 
 interface Status {
@@ -96,7 +97,7 @@ export default function Kanban({
         <DragDropContext onDragEnd={onDragEnd}>
             <div className="flex overflow-x-auto">
                 {statusNames.map((statusName) => (
-                    <Droppable droppableId={statusName} key={statusName}>
+                    <Droppable droppableId={statusName} key={statusName} isDropDisabled={false} isCombineEnabled={true} ignoreContainerClipping={false}>
                         {(provided, snapshot) => (
                             <div
                                 {...provided.droppableProps}

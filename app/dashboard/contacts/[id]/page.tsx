@@ -53,7 +53,7 @@ export default async function ContactPage({ params }: { params: { id: string } }
     }
 
     const userId = (session.user as UserSession).id;
-    const contactId = params.id;
+    const contactId = (await params).id;
     const contact = await getContact(userId, contactId);
 
     if (!contact) {
