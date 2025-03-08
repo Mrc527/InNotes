@@ -49,10 +49,10 @@ const Sidebar: React.FC<SidebarProps> = ({ session }) => {
                     </NavigationMenu.Item>
                     <NavigationMenu.Item>
                         <NavigationMenu.Link asChild>
-                            <a href="/dashboard/people" className="flex items-center p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors duration-200">
+                            <Link href="/dashboard/contacts" className="flex items-center p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors duration-200">
                                 <PersonIcon className="h-5 w-5 mr-2" />
-                                People
-                            </a>
+                                Contacts
+                            </Link>
                         </NavigationMenu.Link>
                     </NavigationMenu.Item>
                     <NavigationMenu.Item>
