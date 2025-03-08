@@ -1,14 +1,27 @@
 import executeQuery from '@/utils/dbUtils';
-import {getServerSession} from "next-auth";
-import {authOptions} from "@/app/api/auth/[...nextauth]/route";
+import {getServerSession } from "next-auth";
+import {authOptions } from "@/app/api/auth/[...nextauth]/route";
 import {redirect, useRouter} from "next/navigation";
 import Kanban from "@/components/Kanban";
+import {RowDataPacket} from "mysql2";
 
 async function getProfile(id: string) {
     const users = await executeQuery('SELECT * FROM users where id=?', [id]);
     return users[0];
 }
-async function getLinkedInData(userId: string, searchTerm: string = "") {
+
+interface LinkedInData extends RowDataPacket {
+    id: string;
+    linkedinUser: string;
+    name: string | null;
+    statusId: number | null;
+    note: string | null;
+    tags: string | null;
+    notesCount: number;
+    pictureUrl: string | null;
+}
+
+async function getLinkedInData(userId: string, searchTerm: string = ""): Promise<LinkedInData[]> {
     let query = `SELECT * FROM contacts WHERE userId = ?`;
     const params: any[] = [userId];
 
@@ -17,30 +30,25 @@ async function getLinkedInData(userId: string, searchTerm: string = "") {
         params.push(`%${searchTerm}%`, `%${searchTerm}%`);
     }
 
-    const data = await executeQuery(query, params);
+    const data = await executeQuery<LinkedInData>(query, params);
     return data;
 }
 
-async function getStatuses(userId: string) {
-    return await executeQuery('SELECT * FROM statuses WHERE userId = ?', [userId]);
-}
-
-interface LinkedInData {
-    id: string;
-    linkedinUser: string;
-    statusId: number | null;
-    // ... other fields
-}
-
-interface Status {
+interface Status extends RowDataPacket {
     id: number;
     name: string;
 }
+
+async function getStatuses(userId: string): Promise<Status[]> {
+    const statuses = await executeQuery<Status>('SELECT * FROM statuses WHERE userId = ?', [userId]);
+    return statuses;
+}
+
 interface UserSession {
     id: string;
 }
 
-export default async function KanbanPage() {
+export default async function KanbanPage({ searchParams }: { searchParams: { search?: string } }) {
     const session = await getServerSession(authOptions);
 
     if (!session || !session.user) {
@@ -49,7 +57,8 @@ export default async function KanbanPage() {
 
     const userId = (session.user as UserSession).id;
     const profile = await getProfile(userId);
-    const linkedInData: LinkedInData[] = await getLinkedInData(userId);
+    const searchTerm = searchParams?.search || "";
+    const linkedInData: LinkedInData[] = await getLinkedInData(userId, searchTerm);
     const statuses: Status[] = await getStatuses(userId);
 
     // Create a map of statusId to status name
@@ -95,6 +104,7 @@ export default async function KanbanPage() {
                 statusMap={statusMap}
                 username={profile.username}
                 password={profile.password}
+                searchTerm={searchTerm}
             />
         </div>
     );

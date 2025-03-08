@@ -3,12 +3,12 @@
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from "react";
 
 interface LinkedInData {
     id: string;
     linkedinUser: string;
     statusId: number | null;
-    // ... other fields
 }
 
 interface Status {
@@ -24,6 +24,7 @@ interface KanbanProps {
     statusMap: { [key: number]: string };
     username: string | null;
     password: string | null;
+    searchTerm: string; // Added searchTerm
 }
 
 export default function Kanban({
@@ -34,11 +35,17 @@ export default function Kanban({
     statusMap,
     username,
     password,
+    searchTerm
 }: KanbanProps) {
     const router = useRouter();
+    const [data, setData] = useState(linkedInData);
+
+    useEffect(() => {
+        setData(linkedInData);
+    }, [linkedInData]);
 
     const updateLinkedInDataStatus = async (id: string, statusId: number | null, username: string, password: string) => {
-        const response = await fetch(`/api/contacts/${id}`, {
+        const response = await fetch(`/api/linkedin/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -97,7 +104,7 @@ export default function Kanban({
         <DragDropContext onDragEnd={onDragEnd}>
             <div className="flex overflow-x-auto">
                 {statusNames.map((statusName) => (
-                    <Droppable droppableId={statusName} key={statusName} isDropDisabled={false} isCombineEnabled={true} ignoreContainerClipping={false}>
+                    <Droppable droppableId={statusName} key={statusName} isDropDisabled={false}>
                         {(provided, snapshot) => (
                             <div
                                 {...provided.droppableProps}

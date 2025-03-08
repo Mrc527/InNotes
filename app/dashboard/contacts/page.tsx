@@ -1,10 +1,12 @@
+// app/dashboard/contacts/page.tsx
 import executeQuery from '@/utils/dbUtils';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from 'next/navigation';
 import ContactsList from '@/components/ContactsList';
+import {RowDataPacket} from "mysql2";
 
-export interface Contact {
+export interface Contact extends RowDataPacket {
     id: string;
     linkedinUser: string;
     name: string | null;
@@ -15,7 +17,7 @@ export interface Contact {
     pictureUrl: string | null;
 }
 
-interface Status {
+interface Status extends RowDataPacket {
     id: number;
     name: string;
 }
@@ -40,12 +42,12 @@ async function getContacts(userId: string, page: number, searchTerm: string = ""
     query += ` ORDER BY d.linkedinUser ASC LIMIT ? OFFSET ?`;
     params.push(pageSize, offset);
 
-    const contacts = await executeQuery(query, params);
+    const contacts = await executeQuery<Contact>(query, params);
     return contacts as Contact[];
 }
 
 async function getStatuses(userId: string): Promise<Status[]> {
-    const statuses = await executeQuery('SELECT * FROM statuses WHERE userId = ?', [userId]);
+    const statuses = await executeQuery<Status>('SELECT * FROM statuses WHERE userId = ?', [userId]);
     return statuses as Status[];
 }
 
