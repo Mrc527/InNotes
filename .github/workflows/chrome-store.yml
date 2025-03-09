@@ -27,6 +27,12 @@ jobs:
       - name: Build extension
         run: npm run build:extension
 
+      - name: Upload Chrome Extension Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: chrome-extension
+          path: ./extension/InNotes.zip
+
       - name: Upload to Chrome Web Store
         uses: mobilefirstllc/cws-publish@latest
         with:
