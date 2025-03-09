@@ -44,21 +44,21 @@ export default async function Dashboard() {
 
             <Section mt="4">
                 <Heading as="h2" size="1">Profile</Heading>
-                <Card variant="soft" style={{ overflowX: 'auto' }}>
+                <Card style={{ overflowX: 'auto' }}>
                     <Text>{JSON.stringify(profile, null, 2)}</Text>
                 </Card>
             </Section>
 
             <Section mt="4">
                 <Heading as="h2" size="1">LinkedIn Data</Heading>
-                <Card variant="soft" style={{ overflowX: 'auto' }}>
+                <Card style={{ overflowX: 'auto' }}>
                     <Text>{JSON.stringify(linkedInData, null, 2)}</Text>
                 </Card>
             </Section>
 
             <Section mt="4">
                 <Heading as="h2" size="1">Notes</Heading>
-                <Card variant="soft" style={{ overflowX: 'auto' }}>
+                <Card style={{ overflowX: 'auto' }}>
                     <Text>{JSON.stringify(notes, null, 2)}</Text>
                 </Card>
             </Section>

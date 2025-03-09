@@ -1,4 +1,3 @@
-// /components/Sidebar.tsx
 "use client";
 
 import React, {useState} from 'react';
@@ -63,6 +62,9 @@ const Sidebar: React.FC<SidebarProps> = ({ session }) => {
                 borderRight: '1px solid var(--colors-gray-800)',
                 transition: 'width 0.3s ease-in-out',
                 overflow: 'hidden',
+                position: 'fixed', // Add this line
+                top: 0,           // Add this line
+                left: 0,          // Add this line
             }}
         >
             {/* Collapse Button */}
@@ -107,7 +109,7 @@ const Sidebar: React.FC<SidebarProps> = ({ session }) => {
             )}
 
             {/* Navigation */}
-            <Flex direction="column" px="3" gap="2" flex="1">
+            <Flex direction="column" px="3" gap="2">
                 <Link href="/dashboard">
                     <Button variant="ghost" style={{width: '100%', justifyContent: 'flex-start', border: '1px solid var(--colors-gray-700)'}}>
                         <Flex align="center" gap="2">
