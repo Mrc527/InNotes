@@ -1,7 +1,6 @@
 import {getServerSession} from "next-auth";
 import {authOptions} from "@/app/api/auth/[...nextauth]/config";
 import {redirect} from 'next/navigation';
-import executeQuery from '@/utils/dbUtils';
 import {Container, Heading, Text,} from '@radix-ui/themes';
 import '@radix-ui/themes/styles.css';
 
