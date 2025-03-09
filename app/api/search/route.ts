@@ -16,11 +16,11 @@ export async function GET(req: NextRequest) {
 
     try {
         const results = await executeQuery(
-            `SELECT linkedinUser, note, notes
-             FROM contacts
+            `SELECT id, text
+             FROM notes
              WHERE userId = ?
-               AND (LOWER(notes) LIKE LOWER(?) OR LOWER(note) LIKE LOWER(?))`,
-            [user.id, `%${searchTerm}%`, `%${searchTerm}%`]
+               AND LOWER(text) LIKE LOWER(?)`,
+            [user.id, `%${searchTerm}%`]
         );
 
         console.log(`Search Results [${user.id}, ${searchTerm}] -> ${JSON.stringify(results || {})}`);
