@@ -12,6 +12,7 @@ import {
 } from '@radix-ui/themes';
 import {Input} from "@/components/input";
 import styles from './ContactsList.module.css'; // Import the CSS module
+import { getInitialsPlaceholder } from "@/utils/uiUtils";
 
 interface Status {
     id: number;
@@ -35,12 +36,6 @@ function ContactCard({contact, statuses}: { contact: Contact, statuses: Status[]
       ? contact.name
       : contact.linkedinUser;
 
-    const initials = displayName
-      .split(' ')
-      .map(word => word[0])
-      .join('')
-      .toUpperCase();
-
     return (
       <Link href={`/dashboard/contacts/${contact.id}`}>
           <Card className="block flex items-center">
@@ -51,12 +46,7 @@ function ContactCard({contact, statuses}: { contact: Contact, statuses: Status[]
                   className="w-12 h-12 rounded-full mr-4"
                 />
               ) : (
-                <Flex
-                  className="w-12 h-12 rounded-full mr-4"
-                  style={{backgroundColor: 'gray', alignItems: 'center', justifyContent: 'center'}}
-                >
-                    <Text color="gray" weight="bold">{initials}</Text>
-                </Flex>
+                getInitialsPlaceholder(displayName, "w-12 h-12 rounded-full mr-4")
               )}
               <Flex direction="column">
                   <Text size="2" weight="bold">{displayName}</Text>

@@ -4,11 +4,14 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from "react";
+import { getInitialsPlaceholder } from "@/utils/uiUtils";
 
 interface ContactsData {
     id: string;
     linkedinUser: string;
     statusId: number | null;
+    name: string | null;
+    pictureUrl: string | null;
 }
 
 interface Status {
@@ -119,10 +122,19 @@ export default function Kanban({
                                                 ref={provided.innerRef}
                                                 {...provided.draggableProps}
                                                 {...provided.dragHandleProps}
-                                                className="p-3 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 mb-2 shadow-sm"
+                                                className="p-3 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 mb-2 shadow-sm flex items-center"
                                             >
+                                                {item.pictureUrl ? (
+                                                    <img
+                                                        src={item.pictureUrl}
+                                                        alt="Contact"
+                                                        className="w-8 h-8 rounded-full mr-2"
+                                                    />
+                                                ) : (
+                                                    getInitialsPlaceholder(item.name || item.linkedinUser, "w-8 h-8 rounded-full mr-2")
+                                                )}
                                                 <Link href={`/dashboard/contacts/${item.id}`}>
-                                                    {item.linkedinUser}
+                                                    {item.name || item.linkedinUser}
                                                 </Link>
                                             </div>
                                         )}
