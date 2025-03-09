@@ -71,12 +71,10 @@ export default async function DashboardLayout({
                 <ThemeProvider attribute="class">
                     <Theme>
                         <SidebarProvider>
-                            <div className="flex h-screen">
-                                <Sidebar session={session} />
-                                <MainContent>
-                                    {children}
-                                </MainContent>
-                            </div>
+                              <Sidebar session={session} />
+                              <MainContent>
+                                  {children}
+                              </MainContent>
                         </SidebarProvider>
                     </Theme>
                 </ThemeProvider>
