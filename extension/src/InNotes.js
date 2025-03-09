@@ -33,13 +33,17 @@ async function findLinkedInProfileLink(username, attempt = 1) {
           resolve(href.match(/profileId=(.*)/)?.[1]);
           return;
         }
+        if (href.includes('fsd_profile%3A')) {
+          resolve(href.match(/fsd_profile%3A(.*)/)?.[1]);
+          return;
+        }
       }
 
       if (attempt > maxAttempts) {
-        console.warn(`Could not find LinkedIn profile link after ${maxAttempts} attempts.`);
+        console.warn(`Could not find LinkedIn profile link (${username}) after ${maxAttempts} attempts.`);
         resolve(null);
       } else {
-        console.log(`Attempt ${attempt} failed, retrying in ${delay}ms...`);
+        console.log(`Attempt ${attempt} failed (${username}), retrying in ${delay}ms...`);
         setTimeout(() => {
           findLinkedInProfileLink(username, attempt + 1).then(resolve);
         }, delay);
