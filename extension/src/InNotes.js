@@ -330,7 +330,7 @@ const InNotes = () => {
       console.error("Error updating note:", error);
       window.alert("Failed to update note. Please try again.");
     }
-  }, [linkedinData.id, notes.notes]);
+  }, [linkedinData?.id, notes?.notes]);
 
   const deleteNote = useCallback(async (index) => {
     if (window.confirm("Are you sure you want to delete this note?")) {
