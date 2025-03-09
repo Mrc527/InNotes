@@ -8,6 +8,8 @@ import {getServerSession} from "next-auth";
 import {authOptions} from "@/app/api/auth/[...nextauth]/config";
 import {Theme} from '@radix-ui/themes';
 import '@radix-ui/themes/styles.css';
+import {SidebarProvider} from "@/components/sidebarContext";
+import MainContent from "@/components/MainContent";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -69,10 +71,14 @@ export default async function DashboardLayout({
     >
     <ThemeProvider attribute="class">
       <Theme>
-        <Sidebar session={session}/>
-        <main className="ml-64 flex-1 p-4">
-          {children}
-        </main>
+        <SidebarProvider>
+          <div className="flex h-screen">
+            <Sidebar session={session} />
+            <MainContent>
+              {children}
+            </MainContent>
+          </div>
+        </SidebarProvider>
       </Theme>
     </ThemeProvider>
     </body>

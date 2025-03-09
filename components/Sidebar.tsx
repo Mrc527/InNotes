@@ -22,6 +22,7 @@ import {
     Heading,
 } from '@radix-ui/themes';
 import {Input} from "@/components/input";
+import { useSidebarContext } from "@/components/sidebarContext";
 
 interface SidebarProps {
     session: Session | null;
@@ -32,7 +33,7 @@ const Sidebar: React.FC<SidebarProps> = ({ session }) => {
     const { theme, setTheme } = useTheme();
     const [search, setSearch] = useState("");
     const router = useRouter();
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const { isCollapsed, toggleCollapse } = useSidebarContext();
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value);
@@ -46,10 +47,6 @@ const Sidebar: React.FC<SidebarProps> = ({ session }) => {
         if (e.key === 'Enter') {
             handleSearchClick();
         }
-    };
-
-    const toggleCollapse = () => {
-        setIsCollapsed(!isCollapsed);
     };
 
     return (
@@ -147,8 +144,7 @@ const Sidebar: React.FC<SidebarProps> = ({ session }) => {
             <Flex px="3">
                 <Button
                     onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                    variant="ghost"
-                    style={{width: '100%', justifyContent: 'center'}}
+                    variant="ghost" style={{width: '100%', justifyContent: 'center'}}
                 >
                     <Flex align="center" gap="2">
                         {theme === 'dark' ? <SunIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />}
