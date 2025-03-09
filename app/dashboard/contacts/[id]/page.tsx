@@ -1,4 +1,3 @@
-// app/dashboard/contacts/[id]/page.tsx
 import executeQuery from '@/utils/dbUtils';
 import { getServerSession } from "next-auth";
 import {authOptions} from "@/app/api/auth/[...nextauth]/config";
@@ -70,12 +69,24 @@ export default async function ContactPage({params}: { params: Promise<{ id: stri
 
     return (
         <div className="p-4">
-            <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Contact: {contact.linkedinUser}</h1>
+            <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Contact: {contact.name || contact.linkedinUser}</h1>
 
-            <div className="rounded-md bg-white dark:bg-gray-800 shadow-md p-4 mb-4">
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Information</h2>
-                <p className="text-gray-600 dark:text-gray-400">Status: {statusName}</p>
-                <p className="text-gray-600 dark:text-gray-400">Tags: {tags.join(', ')}</p>
+            <div className="rounded-md bg-white dark:bg-gray-800 shadow-md p-4 mb-4 flex">
+                {contact.pictureUrl && (
+                    <img src={contact.pictureUrl} alt="Contact Picture" className="w-24 h-24 rounded-full mr-4" />
+                )}
+                <div>
+                    <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Information</h2>
+                    <p className="text-gray-600 dark:text-gray-400">Status: {statusName}</p>
+                    <p className="text-gray-600 dark:text-gray-400">Tags: {tags.join(', ')}</p>
+                    {contact.linkedinUser && (
+                        <p className="text-gray-600 dark:text-gray-400">
+                            <a href={`https://www.linkedin.com/in/${contact.linkedinUser}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                                LinkedIn Profile ({contact.linkedinUser})
+                            </a>
+                        </p>
+                    )}
+                </div>
             </div>
 
             <div className="rounded-md bg-white dark:bg-gray-800 shadow-md p-4">

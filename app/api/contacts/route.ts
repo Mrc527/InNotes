@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     let {linkedinKey, linkedinUser, tags, statusId, pictureUrl, name} = body;
-
+    linkedinUser = linkedinUser ? decodeURIComponent(linkedinUser) : null;
     tags = tags ? JSON.stringify(tags) : null;
     statusId = statusId || null;
 

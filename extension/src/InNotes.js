@@ -30,11 +30,21 @@ async function findLinkedInProfileLink(username, attempt = 1) {
       for (let i = 0; i < links.length; i++) {
         const href = links[i].href;
         if (href.includes('profileId=')) {
-          resolve(href.match(/profileId=(.*)/)?.[1]);
+          let result = href.match(/profileId=(.*)/)?.[1]
+          if(result.indexOf('&')>0)
+          {
+            result=result.split('&')[0]
+          }
+          resolve(result);
           return;
         }
         if (href.includes('fsd_profile%3A')) {
-          resolve(href.match(/fsd_profile%3A(.*)/)?.[1]);
+          let result = href.match(/fsd_profile%3A(.*)/)?.[1];
+          if(result.indexOf('&')>0)
+          {
+            result=result.split('&')[0]
+          }
+          resolve(result);
           return;
         }
       }
@@ -110,7 +120,9 @@ const noteHasToBeSaved = (previous, current) => {
 
   const differences = findDifferences(previous, current);
   console.log("Has to be saved", differences)
-
+  if (Object.keys(differences).length <1){
+    return false
+  }
   if (Object.keys(differences).length === 1 && differences.linkedinUser) {
     return false;
   }
