@@ -1,0 +1,10 @@
+.contactGrid {
+    grid-template-columns: repeat(3, 1fr); /* Default to 3 columns */
+    gap: 0.4rem; /* Add a unit to the gap value */
+}
+
+@media (max-width: 768px) {
+    .contactGrid {
+        grid-template-columns: 1fr; /* Change to 1 column on smaller screens */
+    }
+}

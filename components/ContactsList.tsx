@@ -11,6 +11,8 @@ import {
     Card,
 } from '@radix-ui/themes';
 import {Input} from "@/components/input";
+import styles from './ContactsList.module.css'; // Import the CSS module
+
 interface Status {
     id: number;
     name: string;
@@ -102,7 +104,7 @@ export default function ContactsList({ contacts, statuses, totalPages, searchTer
                 </Button>
             </Flex>
 
-            <Grid columns="3" gap="4">
+            <Grid columns="3" gap="4" className={styles.contactGrid}>
                 {contacts.map((contact) => (
                     <ContactCard key={contact.id} contact={contact} statuses={statuses} />
                 ))}
@@ -112,7 +114,7 @@ export default function ContactsList({ contacts, statuses, totalPages, searchTer
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
                     <Button
                         key={pageNumber}
-                        variant={pageNumber === page ? 'solid' : 'soft'}
+                        variant={pageNumber === page ? 'solid' : 'ghost'}
                         onClick={() => handlePageClick(pageNumber)}
                     >
                         {pageNumber}
