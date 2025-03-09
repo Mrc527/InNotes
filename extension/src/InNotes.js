@@ -7,8 +7,8 @@ import TagManagement from "./components/TagManagement";
 import StatusManagement from "./components/StatusManagement";
 import StatusModal from "./components/StatusModal";
 
-const getLinkedInProfileImage = () => {
-  const img = document.querySelector('img[src^="https://media.licdn.com/dms/image/"]');
+const getLinkedInProfileImage = (user) => {
+  const img = document.querySelector('img[src^="https://media.licdn.com/dms/image/"][title^="'+user+'"]');
   return img ? img.src : null;
 };
 const getLinkedInProfileNameFromHTML = () => {
@@ -219,14 +219,14 @@ const InNotes = () => {
     try {
       if (saveLinkedInData) {
         const key = await findLinkedInProfileLink(linkedinData.linkedinUser);
-        console.log("KEY", key)
+        const name = getLinkedInProfileNameFromHTML()
         const linkedinDataToSave = {
           linkedinKey: linkedinData.linkedinKey && linkedinData.linkedinKey !== "" ? linkedinData.linkedinKey : key,
           linkedinUser: linkedinData.linkedinUser,
-          pictureUrl: getLinkedInProfileImage(),
-          name: getLinkedInProfileNameFromHTML(),
-          tags: tags,
-          statusId: statusId
+          pictureUrl: getLinkedInProfileImage(name),
+          name,
+          tags,
+          statusId
         };
         await saveData("", linkedinDataToSave);
         setSaveLinkedInData(false);
@@ -242,8 +242,8 @@ const InNotes = () => {
   }, [saveDataToBackend]);
 
   useEffect(() => {
-    const imageUrl = getLinkedInProfileImage();
     const name = getLinkedInProfileNameFromHTML();
+    const imageUrl = getLinkedInProfileImage(name);
     findLinkedInProfileLink(username).then(key => {
       console.log("Loading data for key", key)
       if (linkedinData) {
