@@ -63,23 +63,8 @@ const getSnippet = (text, searchTerm, index) => {
 const generateSnippet = (item, searchTerm) => {
   let text = '';
   let searchTermIndex = -1;
-
-  if (item.notes && item.notes.length > 0) {
-    for (let i = 0; i < item.notes.length; i++) {
-      text = decodeURIComponent(item.notes[i].text);
-      searchTermIndex = text.toLowerCase().indexOf(searchTerm.toLowerCase());
-      if (searchTermIndex > -1) {
-        break;
-      }
-    }
-    if (searchTermIndex === -1) {
-      text = decodeURIComponent(item.note);
-      searchTermIndex = text.toLowerCase().indexOf(searchTerm.toLowerCase());
-    }
-  } else {
-    text = decodeURIComponent(item.note);
-    searchTermIndex = text.toLowerCase().indexOf(searchTerm.toLowerCase());
-  }
+  text = decodeURIComponent(item.text);
+  searchTermIndex = text.toLowerCase().indexOf(searchTerm.toLowerCase());
 
   return getSnippet(text, searchTerm, searchTermIndex);
 }
@@ -298,7 +283,7 @@ export const PopupComponent = () => {
                   }}>
                     <a href={`https://www.linkedin.com/in/${item.linkedinUser}`} target="_blank"
                        rel="noopener noreferrer">
-                      {item.linkedinUser}
+                      {item.contactName || item.linkedinUser}
                     </a>
                     <div style={{fontSize: '0.8em', color: '#666', flexShrink: 1, textAlign: 'right', minWidth: '50%'}}>
                       {generateSnippet(item, searchTerm)}

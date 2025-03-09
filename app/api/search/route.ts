@@ -17,10 +17,19 @@ export async function GET(req: NextRequest) {
 
     try {
         const results = await executeQuery(
-            `SELECT id, text
+            `SELECT
+                notes.id AS id,
+                notes.text AS text,
+                notes.flagColor AS flagColor,
+                notes.lastUpdate AS lastUpdate,
+                contacts.linkedinUser AS linkedinUser,
+                contacts.linkedinKey AS linkedinKey,
+                contacts.name AS contactName,
+                contacts.pictureUrl AS pictureUrl
              FROM notes
-             WHERE userId = ?
-               AND LOWER(text) LIKE LOWER(?)`,
+             JOIN contacts ON notes.linkedinDataId = contacts.id
+             WHERE notes.userId = ?
+               AND LOWER(notes.text) LIKE LOWER(?)`,
             [user.id, `%${searchTerm}%`]
         );
 
