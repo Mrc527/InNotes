@@ -104,7 +104,7 @@ export default function Kanban({
         <DragDropContext onDragEnd={onDragEnd}>
             <div className="flex overflow-x-auto">
                 {statusNames.map((statusName) => (
-                    <Droppable droppableId={statusName} key={statusName} isDropDisabled={false}>
+                    <Droppable droppableId={statusName} key={statusName} isCombineEnabled={false} isDropDisabled={false}>
                         {(provided, snapshot) => (
                             <div
                                 {...provided.droppableProps}
