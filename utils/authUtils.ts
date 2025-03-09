@@ -45,12 +45,10 @@ export async function userExists(userId: string) {
 
   if (userId) {
     // Check if the email already exists
-    const existingIds = await executeQuery(
+    const idRows = await executeQuery(
       'SELECT * FROM users WHERE id = ?',
       [userId]
     );
-
-    const idRows = existingIds[0] as any[];
 
     if (idRows && idRows.length > 0) {
       return true
@@ -68,12 +66,10 @@ export async function authenticateUser(user: User) {
 
 
   // Check if the email already exists
-  const existingIds = await executeQuery(
+  const idRows = await executeQuery(
     'SELECT * FROM users WHERE id = ?',
     [user.id]
   );
-
-  const idRows = existingIds[0] as any[];
 
   if (idRows && idRows.length > 0) {
     return {username: idRows[0].username, password: idRows[0].password};
@@ -115,12 +111,10 @@ export async function registerUser(user: User) {
   }
   if (user.id) {
     // Check if the email already exists
-    const existingIds = await executeQuery(
+    const idRows = await executeQuery(
       'SELECT * FROM users WHERE id = ?',
       [user.id]
     );
-
-    const idRows = existingIds[0] as any[];
 
     if (idRows && idRows.length > 0) {
       throw new Error("ID already taken");

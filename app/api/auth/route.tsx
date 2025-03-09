@@ -44,14 +44,12 @@ export async function POST(req: NextRequest) {
     }
 
     const tokenData = await tokenResponse.json();
-    console.log(tokenData);
     const {access_token} = tokenData;
 
     if (!access_token) {
       console.error('Missing access token in response:', tokenData);
       return NextResponse.json({error: 'Access token not found in response'}, {status: 500});
     }
-    console.log("Got access token", access_token);
     const introspectionEndpoint = 'https://www.linkedin.com/oauth/v2/introspectToken';
 
     const introspectionResponse = await fetch(introspectionEndpoint, {
@@ -76,7 +74,6 @@ export async function POST(req: NextRequest) {
     }
 
     const introspectionData = await introspectionResponse.json();
-    console.log(introspectionData);
     // Use the access token to fetch user profile information from LinkedIn
     const profileResponse = await fetch('https://api.linkedin.com/v2/userinfo', {
       headers: {
@@ -92,7 +89,6 @@ export async function POST(req: NextRequest) {
 
     const profileData = await profileResponse.json();
 
-    console.log("Got profile data", profileData);
     const user = {
       name:profileData.name,
       email: profileData.email,
@@ -101,7 +97,6 @@ export async function POST(req: NextRequest) {
     }
     if(! (await userExists(user.id))) {
       const result = await registerUser(user)
-      console.log("Registration", result);
       return NextResponse.json({profile: profileData, authData: result}, {status: 200});
     }
     const authData = await authenticateUser(user)
