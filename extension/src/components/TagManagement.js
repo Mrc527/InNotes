@@ -84,7 +84,7 @@ const TagManagement = ({tags, handleAddTag, handleRemoveTag}) => {
   };
 
   const handleSaveNewTag = () => {
-    if (newTag.trim() !== '' && suggestedTags.length === 0) {
+    if (newTag.trim() !== '') {
       handleAddTag(newTag);
       setNewTag('');
       setAddingTag(false);
