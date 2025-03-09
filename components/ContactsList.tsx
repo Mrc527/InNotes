@@ -112,7 +112,7 @@ export default function ContactsList({ contacts, statuses, totalPages, searchTer
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
                     <Button
                         key={pageNumber}
-                        variant={pageNumber === page ? 'solid' : 'ghost'}
+                        variant={pageNumber === page ? 'solid' : 'soft'}
                         onClick={() => handlePageClick(pageNumber)}
                     >
                         {pageNumber}

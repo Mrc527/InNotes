@@ -25,9 +25,8 @@ interface Status extends RowDataPacket {
     id: number;
     name: string;
 }
-
+const pageSize = 21;
 async function getContacts(userId: string, page: number, searchTerm: string = ""): Promise<Contact[]> {
-    const pageSize = 21;
     const offset = (page - 1) * pageSize;
     let query = `
         SELECT
@@ -86,7 +85,7 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
     const contacts = await getContacts(userId, page, searchTerm);
     const statuses = await getStatuses(userId);
     const totalContactsCount = await getTotalContactsCount(userId, searchTerm);
-    const totalPages = Math.ceil(totalContactsCount / 10);
+    const totalPages = Math.ceil(totalContactsCount / pageSize);
 
     return (
         <Container>
