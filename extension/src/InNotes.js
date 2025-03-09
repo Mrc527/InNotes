@@ -262,7 +262,7 @@ const InNotes = () => {
       }
       previousNotes.current = notesToBeSaved;
     });
-  }, [username]);
+  }, [linkedinData, statusId, tags, username]);
 
 
   chrome.runtime.onMessage.addListener(
@@ -330,7 +330,7 @@ const InNotes = () => {
       console.error("Error updating note:", error);
       window.alert("Failed to update note. Please try again.");
     }
-  }, [notes, updateNote]);
+  }, [linkedinData.id, notes.notes]);
 
   const deleteNote = useCallback(async (index) => {
     if (window.confirm("Are you sure you want to delete this note?")) {
@@ -349,7 +349,7 @@ const InNotes = () => {
         window.alert("Failed to delete note. Please try again.");
       }
     }
-  }, [deleteData, notes]);
+  }, [notes]);
 
   const cancelNewNote = useCallback((index) => {
     setNotes(prevNotes => {

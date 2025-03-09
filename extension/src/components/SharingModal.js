@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { getGroups, getGroupMembers, addGroupMember, deleteGroupMember,
          shareNoteRead, unshareNoteRead, shareNoteEdit, unshareNoteEdit } from '../utils';
-import {cancelButtonStyle, deleteButtonStyle, editButtonStyle, saveButtonStyle} from "./style";
+import {cancelButtonStyle} from "./style";
 
 const SharingModal = ({ noteId, onClose }) => {
     const [groups, setGroups] = useState([]);
     const [selectedGroup, setSelectedGroup] = useState('');
-    const [users, setUsers] = useState([]);
+    //const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState('');
     const [groupMembers, setGroupMembers] = useState([]);
-    const [readOnlyUsers, setReadOnlyUsers] = useState([]);
-    const [editableUsers, setEditableUsers] = useState([]);
+    //const [readOnlyUsers, setReadOnlyUsers] = useState([]);
+    //const [editableUsers, setEditableUsers] = useState([]);
+    const users = [];
+    const readOnlyUsers = [];
+    const editableUsers = [];
+
 
     useEffect(() => {
         // Fetch groups and existing shared users when the component mounts
