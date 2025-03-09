@@ -1,4 +1,4 @@
-// app/dashboard/layout.tsx
+// /app/dashboard/layout.tsx
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
@@ -6,6 +6,8 @@ import { ThemeProvider } from 'next-themes';
 import Sidebar from '@/components/Sidebar';
 import { getServerSession } from "next-auth";
 import {authOptions} from "@/app/api/auth/[...nextauth]/config";
+import { Theme } from '@radix-ui/themes';
+import '@radix-ui/themes/styles.css';
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -66,12 +68,14 @@ export default async function DashboardLayout({
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >
                 <ThemeProvider attribute="class">
-                    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+                  <Theme>
+                    <div className="flex h-screen">
                         <Sidebar session={session} />
                         <main className="ml-64 flex-1 p-4">
                             {children}
                         </main>
                     </div>
+                  </Theme>
                 </ThemeProvider>
             </body>
         </html>

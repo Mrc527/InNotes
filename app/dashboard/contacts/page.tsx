@@ -1,10 +1,14 @@
-// app/dashboard/contacts/page.tsx
 import executeQuery from '@/utils/dbUtils';
 import { getServerSession } from "next-auth";
 import { redirect } from 'next/navigation';
 import ContactsList from '@/components/ContactsList';
 import {RowDataPacket} from "mysql2";
 import {authOptions} from "@/app/api/auth/[...nextauth]/config";
+import {
+    Heading,
+    Container
+} from '@radix-ui/themes';
+import '@radix-ui/themes/styles.css';
 
 export interface Contact extends RowDataPacket {
     id: string;
@@ -85,8 +89,8 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
     const totalPages = Math.ceil(totalContactsCount / 10);
 
     return (
-        <div className="p-4">
-            <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Contacts</h1>
+        <Container>
+            <Heading as="h1" size="2">Contacts</Heading>
             <ContactsList
                 contacts={contacts}
                 statuses={statuses}
@@ -94,6 +98,6 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
                 searchTerm={searchTerm}
                 page={page}
             />
-        </div>
+        </Container>
     );
 }
