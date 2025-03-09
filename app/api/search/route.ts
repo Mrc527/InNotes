@@ -2,17 +2,18 @@ import {NextRequest, NextResponse} from "next/server";
 import getUserIdFromRequest from "@/utils/authUtils";
 import executeQuery from "@/utils/dbUtils";
 
-
 export async function GET(req: NextRequest) {
     const user = await getUserIdFromRequest(req);
     if (!user) {
         return new NextResponse(null, { status: 401 });
     }
 
-    const searchTerm = req.nextUrl.searchParams.get('searchTerm') || '';
+    let searchTerm = req.nextUrl.searchParams.get('searchTerm') || '';
     if (!searchTerm) {
         return NextResponse.json({ error: "Search term is required" }, { status: 400 });
     }
+
+    searchTerm = encodeURIComponent(searchTerm);
 
     try {
         const results = await executeQuery(
