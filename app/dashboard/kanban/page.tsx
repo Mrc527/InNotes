@@ -51,8 +51,9 @@ interface UserSession {
 export default async function KanbanPage({ searchParams }: { searchParams: Promise<{ search?: string }> }) {
     const session = await getServerSession(authOptions);
 
-    if (!session || !session.user) {
-        redirect('/api/auth/signin');
+    if (!session) {
+        const callbackUrl = encodeURIComponent(process.env.NEXT_PUBLIC_URL + "/dashboard/kanban");
+        redirect(`/api/auth/signin?callbackUrl=${callbackUrl}`);
     }
 
     const userId = (session.user as UserSession).id;

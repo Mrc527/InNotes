@@ -25,7 +25,8 @@ export default async function Dashboard() {
     const session = await getServerSession(authOptions);
 
     if (!session) {
-        redirect('/api/auth/signin');
+      const callbackUrl = encodeURIComponent(process.env.NEXT_PUBLIC_URL + "/dashboard");
+      redirect(`/api/auth/signin?callbackUrl=${callbackUrl}`);
     }
     const profile = await getProfile((session.user as UserSession).id);
     const linkedInData = await getLinkedInData();

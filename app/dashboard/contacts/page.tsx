@@ -72,7 +72,8 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
     const session = await getServerSession(authOptions);
 
     if (!session) {
-        redirect('/api/auth/signin');
+        const callbackUrl = encodeURIComponent(process.env.NEXT_PUBLIC_URL + "/dashboard/contacts");
+        redirect(`/api/auth/signin?callbackUrl=${callbackUrl}`);
     }
 
     const userId = (session.user as UserSession).id;

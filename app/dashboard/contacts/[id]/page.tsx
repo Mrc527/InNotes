@@ -47,13 +47,14 @@ interface UserSession {
 
 export default async function ContactPage({params}: { params: Promise<{ id: string }> }) {
     const session = await getServerSession(authOptions);
-
+    const contactId = (await params).id;
     if (!session) {
-        redirect('/api/auth/signin');
+        const callbackUrl = encodeURIComponent(process.env.NEXT_PUBLIC_URL + "/dashboard/contacts/"+contactId);
+        redirect(`/api/auth/signin?callbackUrl=${callbackUrl}`);
     }
 
     const userId = (session.user as UserSession).id;
-    const contactId = (await params).id;
+
     const contact = await getContact(userId, contactId);
 
     if (!contact) {
