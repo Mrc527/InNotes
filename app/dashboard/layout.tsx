@@ -2,12 +2,13 @@ import type {Metadata} from "next";
 import {Geist, Geist_Mono} from "next/font/google";
 import "../globals.css";
 import {ThemeProvider} from 'next-themes';
-import Sidebar from '@/components/Sidebar';
 import {getServerSession} from "next-auth";
 import {authOptions} from "@/app/api/auth/[...nextauth]/config";
 import {Theme} from '@radix-ui/themes';
 import '@radix-ui/themes/styles.css';
 import {SidebarProvider} from "@/components/sidebarContext";
+import Sidebar from "@/components/Sidebar";
+import MainContent from "@/components/MainContent";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -71,8 +72,10 @@ export default async function DashboardLayout({
     <ThemeProvider attribute="class">
       <Theme>
         <SidebarProvider>
-            <Sidebar session={session} />
-              {children}
+          <Sidebar session={session}/>
+          <MainContent>
+            {children}
+          </MainContent>
         </SidebarProvider>
       </Theme>
     </ThemeProvider>

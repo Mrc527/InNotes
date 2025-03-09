@@ -53,7 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({ session }) => {
         <Flex
             direction="column"
             height="100vh"
-            width={isCollapsed ? "12" : "64"}
+            width={isCollapsed ? "3rem" : "13rem"}
             gap="3"
             style={{
                 borderRight: '1px solid var(--colors-gray-800)',
